@@ -1,0 +1,11 @@
+matplotlib/_cntr.so
+matplotlib/_delaunay.so
+matplotlib/_image.so
+matplotlib/_path.so
+matplotlib/_png.so
+matplotlib/ft2font.so
+matplotlib/nxutils.so
+matplotlib/ttconv.so
+matplotlib/backends/_backend_agg.so
+matplotlib/backends/_macosx.so
+matplotlib/backends/_tkagg.so

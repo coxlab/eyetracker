@@ -1,0 +1,16 @@
+/* XPM */
+static char *bitmap6[] = {
+/* columns rows colors chars-per-pixel */
+"8 8 2 1",
+"  c red",
+". c None",
+/* pixels */
+"...  ...",
+".. .. ..",
+"...... .",
+". ...   ",
+"   ... .",
+". ......",
+".. .. ..",
+"...  ..."
+};

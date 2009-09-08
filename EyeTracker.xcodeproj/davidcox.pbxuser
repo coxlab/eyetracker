@@ -1,0 +1,1044 @@
+// !$*UTF8*$!
+{
+	089C165DFE840E0CC02AAC07 /* English */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {640, 542}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 101}";
+		};
+	};
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 5C1498E80ECCD90900FB73BB /* EyeTracker */;
+		activeTarget = 8D1107260486CEB800E47090 /* EyeTracker */;
+		addToTargets = (
+			8D1107260486CEB800E47090 /* EyeTracker */,
+		);
+		codeSenseManager = 5C1498EF0ECCD91500FB73BB /* Code sense */;
+		executables = (
+			5C1498E80ECCD90900FB73BB /* EyeTracker */,
+			5C62FCB70EE853D500A3ED1D /* TestSimulatedCalibration */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					471,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					589,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					549,
+					60,
+					20,
+					48,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 274069326;
+			PBXWorkspaceStateSaveDate = 274069326;
+		};
+		perUserProjectItems = {
+			5C00A6910FA890E9003D9FE0 = 5C00A6910FA890E9003D9FE0 /* PBXTextBookmark */;
+			5C00A6940FA890E9003D9FE0 = 5C00A6940FA890E9003D9FE0 /* PBXTextBookmark */;
+			5C00A6C30FA89C04003D9FE0 = 5C00A6C30FA89C04003D9FE0 /* PBXTextBookmark */;
+			5C00A7080FA8AF08003D9FE0 = 5C00A7080FA8AF08003D9FE0 /* PBXTextBookmark */;
+			5C00A70A0FA8AF08003D9FE0 = 5C00A70A0FA8AF08003D9FE0 /* PBXTextBookmark */;
+			5C00A74F0FAF6AB8003D9FE0 = 5C00A74F0FAF6AB8003D9FE0 /* PBXTextBookmark */;
+			5C00A7A10FB0CF39003D9FE0 = 5C00A7A10FB0CF39003D9FE0 /* PBXTextBookmark */;
+			5C00A7F50FB0DFB4003D9FE0 = 5C00A7F50FB0DFB4003D9FE0 /* PBXTextBookmark */;
+			5C00A7F90FB1C7A1003D9FE0 = 5C00A7F90FB1C7A1003D9FE0 /* PBXTextBookmark */;
+			5C1CCA660F1FE7E500282AD9 = 5C1CCA660F1FE7E500282AD9 /* PBXTextBookmark */;
+			5C56F687100F6EE1007E03A9 = 5C56F687100F6EE1007E03A9 /* PBXTextBookmark */;
+			5C7A87650F813918007B4724 = 5C7A87650F813918007B4724 /* PBXTextBookmark */;
+			5C7A87670F813918007B4724 = 5C7A87670F813918007B4724 /* PBXTextBookmark */;
+			5C7A878A0F8139F2007B4724 = 5C7A878A0F8139F2007B4724 /* PBXTextBookmark */;
+			5C7A87900F813A66007B4724 = 5C7A87900F813A66007B4724 /* PBXTextBookmark */;
+			5C7A87A90F813D4A007B4724 = 5C7A87A90F813D4A007B4724 /* PBXTextBookmark */;
+			5C7A87AA0F813D4A007B4724 = 5C7A87AA0F813D4A007B4724 /* PBXTextBookmark */;
+			5C7A87C80F81440E007B4724 = 5C7A87C80F81440E007B4724 /* PBXTextBookmark */;
+			5C7A87CE0F81444E007B4724 = 5C7A87CE0F81444E007B4724 /* PBXTextBookmark */;
+			5C81ADA60EFC623A0041F785 = 5C81ADA60EFC623A0041F785 /* PBXTextBookmark */;
+			5C81ADA70EFC623A0041F785 = 5C81ADA70EFC623A0041F785 /* PlistBookmark */;
+			5C96E6DF10251DBB00D7A452 = 5C96E6DF10251DBB00D7A452 /* PBXTextBookmark */;
+			5C96E6E110251DBB00D7A452 = 5C96E6E110251DBB00D7A452 /* PBXTextBookmark */;
+			5CA092860F0E68A000062E67 = 5CA092860F0E68A000062E67 /* PBXTextBookmark */;
+			5CA093430F0EA2A200062E67 = 5CA093430F0EA2A200062E67 /* PBXTextBookmark */;
+			5CA678030F67FEBC00773E97 = 5CA678030F67FEBC00773E97 /* PBXTextBookmark */;
+			5CA678DB0F6853AB00773E97 = 5CA678DB0F6853AB00773E97 /* PBXTextBookmark */;
+			5CA6790D0F6869AC00773E97 = 5CA6790D0F6869AC00773E97 /* PBXTextBookmark */;
+			5CA67AD10F69B7A400773E97 = 5CA67AD10F69B7A400773E97 /* PBXTextBookmark */;
+			5CA67AD40F69B7A400773E97 = 5CA67AD40F69B7A400773E97 /* PBXTextBookmark */;
+			5CA67AD70F69B7A400773E97 = 5CA67AD70F69B7A400773E97 /* PBXTextBookmark */;
+			5CA67B110F69D0BC00773E97 = 5CA67B110F69D0BC00773E97 /* PBXTextBookmark */;
+			5CA67B390F6A974200773E97 = 5CA67B390F6A974200773E97 /* PBXTextBookmark */;
+			5CBBB6961055F758004C69DF /* PBXTextBookmark */ = 5CBBB6961055F758004C69DF /* PBXTextBookmark */;
+			5CBE8E6E1048BEA900EFF219 = 5CBE8E6E1048BEA900EFF219 /* PBXTextBookmark */;
+			5CCA952B102905B500F358A6 = 5CCA952B102905B500F358A6 /* PBXTextBookmark */;
+			5CD21A361046333E00B621C5 = 5CD21A361046333E00B621C5 /* PBXTextBookmark */;
+			5CD21A371046333E00B621C5 = 5CD21A371046333E00B621C5 /* PBXTextBookmark */;
+			5CD24BE31047264100B621C5 = 5CD24BE31047264100B621C5 /* PBXTextBookmark */;
+			5CD24BE41047264100B621C5 = 5CD24BE41047264100B621C5 /* PBXTextBookmark */;
+			5CD24BE61047264100B621C5 = 5CD24BE61047264100B621C5 /* PBXTextBookmark */;
+			5CD24BE71047264100B621C5 = 5CD24BE71047264100B621C5 /* PBXTextBookmark */;
+			5CD24BEF1047264100B621C5 = 5CD24BEF1047264100B621C5 /* PBXTextBookmark */;
+			5CD2F68810461D2600B621C5 = 5CD2F68810461D2600B621C5 /* PBXTextBookmark */;
+			5CDCA5310FC0316500D5C497 = 5CDCA5310FC0316500D5C497 /* PBXTextBookmark */;
+			5CDCA5320FC0316500D5C497 = 5CDCA5320FC0316500D5C497 /* PBXTextBookmark */;
+			5CDCA54E0FC061D900D5C497 = 5CDCA54E0FC061D900D5C497 /* PBXTextBookmark */;
+		};
+		sourceControlManager = 5C1498EE0ECCD91500FB73BB /* Source Control */;
+		userBookmarkGroup = 5C38ACE50FA79E7000F9AE4B /* PBXBookmarkGroup */;
+		userBuildSettings = {
+		};
+	};
+	29B97316FDCFA39411CA2CEA /* main.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {2035, 840}}";
+			sepNavSelRange = "{2393, 0}";
+			sepNavVisRange = "{285, 2682}";
+		};
+	};
+	32CA4F630368D1EE00C91783 /* EyeTracker_Prefix.pch */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 569}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 151}";
+		};
+	};
+	5C00A6910FA890E9003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
+		name = "PipelinedFeatureFinder.py: 52";
+		rLen = 0;
+		rLoc = 1462;
+		rType = 0;
+		vrLen = 1111;
+		vrLoc = 2546;
+	};
+	5C00A6940FA890E9003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990C0ECCDBEF00FB73BB /* EyeFeatureFinder.py */;
+		name = "EyeFeatureFinder.py: 18";
+		rLen = 0;
+		rLoc = 402;
+		rType = 0;
+		vrLen = 402;
+		vrLoc = 0;
+	};
+	5C00A6C30FA89C04003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C62FCA80EE84F2600A3ED1D /* TestSimulatedCalibration.py */;
+		name = "TestSimulatedCalibration.py: 20";
+		rLen = 0;
+		rLoc = 391;
+		rType = 0;
+		vrLen = 1142;
+		vrLoc = 908;
+	};
+	5C00A7080FA8AF08003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14991D0ECCDBEF00FB73BB /* IPSerialBridge.py */;
+		name = "IPSerialBridge.py: 22";
+		rLen = 47;
+		rLoc = 359;
+		rType = 0;
+		vrLen = 967;
+		vrLoc = 23;
+	};
+	5C00A70A0FA8AF08003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		name = "FocusAndZoomController.py: 20";
+		rLen = 0;
+		rLoc = 447;
+		rType = 0;
+		vrLen = 1093;
+		vrLoc = 45;
+	};
+	5C00A74F0FAF6AB8003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499160ECCDBEF00FB73BB /* MightexLEDController.py */;
+		name = "MightexLEDController.py: 13";
+		rLen = 67;
+		rLoc = 235;
+		rType = 0;
+		vrLen = 1041;
+		vrLoc = 188;
+	};
+	5C00A7A10FB0CF39003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14991B0ECCDBEF00FB73BB /* SimulatedStageController.py */;
+		name = "SimulatedStageController.py: 31";
+		rLen = 0;
+		rLoc = 708;
+		rType = 0;
+		vrLen = 1065;
+		vrLoc = 189;
+	};
+	5C00A7F50FB0DFB4003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499190ECCDBEF00FB73BB /* ESP300StageController.py */;
+		name = "ESP300StageController.py: 20";
+		rLen = 0;
+		rLoc = 391;
+		rType = 0;
+		vrLen = 1056;
+		vrLoc = 55;
+	};
+	5C00A7F90FB1C7A1003D9FE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14991A0ECCDBEF00FB73BB /* EyeTrackerStageController.py */;
+		name = "EyeTrackerStageController.py: 85";
+		rLen = 38;
+		rLoc = 2578;
+		rType = 0;
+		vrLen = 1843;
+		vrLoc = 2175;
+	};
+	5C1498E80ECCD90900FB73BB /* EyeTracker */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = EyeTracker;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	5C1498EE0ECCD91500FB73BB /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	5C1498EF0ECCD91500FB73BB /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	5C1498F20ECCDBD900FB73BB /* FakeCameraDevice.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1020, 1650}}";
+			sepNavSelRange = "{1204, 0}";
+			sepNavVisRange = "{409, 1324}";
+		};
+	};
+	5C1498FC0ECCDBD900FB73BB /* ProsilicaCameraDevice.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 1980}}";
+			sepNavSelRange = "{1159, 4}";
+			sepNavVisRange = "{451, 1028}";
+		};
+	};
+	5C1498FD0ECCDBD900FB73BB /* POVRaySimulatedCameraDevice.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {978, 3375}}";
+			sepNavSelRange = "{6144, 0}";
+			sepNavVisRange = "{5272, 1483}";
+		};
+	};
+	5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 15525}}";
+			sepNavSelRange = "{4849, 0}";
+			sepNavVisRange = "{4198, 918}";
+		};
+	};
+	5C1499080ECCDBEF00FB73BB /* TrackerCameraView.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1125, 4440}}";
+			sepNavSelRange = "{4686, 0}";
+			sepNavVisRange = "{8646, 1616}";
+		};
+	};
+	5C14990A0ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {887, 1350}}";
+			sepNavSelRange = "{1723, 0}";
+			sepNavVisRange = "{845, 1882}";
+		};
+	};
+	5C14990B0ECCDBEF00FB73BB /* EdgeDetection.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {891, 4485}}";
+			sepNavSelRange = "{440, 3}";
+			sepNavVisRange = "{0, 814}";
+		};
+	};
+	5C14990C0ECCDBEF00FB73BB /* EyeFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 592}}";
+			sepNavSelRange = "{402, 0}";
+			sepNavVisRange = "{0, 402}";
+		};
+	};
+	5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1146, 14070}}";
+			sepNavSelRange = "{6659, 0}";
+			sepNavVisRange = "{1859, 1693}";
+		};
+	};
+	5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 2235}}";
+			sepNavSelRange = "{1462, 0}";
+			sepNavVisRange = "{2546, 1111}";
+		};
+	};
+	5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1020, 649}}";
+			sepNavSelRange = "{868, 0}";
+			sepNavVisRange = "{0, 1193}";
+		};
+	};
+	5C1499100ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1062, 29370}}";
+			sepNavSelRange = "{47503, 3}";
+			sepNavVisRange = "{46561, 1985}";
+		};
+	};
+	5C1499160ECCDBEF00FB73BB /* MightexLEDController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 840}}";
+			sepNavSelRange = "{235, 67}";
+			sepNavVisRange = "{188, 1041}";
+		};
+	};
+	5C1499170ECCDBEF00FB73BB /* SimulatedLEDController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {640, 546}}";
+			sepNavSelRange = "{260, 0}";
+			sepNavVisRange = "{0, 965}";
+			sepNavWindowFrame = "{{769, -55}, {1258, 820}}";
+		};
+	};
+	5C1499190ECCDBEF00FB73BB /* ESP300StageController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 2055}}";
+			sepNavSelRange = "{391, 0}";
+			sepNavVisRange = "{55, 1056}";
+			sepNavWindowFrame = "{{151, 28}, {750, 558}}";
+		};
+	};
+	5C14991A0ECCDBEF00FB73BB /* EyeTrackerStageController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1125, 2745}}";
+			sepNavSelRange = "{2578, 38}";
+			sepNavVisRange = "{2175, 1843}";
+			sepNavWindowFrame = "{{711, 19}, {1258, 820}}";
+		};
+	};
+	5C14991B0ECCDBEF00FB73BB /* SimulatedStageController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 990}}";
+			sepNavSelRange = "{708, 0}";
+			sepNavVisRange = "{189, 1065}";
+			sepNavWindowFrame = "{{907, 2}, {1258, 820}}";
+		};
+	};
+	5C14991D0ECCDBEF00FB73BB /* IPSerialBridge.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 1680}}";
+			sepNavSelRange = "{359, 47}";
+			sepNavVisRange = "{23, 967}";
+		};
+	};
+	5C1499680ECDD5E900FB73BB /* CobraEyeTracker.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {775, 825}}";
+			sepNavSelRange = "{1437, 0}";
+			sepNavVisRange = "{292, 1331}";
+		};
+	};
+	5C1CCA660F1FE7E500282AD9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */;
+		name = "TestESP300Stages.py: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 168;
+		vrLoc = 0;
+	};
+	5C38ACE50FA79E7000F9AE4B /* PBXBookmarkGroup */ = {
+		isa = PBXBookmarkGroup;
+		children = (
+			5C38ACF30FA79E8200F9AE4B /* PBXBookmark */,
+		);
+		name = Root;
+	};
+	5C38ACF30FA79E8200F9AE4B /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 5C14991A0ECCDBEF00FB73BB /* EyeTrackerStageController.py */;
+	};
+	5C56F687100F6EE1007E03A9 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1498FC0ECCDBD900FB73BB /* ProsilicaCameraDevice.py */;
+		name = "ProsilicaCameraDevice.py: 56";
+		rLen = 4;
+		rLoc = 1159;
+		rType = 0;
+		vrLen = 1028;
+		vrLoc = 451;
+	};
+	5C6200260EE8CF7B00A3ED1D /* Makefile */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {880, 2010}}";
+			sepNavSelRange = "{0, 1}";
+			sepNavVisRange = "{772, 1035}";
+		};
+	};
+	5C6200270EE8CF7B00A3ED1D /* numpy.i */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {761, 24075}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1370}";
+		};
+	};
+	5C6200280EE8CF7B00A3ED1D /* Prosilica.cxx */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {761, 945}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{27, 992}";
+		};
+	};
+	5C6200290EE8CF7B00A3ED1D /* Prosilica.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {761, 7080}}";
+			sepNavSelRange = "{8023, 24}";
+			sepNavVisRange = "{0, 683}";
+		};
+	};
+	5C62002A0EE8CF7B00A3ED1D /* prosilica.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1020, 649}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 504}";
+		};
+	};
+	5C62002B0EE8CF7B00A3ED1D /* prosilica_cpp.i */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {899, 1245}}";
+			sepNavSelRange = "{366, 19}";
+			sepNavVisRange = "{1271, 338}";
+		};
+	};
+	5C62002C0EE8CF7B00A3ED1D /* prosilica_cpp.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {761, 7695}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{841, 1483}";
+		};
+	};
+	5C62FC8F0EE5CAD200A3ED1D /* StahlLikeCalibrator.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {929, 16440}}";
+			sepNavSelRange = "{7427, 431}";
+			sepNavVisRange = "{6563, 2099}";
+		};
+	};
+	5C62FCA80EE84F2600A3ED1D /* TestSimulatedCalibration.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 1170}}";
+			sepNavSelRange = "{391, 0}";
+			sepNavVisRange = "{908, 1142}";
+		};
+	};
+	5C62FCB70EE853D500A3ED1D /* TestSimulatedCalibration */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+			YES,
+		);
+		argumentStrings = (
+			TestSimulatedCalibration.py,
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "Executable Runner";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+			{
+				active = YES;
+				name = PATH;
+				value = "$PATH:/opt/local/bin";
+			},
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 5C62FCB80EE853D500A3ED1D /* python */;
+		libgmallocEnabled = 0;
+		name = TestSimulatedCalibration;
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		startupPath = /Users/davidcox/Development/svn.coxlab.org/eyetracking/code/EyeTracker/build/Debug/EyeTracker.app/Contents/Resources;
+	};
+	5C62FCB80EE853D500A3ED1D /* python */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = "compiled.mach-o.executable";
+		name = python;
+		path = /usr/bin/python;
+		sourceTree = "<absolute>";
+	};
+	5C7A87570F81389A007B4724 /* Prosilica Module */ = {
+		activeExec = 0;
+	};
+	5C7A87650F813918007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C62002A0EE8CF7B00A3ED1D /* prosilica.py */;
+		name = "prosilica.py: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 504;
+		vrLoc = 0;
+	};
+	5C7A87670F813918007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C7A87680F813918007B4724 /* PvApi.h */;
+		name = "PvApi.h: 343";
+		rLen = 8;
+		rLoc = 13117;
+		rType = 0;
+		vrLen = 1819;
+		vrLoc = 11406;
+	};
+	5C7A87680F813918007B4724 /* PvApi.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = PvApi.h;
+		path = "/Users/davidcox/Repositories/svn.coxlab.org/eyetracking/code/EyeTrackerStageDriver/ProsilicaGigESDK/inc-pc/PvApi.h";
+		sourceTree = "<absolute>";
+	};
+	5C7A87840F8139E3007B4724 /* prosilica_cpp.i */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c.preprocessed;
+		name = prosilica_cpp.i;
+		path = /Users/davidcox/Repositories/svn.coxlab.org/eyetracking/code/EyeTracker/Camera/Prosilica/prosilica_cpp.i;
+		sourceTree = "<absolute>";
+	};
+	5C7A878A0F8139F2007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C6200280EE8CF7B00A3ED1D /* Prosilica.cxx */;
+		name = "Prosilica.cxx: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 992;
+		vrLoc = 27;
+	};
+	5C7A87900F813A66007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C6200290EE8CF7B00A3ED1D /* Prosilica.h */;
+		name = "Prosilica.h: 307";
+		rLen = 24;
+		rLoc = 8023;
+		rType = 0;
+		vrLen = 683;
+		vrLoc = 0;
+	};
+	5C7A87A90F813D4A007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C6200270EE8CF7B00A3ED1D /* numpy.i */;
+		name = "numpy.i: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1370;
+		vrLoc = 0;
+	};
+	5C7A87AA0F813D4A007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C6200260EE8CF7B00A3ED1D /* Makefile */;
+		name = "Makefile: 1";
+		rLen = 1;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1035;
+		vrLoc = 772;
+	};
+	5C7A87C80F81440E007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C62002C0EE8CF7B00A3ED1D /* prosilica_cpp.py */;
+		name = "prosilica_cpp.py: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1483;
+		vrLoc = 841;
+	};
+	5C7A87CE0F81444E007B4724 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C7A87840F8139E3007B4724 /* prosilica_cpp.i */;
+		name = "prosilica_cpp.i: 28";
+		rLen = 19;
+		rLoc = 366;
+		rType = 0;
+		vrLen = 817;
+		vrLoc = 360;
+	};
+	5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {640, 542}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 168}";
+		};
+	};
+	5C81ADA60EFC623A0041F785 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 089C165DFE840E0CC02AAC07 /* English */;
+		name = "InfoPlist.strings: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 101;
+		vrLoc = 0;
+	};
+	5C81ADA70EFC623A0041F785 /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+			CFBundleInfoDictionaryVersion,
+		);
+		name = /Users/davidcox/Repositories/CoxLab/eyetracking/code/EyeTracker/Info.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	5C96E6DF10251DBB00D7A452 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499080ECCDBEF00FB73BB /* TrackerCameraView.py */;
+		name = "TrackerCameraView.py: 135";
+		rLen = 0;
+		rLoc = 4686;
+		rType = 0;
+		vrLen = 1616;
+		vrLoc = 8646;
+	};
+	5C96E6E110251DBB00D7A452 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA679490F68927200773E97 /* TrackerMeasurementController.py */;
+		name = "TrackerMeasurementController.py: 36";
+		rLen = 0;
+		rLoc = 809;
+		rType = 0;
+		vrLen = 1080;
+		vrLoc = 330;
+	};
+	5CA0927E0F0E688200062E67 /* Standard_Suite.py */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text.script.python;
+		name = Standard_Suite.py;
+		path = "/System/Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/plat-mac/lib-scriptpackages/Finder/Standard_Suite.py";
+		sourceTree = "<absolute>";
+	};
+	5CA092860F0E68A000062E67 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA0927E0F0E688200062E67 /* Standard_Suite.py */;
+		name = "Standard_Suite.py: 206";
+		rLen = 5;
+		rLoc = 7873;
+		rType = 0;
+		vrLen = 1688;
+		vrLoc = 7078;
+	};
+	5CA093430F0EA2A200062E67 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499170ECCDBEF00FB73BB /* SimulatedLEDController.py */;
+		name = "SimulatedLEDController.py: 15";
+		rLen = 0;
+		rLoc = 260;
+		rType = 0;
+		vrLen = 965;
+		vrLoc = 0;
+	};
+	5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {891, 12135}}";
+			sepNavSelRange = "{2974, 0}";
+			sepNavVisRange = "{2425, 1051}";
+		};
+	};
+	5CA677E20F67FC0800773E97 /* EyetrackerUtilities.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {795, 351}}";
+			sepNavSelRange = "{179, 9}";
+			sepNavVisRange = "{0, 483}";
+		};
+	};
+	5CA678030F67FEBC00773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA677E20F67FC0800773E97 /* EyetrackerUtilities.py */;
+		name = "EyetrackerUtilities.py: 10";
+		rLen = 0;
+		rLoc = 173;
+		rType = 0;
+		vrLen = 483;
+		vrLoc = 0;
+	};
+	5CA678DB0F6853AB00773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499100ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py */;
+		name = "StarBurstCircleLstsqFitEyeFeatureFinder.py: 1279";
+		rLen = 0;
+		rLoc = 68163;
+		rType = 0;
+		vrLen = 1353;
+		vrLoc = 67529;
+	};
+	5CA6790D0F6869AC00773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */;
+		name = "EyeTrackerAppDelegate.py: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 336;
+		vrLoc = 0;
+	};
+	5CA679470F688D4900773E97 /* TrackerMeasurement.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 592}}";
+			sepNavSelRange = "{523, 0}";
+			sepNavVisRange = "{0, 760}";
+		};
+	};
+	5CA679490F68927200773E97 /* TrackerMeasurementController.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 1575}}";
+			sepNavSelRange = "{809, 0}";
+			sepNavVisRange = "{330, 1080}";
+		};
+	};
+	5CA67A2D0F69771500773E97 /* cocoa_backend.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1020, 11430}}";
+			sepNavSelRange = "{11915, 0}";
+			sepNavVisRange = "{11277, 1236}";
+		};
+	};
+	5CA67AC70F69B6B600773E97 /* KVCCompliant.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1020, 649}}";
+			sepNavSelRange = "{167, 0}";
+			sepNavVisRange = "{0, 530}";
+		};
+	};
+	5CA67AD10F69B7A400773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990B0ECCDBEF00FB73BB /* EdgeDetection.py */;
+		name = "EdgeDetection.py: 14";
+		rLen = 0;
+		rLoc = 261;
+		rType = 0;
+		vrLen = 1176;
+		vrLoc = 0;
+	};
+	5CA67AD40F69B7A400773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA67AC70F69B6B600773E97 /* KVCCompliant.py */;
+		name = "KVCCompliant.py: 10";
+		rLen = 0;
+		rLoc = 167;
+		rType = 0;
+		vrLen = 530;
+		vrLoc = 0;
+	};
+	5CA67AD70F69B7A400773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA67A2D0F69771500773E97 /* cocoa_backend.py */;
+		name = "cocoa_backend.py: 365";
+		rLen = 0;
+		rLoc = 11915;
+		rType = 0;
+		vrLen = 1236;
+		vrLoc = 11277;
+	};
+	5CA67B110F69D0BC00773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1498F20ECCDBD900FB73BB /* FakeCameraDevice.py */;
+		name = "FakeCameraDevice.py: 53";
+		rLen = 0;
+		rLoc = 1204;
+		rType = 0;
+		vrLen = 1324;
+		vrLoc = 409;
+	};
+	5CA67B390F6A974200773E97 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */;
+		name = "SimpleEyeFeatureFinder.py: 33";
+		rLen = 0;
+		rLoc = 868;
+		rType = 0;
+		vrLen = 1193;
+		vrLoc = 0;
+	};
+	5CBBB6961055F758004C69DF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 29B97316FDCFA39411CA2CEA /* main.m */;
+		name = "main.m: 40";
+		rLen = 0;
+		rLoc = 2393;
+		rType = 0;
+		vrLen = 2682;
+		vrLoc = 285;
+	};
+	5CBE8E6E1048BEA900EFF219 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 29B97316FDCFA39411CA2CEA /* main.m */;
+		name = "main.m: 40";
+		rLen = 0;
+		rLoc = 2393;
+		rType = 0;
+		vrLen = 2682;
+		vrLoc = 285;
+	};
+	5CCA952B102905B500F358A6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1498FD0ECCDBD900FB73BB /* POVRaySimulatedCameraDevice.py */;
+		name = "POVRaySimulatedCameraDevice.py: 196";
+		rLen = 0;
+		rLoc = 6144;
+		rType = 0;
+		vrLen = 1483;
+		vrLoc = 5272;
+	};
+	5CD21A361046333E00B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 32CA4F630368D1EE00C91783 /* EyeTracker_Prefix.pch */;
+		name = "EyeTracker_Prefix.pch: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 151;
+		vrLoc = 0;
+	};
+	5CD21A371046333E00B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499680ECDD5E900FB73BB /* CobraEyeTracker.py */;
+		name = "CobraEyeTracker.py: 47";
+		rLen = 0;
+		rLoc = 1437;
+		rType = 0;
+		vrLen = 1331;
+		vrLoc = 292;
+	};
+	5CD22CF41046DC6000B621C5 /* modules.pth */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 592}}";
+			sepNavSelRange = "{19, 0}";
+			sepNavVisRange = "{0, 19}";
+		};
+	};
+	5CD24BE31047264100B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
+		name = "EyeTrackerController.py: 189";
+		rLen = 0;
+		rLoc = 4849;
+		rType = 0;
+		vrLen = 918;
+		vrLoc = 4198;
+	};
+	5CD24BE41047264100B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CD24BE51047264100B621C5 /* supporting_modules.pth */;
+		name = "supporting_modules.pth: 10";
+		rLen = 0;
+		rLoc = 348;
+		rType = 0;
+		vrLen = 494;
+		vrLoc = 0;
+	};
+	5CD24BE51047264100B621C5 /* supporting_modules.pth */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text;
+		name = supporting_modules.pth;
+		path = /Users/davidcox/Repositories/svn.coxlab.org/eyetracking/code/EyeTracker/SupportingModules/supporting_modules.pth;
+		sourceTree = "<absolute>";
+	};
+	5CD24BE61047264100B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 77631A3E0C0748CF005415CB /* main.py */;
+		name = "main.py: 13";
+		rLen = 0;
+		rLoc = 195;
+		rType = 0;
+		vrLen = 534;
+		vrLoc = 0;
+	};
+	5CD24BE71047264100B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CD22CF41046DC6000B621C5 /* modules.pth */;
+		name = "modules.pth: 1";
+		rLen = 0;
+		rLoc = 19;
+		rType = 0;
+		vrLen = 19;
+		vrLoc = 0;
+	};
+	5CD24BEF1047264100B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 29B97316FDCFA39411CA2CEA /* main.m */;
+		name = "main.m: 40";
+		rLen = 0;
+		rLoc = 2393;
+		rType = 0;
+		vrLen = 2281;
+		vrLoc = 686;
+	};
+	5CD2F68810461D2600B621C5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C62FC8F0EE5CAD200A3ED1D /* StahlLikeCalibrator.py */;
+		name = "StahlLikeCalibrator.py: 205";
+		rLen = 431;
+		rLoc = 7427;
+		rType = 0;
+		vrLen = 2099;
+		vrLoc = 6563;
+	};
+	5CDCA5310FC0316500D5C497 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */;
+		name = "FastRadialFeatureFinder.py: 176";
+		rLen = 0;
+		rLoc = 6659;
+		rType = 0;
+		vrLen = 1693;
+		vrLoc = 1859;
+	};
+	5CDCA5320FC0316500D5C497 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */;
+		name = "SubpixelStarburstEyeFeatureFinder.py: 95";
+		rLen = 0;
+		rLoc = 2974;
+		rType = 0;
+		vrLen = 1299;
+		vrLoc = 2077;
+	};
+	5CDCA54E0FC061D900D5C497 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA679470F688D4900773E97 /* TrackerMeasurement.py */;
+		name = "TrackerMeasurement.py: 26";
+		rLen = 0;
+		rLoc = 523;
+		rType = 0;
+		vrLen = 760;
+		vrLoc = 0;
+	};
+	77631A3E0C0748CF005415CB /* main.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {767, 592}}";
+			sepNavSelRange = "{195, 0}";
+			sepNavVisRange = "{0, 534}";
+		};
+	};
+	7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1014, 626}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 336}";
+		};
+	};
+	8D1107260486CEB800E47090 /* EyeTracker */ = {
+		activeExec = 0;
+		executables = (
+			5C1498E80ECCD90900FB73BB /* EyeTracker */,
+		);
+	};
+}

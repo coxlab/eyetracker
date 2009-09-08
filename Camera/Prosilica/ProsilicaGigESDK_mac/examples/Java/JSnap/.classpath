@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
+	<classpathentry kind="con" path="/Users/jlv/Coding/Prosilica/sdk/trunk/Example/Java/JSnap/bin"/>
+	<classpathentry kind="con" path="/Users/jlv/Coding/Prosilica/sdk/trunk/Example/Java/PvJPI/bin"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/PvJPI"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
