@@ -1,0 +1,10 @@
+#!/usr/bin/env python2.6
+import os; activate_this=os.path.join(os.path.dirname(__file__), 'activate_this.py'); execfile(activate_this, dict(__file__=activate_this)); del os, activate_this
+# EASY-INSTALL-ENTRY-SCRIPT: 'setuptools==0.6c9','console_scripts','easy_install-2.6'
+__requires__ = 'setuptools==0.6c9'
+import sys
+from pkg_resources import load_entry_point
+
+sys.exit(
+   load_entry_point('setuptools==0.6c9', 'console_scripts', 'easy_install-2.6')()
+)

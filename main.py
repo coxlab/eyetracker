@@ -7,9 +7,6 @@
 #
 
 #import modules required by application
-import sys
-
-print sys.path
 
 import objc
 import Foundation

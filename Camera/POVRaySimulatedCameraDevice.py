@@ -47,8 +47,7 @@ class POVRaySimulatedCameraDevice:
         self.eye_rot = (0,30,0)
             
         self.tempdir = "/tmp/"
-        
-        self.quiet = 1
+       
         
         self.stages = _stages
         self.leds = _leds
@@ -191,9 +190,9 @@ class POVRaySimulatedCameraDevice:
         os.popen(command_string);
        
         im = PIL.Image.open("/tmp/eyeball.png")
-        print im
-        a = array(im)
-        print a
+        #print im
+        a = asarray(im.convert("RGB"))
+        #print a
         a = a.mean(2)
         
         self.im_array = a

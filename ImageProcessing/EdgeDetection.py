@@ -11,7 +11,6 @@ from numpy import *
 import scipy
 from scipy.weave import inline
 from scipy.weave import converters
-#from handythread import *
 from scipy import signal
 
 
@@ -25,17 +24,17 @@ def sobel3x3(image):
     return (mag, imgx, imgy)
 
 
-def sobel3x3_separable(image, use_sse=0):
+def sobel3x3_separable(image, use_weave=0,use_sse=0):
     sobel_c = array([-1.,0.,1.])
     sobel_r = array([1.,2.,1.])
     
-    if(use_sse):
-        imgx = woven_SSE_sepfir2d(image, sobel_c, sobel_r)
-        imgy = woven_SSE_sepfir2d(image, sobel_r, sobel_c)
-    else:
+    if(use_weave):
         imgx = woven_sepfir2d(image, sobel_c, sobel_r)
         imgy = woven_sepfir2d(image, sobel_r, sobel_c)
-    
+    else:
+        imgx = signal.sepfir2d(image, sobel_c, sobel_r)
+        imgy = signal.sepfir2d(image, sobel_r, sobel_c)
+        
     mag = sqrt(imgx**2 + imgy**2) + 1e-16
     #mag = abs(imgx) + abs(imgy) + 1e-16
     

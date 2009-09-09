@@ -182,7 +182,6 @@ class EyeTrackerController (NSObject):
         
     def awakeFromNib(self):
         
-
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = True
         
@@ -260,8 +259,9 @@ class EyeTrackerController (NSObject):
         self.features = None
         self.frame_rates = []
         
+        
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 2
+        nworkers = 0
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
@@ -455,6 +455,8 @@ class EyeTrackerController (NSObject):
         try:
             features = self.ui_queue.get_nowait()
         except Empty, e:
+            #self.camera_canvas.performSelectorOnMainThread_withObject_waitUntilDone_(objc.selector(self.camera_canvas.scheduleRedisplay,signature='v@:'), objc.nil, False)
+            
             self.camera_canvas.setNeedsDisplay_(True)
             return
         
@@ -515,6 +517,8 @@ class EyeTrackerController (NSObject):
             self.camera_canvas.is_calibrating =  0
             
         self.camera_canvas.setNeedsDisplay_(True)
+        #self.camera_canvas.performSelectorOnMainThread_withObject_waitUntilDone_(objc.selector(self.camera_canvas.scheduleRedisplay,signature='v@:'), objc.nil, False)
+            
         self.n_frames += 1
         self.frame_count += 1
         

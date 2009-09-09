@@ -29,10 +29,18 @@ class TrackerCameraView(NSOpenGLView):
         self.cr_radius = None
         self.starburst = None
         self.is_calibrating = 0
-    
-    def prepareOpenGL(self):
         
-        self.openGLContext().setValues_forParameter_([1], NSOpenGLCPSwapInterval)
+
+        
+        self.gl_inited = False
+        #self.prepareOpenGL_custom()
+    
+    def scheduleRedisplay(self):
+        self.setNeedsDisplay_(True)
+    
+    def prepareOpenGL_custom(self):
+        
+        #self.openGLContext().setValues_forParameter_([1], NSOpenGLCPSwapInterval)
         
         glEnable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
@@ -44,6 +52,13 @@ class TrackerCameraView(NSOpenGLView):
         glPixelStorei(GL_UNPACK_ALIGNMENT,1)
 	
     def drawRect_(self,rect):
+        
+        if not self.gl_inited:
+            self.prepareOpenGL_custom()
+            pass
+        
+        #self.openGLContext().makeCurrentContext()
+        
         frame = self.frame()
         self.frame_width = frame.size.width
         self.frame_height = frame.size.height
@@ -81,6 +96,7 @@ class TrackerCameraView(NSOpenGLView):
             
     
         self.openGLContext().flushBuffer()
+        
 #        glFlush()
 
     def drawImage(self):

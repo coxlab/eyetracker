@@ -114,10 +114,10 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         ds = self.ds_factor;
         
         
-        S = self._fastradial(im_array, self.radiuses_to_try, self.alpha, weave=1, filter=self.filter)
+        S = self._fastradial(im_array, self.radiuses_to_try, self.alpha, weave=0, filter=self.filter)
 		
         if(self.maxmin_consensus_votes == 1):
-            (min_coords, max_coords) = self._find_image_minmax(S)
+            (min_coords, max_coords) = self._find_image_minmax(S, weave=0)
         else:
             (min_coords, max_coords) = self._findConsensusMinMax(S, self.maxmin_consensus_votes, self.outlier_cutoff)
         
@@ -239,7 +239,7 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         (rows, cols) = image.shape
         
         #(mag, imgx, imgy) = self._sobel3x3separable(image)
-        (mag, imgx, imgy) = sobel3x3_separable(image, self.use_sse3)
+        (mag, imgx, imgy) = sobel3x3_separable(image, use_weave, self.use_sse3)
         
         if(self.cache_sobel):
             self.cached_sobel = mag
@@ -277,7 +277,7 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
             
             n = radii[r]
 		    
-            if(1 or self.reuse_storage):
+            if(self.reuse_storage):
                 self._fast_clear_array2d(M)
                 self._fast_clear_array2d(O)
                 self._fast_clear_array2d(F)
@@ -431,7 +431,10 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
                 #S += self._manualSepFir2d(F, gauss1d, gauss1d)
                 
                 #S += self._wovenSepFir2d(F, gauss1d, gauss1d)
-                S += woven_sepfir2d(F, gauss1d, gauss1d)
+                if(use_weave):
+                    S += woven_sepfir2d(F, gauss1d, gauss1d)
+                else:
+                    S += signal.sepfir2d(F, gauss1d, gauss1d)
             elif(use_fft_filter):
                 fft_kernel = self.cached_gauss2d_fft[n]
                 complex_result = signal.ifft2(signal.fft2(F) * fft_kernel)
@@ -798,52 +801,70 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         return (min_coords, max_coords) 
                 
     
-    def _find_image_minmax(self, image):
-        code = """
-			Py_BEGIN_ALLOW_THREADS
-			#define TYPE	%s
-			
-			int rows = Nimage[0];
-			int cols = Nimage[1];
-			
-			double themax = -999999;
-			double themin = 999999;
-			
-			for(int r = 0; r < rows; r++){
-				for(int c = 0; c < cols; c++){
-					
-					double *pixel_ptr = (TYPE *)((char *)image_array->data + r * image_array->strides[0] + c * image_array->strides[1]);
-					
-					
-					if(*pixel_ptr > themax){
-						
-						themax = *pixel_ptr;
-						coordinates[2] = (double)r;
-						coordinates[3] = (double)c;
-					}
-					
-					if(*pixel_ptr < themin){
-						
-						themin = *pixel_ptr;
-						coordinates[0] = (double)r;
-						coordinates[1] = (double)c;
-					}
-				}
-			}
-		
-			Py_END_ALLOW_THREADS
-		""" % self.c_typestring
-		
-        coordinates = array([0.,0., 0., 0.])
-        themax = 0.
-        themin = 0.
+    def _find_image_minmax(self, image, **kwargs):
+    
+        if(image == None):
+            return ([0,0], [0,])
+    
+        use_weave = 0
+        if("weave" in kwargs):
+            use_weave = kwargs["weave"]
         
-        inline(code, ['image', 'coordinates'])
+        if(use_weave):
         
-        #print coordinates
-        
-        return (coordinates[0:2], coordinates[2:4])
-
+            code = """
+                Py_BEGIN_ALLOW_THREADS
+                #define TYPE	%s
+                
+                int rows = Nimage[0];
+                int cols = Nimage[1];
+                
+                double themax = -999999;
+                double themin = 999999;
+                
+                for(int r = 0; r < rows; r++){
+                    for(int c = 0; c < cols; c++){
+                        
+                        double *pixel_ptr = (TYPE *)((char *)image_array->data + r * image_array->strides[0] + c * image_array->strides[1]);
+                        
+                        
+                        if(*pixel_ptr > themax){
+                            
+                            themax = *pixel_ptr;
+                            coordinates[2] = (double)r;
+                            coordinates[3] = (double)c;
+                        }
+                        
+                        if(*pixel_ptr < themin){
+                            
+                            themin = *pixel_ptr;
+                            coordinates[0] = (double)r;
+                            coordinates[1] = (double)c;
+                        }
+                    }
+                }
+            
+                Py_END_ALLOW_THREADS
+            """ % self.c_typestring
+            
+            coordinates = array([0.,0., 0., 0.])
+            themax = 0.
+            themin = 0.
+            
+            inline(code, ['image', 'coordinates'])
+            
+            #print coordinates
+            
+            return (coordinates[0:2], coordinates[2:4])
+        else:
+            min_coord = nonzero(image == min(image.ravel()))
+            max_coord = nonzero(image == max(image.ravel()))
+            
+            print image.shape
+            print image
+            print min_coord
+            print max_coord
+            return ([max_coord[0][0], max_coord[1][0]] , [min_coord[0][0], min_coord[1][0]])
 
 if __name__ == "__main__":
     import pylab

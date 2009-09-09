@@ -11,7 +11,7 @@ from EdgeDetection import *
 from stopwatch import *
 from EyeFeatureFinder import *
 from scipy.weave import inline
-from scipy.weave import converters
+#from scipy.weave import converters
 import scipy.optimize
 from EyetrackerUtilities import *
 
@@ -171,6 +171,11 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
     def analyze_image(self, image, guess, **kwargs):
         """ Begin processing an image to find features
         """
+        
+        use_weave = 0
+        if("weave" in kwargs):
+            use_weave = kwargs["weave"]
+        
         # Clear the result
         self.result = None
         
@@ -193,10 +198,18 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # Do the heavy lifting
         try: 
 
-            cr_boundaries = self._find_ray_boundaries_woven(image_grad_mag, cr_guess, self.cr_rays, self.cr_min_radius_ray_index, self.cr_threshold)
+            if(use_weave):
+                cr_boundaries = self._find_ray_boundaries_woven(image_grad_mag, cr_guess, self.cr_rays, self.cr_min_radius_ray_index, self.cr_threshold)
+            else:
+                cr_boundaries = self._find_ray_boundaries(image_grad_mag, cr_guess, self.cr_rays, self.cr_min_radius_ray_index, self.cr_threshold)
+            
             cr_position, cr_radius, cr_err = self._fit_points(cr_boundaries)
             
-            pupil_boundaries = self._find_ray_boundaries_woven(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            if(use_weave):
+                pupil_boundaries = self._find_ray_boundaries_woven(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            else:
+                pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            
             pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
         except Exception, e:
             print "Error analyzing image: %s" % e.message
@@ -247,7 +260,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         return self.result
         
     #@clockit
-    def _find_ray_boundaries(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold):
+    def _find_ray_boundaries(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold, **kwargs):
         """ Find where a set off rays crosses a threshold in an image
             
             Arguments:

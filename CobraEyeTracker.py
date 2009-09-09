@@ -40,7 +40,7 @@ from FocusAndZoomController import *
 #    # Starburst + circle fit feature finder (1 cycles of rays chooted + 1 least squares fit with circle)    
 #    from StarBurstCircleLstsqFitEyeFeatureFinder import *
 
-from StarBurstCircleLstsqFitEyeFeatureFinder import *
+#from StarBurstCircleLstsqFitEyeFeatureFinder import *
 from FastRadialFeatureFinder import *
 from PipelinedFeatureFinder import *
 from CompositeEyeFeatureFinder import *
