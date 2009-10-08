@@ -312,19 +312,20 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 
                 // Some critical indices
                 // "tile" = area where we will actually compute output values (for this work group)
-                // "apron" = additoinal area of the input on either side that we need to access to compute those outputs
+                // "apron" = additional area of the input on either side that we need to access to compute those outputs
                 const int   tile_start = get_group_id(0) * ${row_tile_width};
                 const int   tile_end = tile_start + ${row_tile_width} - 1;
                 const int   apron_start = tile_start - ${row_kernel_radius};
                 const int   apron_end = tile_end + ${row_kernel_radius};
                 
                 // "Clamp" the indices that would otherwise be off the end of the image
-                const int   tile_end_clamped = min(tile_end, ${image_width}); // don't run tile off of end of image
+                const int   tile_end_clamped = min(tile_end, ${image_width}-1); // don't run tile off of end of image
                 const int   apron_start_clamped = max(apron_start, 0); // don't run apron past beginning
-                const int   apron_end_clamped = min(apron_end, ${image_width}); // don't run apron past end
+                const int   apron_end_clamped = min(apron_end, ${image_width}-1); // don't run apron past end
                 
                 // Compute the linear offset for this particular row
                 const int   row_start_offset = get_group_id(1) * ${image_width};  // n * width for the nth row
+                
                 
                 // Align the start of the apron so that we get coallesced reads.  This may mean reading extra data that we
                 // otherwise would not care about, but it is much faster this way, since the memory can be read all at once
@@ -334,14 +335,16 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 const int input_load_offset = apron_start_aligned + get_local_id(0);
                 
                 // Do the actual load
-                if(input_load_offset >= apron_start_clamped){
+                if(input_load_offset >= apron_start){
                     const int tile_cache_offset = input_load_offset - apron_start;  // get the comparable offset in the cache
                     
-                    if(input_load_offset >= apron_start_clamped && input_load_offset <= apron_end_clamped){
-                        tile_cache[tile_cache_offset] = input[input_load_offset];
+                    if(input_load_offset < 0){
+                        tile_cache[tile_cache_offset] = input[row_start_offset - input_load_offset];
+                    } else if(input_load_offset > apron_end_clamped){
+                        tile_cache[tile_cache_offset] = input[row_start_offset + (2*apron_end_clamped - input_load_offset)];
                     } else {
-                        tile_cache[tile_cache_offset] = 0;
-                    }
+                        tile_cache[tile_cache_offset] = input[row_start_offset + input_load_offset];
+                    } 
                 }
                 
                 // At this point, hopefully all of the data we need is loaded into the tile cache
@@ -349,8 +352,9 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // Synchronize with the other threads so that we're sure we've loaded
                 barrier(CLK_LOCAL_MEM_FENCE);
                 
+                
                 // --------------------------------------------------------------------
-                // Compute the covolution value for this thread's assigned pixel
+                // Compute the convolution value for this thread's assigned pixel
                 // --------------------------------------------------------------------
 
                 // compute where the result will go
@@ -360,9 +364,11 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                     const int tile_cache_read_offset = output_write_offset - apron_start;
                     float sum = 0;
                     
-                    %for r in range(-row_kernel_radius, row_kernel_radius):
+                    %for r in range(-row_kernel_radius, row_kernel_radius+1):
                         sum += tile_cache[tile_cache_read_offset + (${r})] * row_kernel[${row_kernel_radius} - (${r})];
                     %endfor
+                    //sum = tile_cache[tile_cache_read_offset + ${row_kernel_radius}];
+                    //sum = 1.0;
                 
                     // write the output back to global memory
                     output[row_start_offset + output_write_offset] = sum;
@@ -397,30 +403,33 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 const int   apron_end_clamped = min(apron_end, ${image_height}-1);
                 
                 // Compute the linear offset for this particular column
-                const int   column_start_offset = get_group_id(0) * ${col_tile_width} + get_local_id(0);
+                const int   col_start_offset = get_group_id(0) * ${col_tile_width} + get_local_id(0);
                 
-
-                # // Align the start of the apron so that we get coallesced reads.  This may mean reading extra data that we
-                # // otherwise would not care about, but it is much faster this way, since the memory can be read all at once
+                
+                ## // Align the start of the apron so that we get coallesced reads.  This may mean reading extra data that we
+                ## // otherwise would not care about, but it is much faster this way, since the memory can be read all at once
                 
                 
                 // Compute the starting data position that this particular thread will load
-                int     input_load_offset = (apron_start + get_local_id(1)) * ${image_width} + column_start_offset;
+                int     input_load_offset = (apron_start + get_local_id(1)) * ${image_width} + col_start_offset;
                 
                 // Compute the starting position to load data into in the tile cache
                 int     tile_cache_offset = get_local_id(1) * ${col_tile_width} + get_local_id(0);
                 
                 // Do the actual loads
-                for(int y = apron_start + get_local_id(1); y < apron_end; y += get_num_groups(1)){
-                    if( y >= apron_start_clamped && y <= apron_end_clamped ){
-                        tile_cache[tile_cache_offset] = input[input_load_offset];
+                for(int y = apron_start + get_local_id(1); y <= apron_end; y += get_local_size(1)){
+                    if( y < 0 ){
+                        tile_cache[tile_cache_offset] = input[col_start_offset - y *${image_width}];
+                    } else if(y > apron_end_clamped){
+                        tile_cache[tile_cache_offset] = input[col_start_offset + (2*apron_end_clamped-y)*${image_width}];
                     } else {
-                        tile_cache[tile_cache_offset] = 0.0;
+                        tile_cache[tile_cache_offset] = input[input_load_offset];
                     }
                     
                     input_load_offset += ${col_input_load_stride};
                     tile_cache_offset += ${col_tile_cache_stride};
                 }
+                
                 
                 // At this point, hopefully all of the data we need is loaded into the tile cache
                 
@@ -431,14 +440,14 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // Compute the covolution value for this thread's assigned pixel
                 // --------------------------------------------------------------------
 
-                input_load_offset = (tile_start + get_local_id(1)) * ${image_width};
+                input_load_offset = (tile_start + get_local_id(1)) * ${image_width} + col_start_offset;
                 tile_cache_offset = (get_local_id(1) + ${col_kernel_radius}) * ${col_tile_width} + get_local_id(0);
                 
-                for(int y = tile_start + get_local_id(1); y <= tile_end_clamped; y += get_num_groups(1)){
+                for(int y = tile_start + get_local_id(1); y <= tile_end_clamped; y += get_local_size(1)){
                     float sum = 0;
                     
-                    %for k in range(-col_kernel_radius, col_kernel_radius):
-                        sum += tile_cache[tile_cache_offset + (${k}*${col_tile_width})] * input[${col_kernel_radius} - ${k}]; 
+                    %for k in range(-col_kernel_radius, col_kernel_radius+1):
+                        sum += tile_cache[tile_cache_offset + (${k}*${col_tile_width})] * col_kernel[${col_kernel_radius} - (${k})]; 
                     %endfor
                     
                     output[input_load_offset] = sum;
@@ -452,7 +461,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         local_vars = locals()
         local_vars.pop("self")
         templated_code = mako.template.Template(code).render(**local_vars)
-        #print templated_code
+        print templated_code
         program = cl.Program(self.ctx, templated_code)
 
         try:
@@ -515,7 +524,11 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         col_local_size = (col_tile_width, col_hstride)
         col_group_size = (int_div_up(input_shape[1],col_tile_width), int_div_up(input_shape[0], col_tile_height)) 
-        col_global_size = (col_local_size[0]*col_group_size[0], col_local_size[1]*col_local_size[1])
+        col_global_size = (col_local_size[0]*col_group_size[0], col_local_size[1]*col_group_size[1])
+        
+        print col_local_size
+        print col_group_size
+        print col_global_size
 
         # a device buffer for the intermediate result
         intermediate_dev = None
@@ -542,18 +555,18 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         t = Timer()
         try:
-            exec_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
+           exec_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
         except Exception as e:
-            print(input_shape)
-            print(intermediate_dev)
-            print(input_dev)
-            print(row_dev)
-            print(row_global_size)
-            print(row_local_size)
-            raise e
+           print(input_shape)
+           print(intermediate_dev)
+           print(input_dev)
+           print(row_dev)
+           print(row_global_size)
+           print(row_local_size)
+           raise e
         exec_evt.wait()
         print("Rows in %f" % t.elapsed)
-
+        
         t = Timer()
         try:
             exec_evt = prg.separable_convolution_col(self.queue, [int(e) for e in col_global_size], result_dev, intermediate_dev, col_dev, local_size=[int(e) for e in col_local_size])
@@ -604,7 +617,7 @@ if __name__ == "__main__":
     convolution_kernel = LocalMemorySeparableConvolutionKernel(queue)  
     convolution_kernel2 = NaiveSeparableConvolutionKernel(queue)
     
-    test_im = (rand(480,640)).astype(numpy.float32)
+    test_im = (rand(240,320)).astype(numpy.float32)
     result_im = numpy.zeros_like(test_im)
     row = gaussian_kernel(13, 4.0)
     col = gaussian_kernel(13, 4.0)
@@ -617,18 +630,22 @@ if __name__ == "__main__":
     #import time
     #time.sleep(0.5)
     
-    result1_dev = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
-    result = convolution_kernel(test_im_dev, row_dev, col_dev, result_im, readback_from_device=True)
-         
+    result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
+    result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
+    result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
     
-    (test_im_dev, dummy) = convolution_kernel2.transfer_to_device(test_im)
-    (row_dev, dummy) = convolution_kernel2.transfer_to_device(row)
-    (col_dev, dummy) = convolution_kernel2.transfer_to_device(col)
-    
-    result1_dev = convolution_kernel2(test_im_dev, row_dev, col_dev, readback_from_device=False)
-    result = convolution_kernel2(test_im_dev, row_dev, col_dev, result_im, readback_from_device=True)
-    
+    # (test_im_dev, dummy) = convolution_kernel2.transfer_to_device(test_im)
+    #     (row_dev, dummy) = convolution_kernel2.transfer_to_device(row)
+    #     (col_dev, dummy) = convolution_kernel2.transfer_to_device(col)
+    #     
+    #     result1_dev = convolution_kernel2(test_im_dev, row_dev, col_dev, readback_from_device=False)
+    #     result = convolution_kernel2(test_im_dev, row_dev, col_dev, result_im, readback_from_device=True)
+    #     
     
     print result
     
+    from pylab import *
+    imshow(result, interpolation='nearest')
+    colorbar()
+    show()
     
