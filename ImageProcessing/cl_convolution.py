@@ -474,7 +474,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         return program
 
-    #@clockit
+    @clockit
     def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
 
         use_cached_buffers = kwargs.get("use_cached_buffers", True)
@@ -553,7 +553,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             # assume that result is a device buffer already (possibly not a safe assumption)
             result_dev = result
 
-        t = Timer()
+        #t = Timer()
         try:
            exec_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
         except Exception as e:
@@ -565,9 +565,9 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
            print(row_local_size)
            raise e
         exec_evt.wait()
-        print("Rows in %f" % t.elapsed)
+        #print("Rows in %f" % t.elapsed)
         
-        t = Timer()
+        #t = Timer()
         try:
             exec_evt = prg.separable_convolution_col(self.queue, [int(e) for e in col_global_size], result_dev, intermediate_dev, col_dev, local_size=[int(e) for e in col_local_size])
         except Exception as e:
@@ -578,7 +578,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             print(row_shape)
             raise e
         exec_evt.wait()
-        print("Cols in %f" % t.elapsed)
+        #print("Cols in %f" % t.elapsed)
 
         if kwargs.get("readback_from_device", False):
             if result is None:
@@ -617,10 +617,13 @@ if __name__ == "__main__":
     convolution_kernel = LocalMemorySeparableConvolutionKernel(queue)  
     convolution_kernel2 = NaiveSeparableConvolutionKernel(queue)
     
-    test_im = (rand(240,320)).astype(numpy.float32)
+    test_im = (rand(480,640)).astype(numpy.float32)
     result_im = numpy.zeros_like(test_im)
-    row = gaussian_kernel(13, 4.0)
-    col = gaussian_kernel(13, 4.0)
+    row = gaussian_kernel(47, 4.0)
+    col = gaussian_kernel(47, 4.0)
+    #row = numpy.array([-1., 0., 1.])
+    #col = numpy.array([1., 2., 1.])
+    
     
     (test_im_dev, dummy) = convolution_kernel.transfer_to_device(test_im)
     (row_dev, dummy) = convolution_kernel.transfer_to_device(row)
@@ -644,8 +647,9 @@ if __name__ == "__main__":
     
     print result
     
-    from pylab import *
-    imshow(result, interpolation='nearest')
-    colorbar()
-    show()
+    if False:
+        from pylab import *
+        imshow(result, interpolation='nearest')
+        colorbar()
+        show()
     
