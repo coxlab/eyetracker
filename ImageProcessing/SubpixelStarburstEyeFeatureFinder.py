@@ -7,7 +7,7 @@
 #
 
 from numpy import *
-from EdgeDetection import *
+#from EdgeDetection import *
 from stopwatch import *
 from EyeFeatureFinder import *
 from scipy.weave import inline
@@ -15,10 +15,14 @@ from scipy.weave import inline
 import scipy.optimize
 from EyetrackerUtilities import *
 
+from WovenBackend import *
+
 class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
     def __init__(self, **kwargs):
         self.parameters_updated = False
+    
+        self.backend = WovenBackend()
 
         if('shortcut_sobel' in kwargs):
             self.shortcut_sobel = kwargs['shortcut_sobel']
@@ -167,7 +171,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.parameters_updated = True
 
 
-    #@clockit
+    @clockit
     def analyze_image(self, image, guess, **kwargs):
         """ Begin processing an image to find features
         """
@@ -183,14 +187,15 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         cr_guess = guess["cr_position"]
         pupil_guess = guess["pupil_position"]
 
-        if("shortcut_sobel" in guess):
-            self.shortcut_sobel = guess["shortcut_sobel"]
+
+        if("cached_sobel" in guess):
+            self.shortcut_sobel = guess["cached_sobel"]
         
         image = double(image)
     
         # compute the image gradient
         if(self.shortcut_sobel == None):
-            image_grad_mag, image_grad_x, image_grad_y = sobel3x3_separable(image)
+            image_grad_mag, image_grad_x, image_grad_y = self.backend.sobel3x3(image)
         else:
             image_grad_mag = self.shortcut_sobel
         
@@ -259,7 +264,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         """
         return self.result
         
-    #@clockit
+    @clockit
     def _find_ray_boundaries(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold, **kwargs):
         """ Find where a set off rays crosses a threshold in an image
             
@@ -326,7 +331,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         
         return boundary_points
 
-    #@clockit
+    @clockit
     def _find_ray_boundaries_woven(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold, **kwargs):
         """ Find where a set off rays crosses a threshold in an image
 
@@ -494,7 +499,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
                 vals[i,j] = val
         return vals    
     
-    #@clockit
+    @clockit
     def _get_image_values_interp_faster(self, im, x,y):
         """ Samples an image at a set of x and y coordinates, using bilinear interpolation (using no loops)
         """
@@ -743,76 +748,79 @@ if __name__ == "__main__":
 
     test_images = ["Snapshot_test.bmp","Snapshot.bmp", "Snapshot2.bmp"]
 
-    def test_ff_on_image(test_image_name):
-        print test_image_name
-        test_image = double(asarray(PIL.Image.open(test_image_name)))
-        if(len(test_image.shape) == 3):
-            test_image = mean(test_image,2)
-        (sobelified,x,y) = sobel3x3_separable(test_image)
+    if False:
 
-        radial_ff = FastRadialFeatureFinder()
-        radial_ff.target_kpixels = 3.0
-        radial_ff.correct_downsampling = True
-        radial_ff.radius_steps = 20
-        radial_ff.min_radius_fraction = 1. / 200
-        radial_ff.max_radius_fraction = 1. / 5
-        starburst_ff = SubpixelStarburstEyeFeatureFinder(shortcut_sobel = sobelified)
-        composite_ff = CompositeEyeFeatureFinder(radial_ff, starburst_ff)
+        def test_ff_on_image(test_image_name):
+            
+            print test_image_name
+            test_image = double(asarray(PIL.Image.open(test_image_name)))
+            if(len(test_image.shape) == 3):
+                test_image = mean(test_image,2)
+            (sobelified,x,y) = sobel3x3_separable(test_image)
 
-        composite_ff.analyze_image(test_image)
-        features = composite_ff.get_result()
+            radial_ff = FastRadialFeatureFinder()
+            radial_ff.target_kpixels = 3.0
+            radial_ff.correct_downsampling = True
+            radial_ff.radius_steps = 20
+            radial_ff.min_radius_fraction = 1. / 200
+            radial_ff.max_radius_fraction = 1. / 5
+            starburst_ff = SubpixelStarburstEyeFeatureFinder(cached_sobel = sobelified)
+            composite_ff = CompositeEyeFeatureFinder(radial_ff, starburst_ff)
+
+            composite_ff.analyze_image(test_image)
+            features = composite_ff.get_result()
+            
+            # do it twice to allow compilation
+            composite_ff.analyze_image(test_image)
+            features = composite_ff.get_result()
+
+            figure()
+            imshow(test_image, interpolation="nearest")
+            gray()
+            hold(True)
+            cr_position = features["cr_position"]
+            pupil_position = features["pupil_position"]
         
-        # do it twice to allow compilation
-        composite_ff.analyze_image(test_image)
-        features = composite_ff.get_result()
+            plot([cr_position[1]], [cr_position[0]], 'g+')
+            plot([pupil_position[1]], [pupil_position[0]], 'g+')
 
-        figure()
-        imshow(test_image, interpolation="nearest")
-        gray()
-        hold(True)
-        cr_position = features["cr_position"]
-        pupil_position = features["pupil_position"]
-    
-        plot([cr_position[1]], [cr_position[0]], 'g+')
-        plot([pupil_position[1]], [pupil_position[0]], 'g+')
+            sb = features["starburst"]
+            cr_bounds = sb["cr_boundary"]
+            pupil_bounds = sb["pupil_boundary"]
 
-        sb = features["starburst"]
-        cr_bounds = sb["cr_boundary"]
-        pupil_bounds = sb["pupil_boundary"]
+            for b in cr_bounds:
+                plot([b[1]], [b[0]], "rx")
 
-        for b in cr_bounds:
-            plot([b[1]], [b[0]], "rx")
+            for b in pupil_bounds:
+                plot([b[1]], [b[0]], "rx")
 
-        for b in pupil_bounds:
-            plot([b[1]], [b[0]], "rx")
+            #pw = 20;
+            #axis((cr_position[1]+pw, cr_position[0]+pw, cr_position[1]-pw, cr_position[0]-pw))
 
-        #pw = 20;
-        #axis((cr_position[1]+pw, cr_position[0]+pw, cr_position[1]-pw, cr_position[0]-pw))
+            figure()
 
-        figure()
+            imshow(sobelified, interpolation="nearest")
+            cr_ray_start = sb["cr_rays_start"]
+            cr_ray_end = sb["cr_rays_end"]
 
-        imshow(sobelified, interpolation="nearest")
-        cr_ray_start = sb["cr_rays_start"]
-        cr_ray_end = sb["cr_rays_end"]
-
-        pupil_ray_start = sb["pupil_rays_start"]
-        pupil_ray_end = sb["pupil_rays_end"]
-    
-        for i in range(0, len(cr_ray_start)):
-            plot([cr_ray_start[i][1], cr_ray_end[i][1]], [cr_ray_start[i][0], cr_ray_end[i][0]], 'r-')
-        for i in range(0, len(pupil_ray_start)):
-            plot([pupil_ray_start[i][1], pupil_ray_end[i][1]], [pupil_ray_start[i][0], pupil_ray_end[i][0]], 'b-')
+            pupil_ray_start = sb["pupil_rays_start"]
+            pupil_ray_end = sb["pupil_rays_end"]
         
-        for b in cr_bounds:
-            plot([b[1]], [b[0]], "rx")
-        for b in pupil_bounds:
-            plot([b[1]], [b[0]], "rx")
-        #axis((cr_position[1]+pw, cr_position[0]+pw, cr_position[1]-pw, cr_position[0]-pw))
-        
+            for i in range(0, len(cr_ray_start)):
+                plot([cr_ray_start[i][1], cr_ray_end[i][1]], [cr_ray_start[i][0], cr_ray_end[i][0]], 'r-')
+            for i in range(0, len(pupil_ray_start)):
+                plot([pupil_ray_start[i][1], pupil_ray_end[i][1]], [pupil_ray_start[i][0], pupil_ray_end[i][0]], 'b-')
+            
+            for b in cr_bounds:
+                plot([b[1]], [b[0]], "rx")
+            for b in pupil_bounds:
+                plot([b[1]], [b[0]], "rx")
+            #axis((cr_position[1]+pw, cr_position[0]+pw, cr_position[1]-pw, cr_position[0]-pw))
+            
 
 
-    
-    for im in test_images:
-        test_ff_on_image(im)
         
-    show()
+        for im in test_images:
+            test_ff_on_image(im)
+            
+        show()

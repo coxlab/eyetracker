@@ -1,10 +1,10 @@
-
-import pyopencl as cl
+import pycuda.autoinit
+import pycuda.driver as cuda
+import pycuda.compiler as cuda_compiler 
 import numpy
 from numpy.random import rand
 from stopwatch import *
 import mako.template
-mf = cl.mem_flags
 
 class NoProgramToFreezeException (Exception):
     def __str__(self):
@@ -46,15 +46,16 @@ def int_align_down(a, b):
 
 class MetaKernel:
 
-    def __init__(self, queue):    
+    def __init__(self, ctx):    
         self.cached_programs = {}
-        self.last_program = None
-        self.frozen_program = None
-        self.queue = queue
-        self.ctx = queue.get_info(cl.command_queue_info.CONTEXT)
         self.cached_shapes = {}
         self.cached_types = {}
-
+        
+        
+        #self.queue = queue
+        #self.ctx = queue.get_info(cl.command_queue_info.CONTEXT)
+        self.ctx = ctx
+        
     def __call__(self, *args, **kwargs):
         return
     
@@ -73,220 +74,224 @@ class MetaKernel:
     #@clockit
     def transfer_to_device(self, buf):
 
+        #self.ctx.push()
         buf_device = None
         buf_shape = None
-        if(buf.__class__ == cl._cl.Buffer):
+        if(buf.__class__ == pycuda._driver.DeviceAllocation):
             buf_device = buf  # already on the device
             buf_shape = self.cached_shapes.get(buf_device, None)
             buf_type = self.cached_types.get(buf_device, None)
         else:
-            buf_device = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, buf)
+            buf_device = cuda.mem_alloc(buf.nbytes)
+            cuda.memcpy_htod(buf_device, buf)
             self.cached_shapes[buf_device] = buf.shape
             self.cached_types[buf_device] = buf.dtype
             buf_shape = buf.shape
             buf_type = buf.dtype
 
+        #self.ctx.pop()
         return (buf_device, buf_shape, buf_type)
 
     @clockit
     def transfer_from_device(self, result_device, result_host=None, **kwargs):
+        self.ctx.push()
         if result_host is None:
             #print("Allocating result buffer")
             shape = self.cached_shapes.get(result_device, None)
             dtype = self.cached_types.get(result_device, None)
-            print dtype
+            #print dtype
             result_host = numpy.zeros(shape, dtype=dtype)
-            
-        evt = cl.enqueue_read_buffer(self.queue, result_device, result_host)
-        evt.wait()
+        
+        cuda.memcpy_dtoh(result_host, result_device)
+        self.ctx.pop()
         return result_host
 
 
-class NaiveSeparableConvolutionKernel (MetaKernel):
-    def __init__(self, queue):
-        MetaKernel.__init__(self,queue)
-        self.cached_intermediate_buffers = {}
-        self.cached_result_buffers = {}
-        self.cached_row_kernels = {}
-        self.cached_col_kernels = {}
-     
-    ##@clockit   
-    def build_program(self):
-        
-        code = """
-            __kernel void separable_convolution_row(__global float *result, 
-                                                    __global const float *input,
-                                                    unsigned int image_width,
-                                                    unsigned int image_height,
-                                                    __global const float *kernel_row,
-                                                    unsigned int kernel_width){
-
-                const int kernel_radius = kernel_width / 2;
-
-                int row = get_global_id(0);
-                int col = get_global_id(1);
-
-                float sum = 0.0;
-
-                int im_index = row * image_width + col;
-
-                for(int i = 0; i < kernel_width; i++){
-                    int k = i - kernel_radius;
-                    if( (col + k) < 0 ){
-                        k *= -1;
-                    }
-
-                    if( (col + k) >= image_width){
-                        k *= -1;
-                    }
-
-                    sum += input[im_index + k] * kernel_row[i];
-
-                }
-
-                result[im_index] = sum;
-                return;
-            }
-
-
-            __kernel void separable_convolution_col(__global float *result, 
-                                                    __global  const float *input,
-                                                    unsigned int image_width,
-                                                    unsigned int image_height,
-                                                    __global  const float *kernel_col,
-                                                    unsigned int kernel_width){
-
-
-                const int kernel_radius = kernel_width / 2;
-
-                int row = get_global_id(0);
-                int col = get_global_id(1);
-
-                float sum = 0.0;
-
-                for(int i = 0; i < kernel_width; i++){
-                    int k = i - kernel_radius;
-
-                    if( (row + k) < 0 ){
-                        k *= -1;
-                    }
-
-                    if( (row + k) >= image_height ){
-                        k *= -1;
-                    }
-
-                    int im_index = (row + k) * image_width + col;
-
-                    sum = sum + input[im_index]*kernel_col[i];
-
-                }
-                result[row * image_width + col] = sum;
-
-            }
-        """
-        program = cl.Program(self.ctx, code)
-
-        try:
-            program.build()
-        except cl.RuntimeError as e:
-            print(e)
-            exit()
-            
-        self.cache_program(None, program)
-            
-        return program
-
-    ##@clockit
-    def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
-        
-        use_cached_buffers = kwargs.get("use_cached_buffers", True)
-        
-        if input_im.__class__ == numpy.ndarray and input_im.dtype != numpy.float32:
-            raise KernelMustUseFloat32Exception
-        
-        
-        (input_dev, input_shape, input_type) = self.transfer_to_device(input_im)
-        (row_dev, row_shape, row_type) = self.transfer_to_device(row_kernel)
-        (col_dev, col_shape, col_type) = self.transfer_to_device(col_kernel)
-        
-        if input_shape is None:
-            raise UnknownArrayShapeException
-                
-        if row_shape is None:
-            raise UnknownArrayShapeException
-                
-        if col_shape is None:
-            raise UnknownArrayShapeException
-                
-        if None in self.cached_programs:
-            prg = self.cached_programs[None]
-        else:
-            prg = self.build_program()
-        
-        
-        # a device buffer for the intermediate result
-        intermediate_dev = None
-        if (use_cached_buffers) and (input_shape in self.cached_intermediate_buffers):
-            intermediate_dev = self.cached_intermediate_buffers[input_shape]
-        else:
-            intermediate_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * 4)
-            self.cached_intermediate_buffers[input_shape] = intermediate_dev
-        
-        # a device buffer for the result, if not already supplied
-        result_dev = None
-        if result is None or result.__class__ == numpy.ndarray:
-            # need to make or repurpose a device buffer
-            if (use_cached_buffers) and (input_shape in self.cached_result_buffers):
-                result_dev  = self.cached_result_buffers[input_shape]
-            else:
-                result_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * 4)
-                self.cached_result_buffers[input_shape] = result_dev
-                self.cached_shapes[results_dev] = input_shape
-                self.cached_types[results_dev] = input_type
-        else:
-            # assume that result is a device buffer already (possibly not a safe assumption)
-            result_dev = result
-                        
-        t = Timer()
-        try:
-            exec_evt = prg.separable_convolution_row(self.queue, input_shape, intermediate_dev, input_dev, numpy.uint32(input_shape[1]), numpy.uint32(input_shape[0]), row_dev, numpy.uint32(row_shape[0]))
-        except Exception as e:
-            print(input_shape)
-            print(intermediate_dev)
-            print(input_dev)
-            print(row_dev)
-            print(row_shape)
-            raise e
-        exec_evt.wait()
-        print("Rows in %f" % t.elapsed)
-
-        t = Timer()
-        try:
-            exec_evt = prg.separable_convolution_col(self.queue, input_shape, result_dev, intermediate_dev, numpy.uint32(input_shape[1]), numpy.uint32(input_shape[0]), col_dev, numpy.uint32(col_shape[0]))
-        except Exception as e:
-            print(input_shape)
-            print(result_dev)
-            print(intermediate_dev)
-            print(row_dev)
-            print(row_shape)
-            raise e
-        exec_evt.wait()
-        print("Cols in %f" % t.elapsed)
-
-        if kwargs.get("readback_from_device", False):
-            if result is None:
-                result = self.transfer_from_device(result_dev, shape=input_shape)
-            else:
-                self.transfer_from_device(result_dev, result)
-        else:
-            result = result_dev
-
-        return result
+# class NaiveSeparableConvolutionKernel (MetaKernel):
+#     def __init__(self, queue):
+#         MetaKernel.__init__(self,queue)
+#         self.cached_intermediate_buffers = {}
+#         self.cached_result_buffers = {}
+#         self.cached_row_kernels = {}
+#         self.cached_col_kernels = {}
+#      
+#     ##@clockit   
+#     def build_program(self):
+#         
+#         code = """
+#             __kernel void separable_convolution_row(__global float *result, 
+#                                                     __global const float *input,
+#                                                     unsigned int image_width,
+#                                                     unsigned int image_height,
+#                                                     __global const float *kernel_row,
+#                                                     unsigned int kernel_width){
+# 
+#                 const int kernel_radius = kernel_width / 2;
+# 
+#                 int row = get_global_id(0);
+#                 int col = get_global_id(1);
+# 
+#                 float sum = 0.0;
+# 
+#                 int im_index = row * image_width + col;
+# 
+#                 for(int i = 0; i < kernel_width; i++){
+#                     int k = i - kernel_radius;
+#                     if( (col + k) < 0 ){
+#                         k *= -1;
+#                     }
+# 
+#                     if( (col + k) >= image_width){
+#                         k *= -1;
+#                     }
+# 
+#                     sum += input[im_index + k] * kernel_row[i];
+# 
+#                 }
+# 
+#                 result[im_index] = sum;
+#                 return;
+#             }
+# 
+# 
+#             __kernel void separable_convolution_col(__global float *result, 
+#                                                     __global  const float *input,
+#                                                     unsigned int image_width,
+#                                                     unsigned int image_height,
+#                                                     __global  const float *kernel_col,
+#                                                     unsigned int kernel_width){
+# 
+# 
+#                 const int kernel_radius = kernel_width / 2;
+# 
+#                 int row = get_global_id(0);
+#                 int col = get_global_id(1);
+# 
+#                 float sum = 0.0;
+# 
+#                 for(int i = 0; i < kernel_width; i++){
+#                     int k = i - kernel_radius;
+# 
+#                     if( (row + k) < 0 ){
+#                         k *= -1;
+#                     }
+# 
+#                     if( (row + k) >= image_height ){
+#                         k *= -1;
+#                     }
+# 
+#                     int im_index = (row + k) * image_width + col;
+# 
+#                     sum = sum + input[im_index]*kernel_col[i];
+# 
+#                 }
+#                 result[row * image_width + col] = sum;
+# 
+#             }
+#         """
+#         program = cl.Program(self.ctx, code)
+# 
+#         try:
+#             program.build()
+#         except cl.RuntimeError as e:
+#             print(e)
+#             exit()
+#             
+#         self.cache_program(None, program)
+#             
+#         return program
+# 
+#     ##@clockit
+#     def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
+#         
+#         use_cached_buffers = kwargs.get("use_cached_buffers", True)
+#         
+#         if input_im.__class__ == numpy.ndarray and input_im.dtype != numpy.float32:
+#             raise KernelMustUseFloat32Exception
+#         
+#         
+#         (input_dev, input_shape, input_type) = self.transfer_to_device(input_im)
+#         (row_dev, row_shape, row_type) = self.transfer_to_device(row_kernel)
+#         (col_dev, col_shape, col_type) = self.transfer_to_device(col_kernel)
+#         
+#         if input_shape is None:
+#             raise UnknownArrayShapeException
+#                 
+#         if row_shape is None:
+#             raise UnknownArrayShapeException
+#                 
+#         if col_shape is None:
+#             raise UnknownArrayShapeException
+#                 
+#         if None in self.cached_programs:
+#             prg = self.cached_programs[None]
+#         else:
+#             prg = self.build_program()
+#         
+#         
+#         # a device buffer for the intermediate result
+#         intermediate_dev = None
+#         if (use_cached_buffers) and (input_shape in self.cached_intermediate_buffers):
+#             intermediate_dev = self.cached_intermediate_buffers[input_shape]
+#         else:
+#             intermediate_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * 4)
+#             self.cached_intermediate_buffers[input_shape] = intermediate_dev
+#         
+#         # a device buffer for the result, if not already supplied
+#         result_dev = None
+#         if result is None or result.__class__ == numpy.ndarray:
+#             # need to make or repurpose a device buffer
+#             if (use_cached_buffers) and (input_shape in self.cached_result_buffers):
+#                 result_dev  = self.cached_result_buffers[input_shape]
+#             else:
+#                 result_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * 4)
+#                 self.cached_result_buffers[input_shape] = result_dev
+#                 self.cached_shapes[results_dev] = input_shape
+#                 self.cached_types[results_dev] = input_type
+#         else:
+#             # assume that result is a device buffer already (possibly not a safe assumption)
+#             result_dev = result
+#                         
+#         t = Timer()
+#         try:
+#             exec_evt = prg.separable_convolution_row(self.queue, input_shape, intermediate_dev, input_dev, numpy.uint32(input_shape[1]), numpy.uint32(input_shape[0]), row_dev, numpy.uint32(row_shape[0]))
+#         except Exception as e:
+#             print(input_shape)
+#             print(intermediate_dev)
+#             print(input_dev)
+#             print(row_dev)
+#             print(row_shape)
+#             raise e
+#         exec_evt.wait()
+#         print("Rows in %f" % t.elapsed)
+# 
+#         t = Timer()
+#         try:
+#             exec_evt = prg.separable_convolution_col(self.queue, input_shape, result_dev, intermediate_dev, numpy.uint32(input_shape[1]), numpy.uint32(input_shape[0]), col_dev, numpy.uint32(col_shape[0]))
+#         except Exception as e:
+#             print(input_shape)
+#             print(result_dev)
+#             print(intermediate_dev)
+#             print(row_dev)
+#             print(row_shape)
+#             raise e
+#         exec_evt.wait()
+#         print("Cols in %f" % t.elapsed)
+# 
+#         if kwargs.get("readback_from_device", False):
+#             if result is None:
+#                 result = self.transfer_from_device(result_dev, shape=input_shape)
+#             else:
+#                 self.transfer_from_device(result_dev, result)
+#         else:
+#             result = result_dev
+# 
+#         return result
 
             
 class LocalMemorySeparableConvolutionKernel (MetaKernel):
-    def __init__(self, queue):
-        MetaKernel.__init__(self,queue)
+    def __init__(self, ctx):
+        MetaKernel.__init__(self, ctx)
         self.cached_intermediate_buffers = {}
         self.cached_result_buffers = {}
         self.cached_row_kernels = {}
@@ -314,11 +319,11 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         
         code = """
 
-            __kernel void separable_convolution_row(__global ${TYPE} *output, 
-                                                    __global const ${TYPE} *input,
-                                                    __global const float *row_kernel){
+            __global__ void separable_convolution_row(${TYPE} *output, 
+                                                      ${TYPE} *input,
+                                                      float *row_kernel){
 
-                __local ${TYPE} tile_cache[${tile_cache_width}];
+                __shared__ ${TYPE} tile_cache[${tile_cache_width}];
                 
                 // --------------------------------------------------------------------
                 // Cooperatively load a tile of data into the local memory tile cache
@@ -327,7 +332,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // Some critical indices
                 // "tile" = area where we will actually compute output values (for this work group)
                 // "apron" = additional area of the input on either side that we need to access to compute those outputs
-                const int   tile_start = get_group_id(0) * ${row_tile_width};
+                const int   tile_start = blockIdx.x * ${row_tile_width};
                 const int   tile_end = tile_start + ${row_tile_width} - 1;
                 const int   apron_start = tile_start - ${row_kernel_radius};
                 const int   apron_end = tile_end + ${row_kernel_radius};
@@ -338,7 +343,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 const int   apron_end_clamped = min(apron_end, ${image_width}-1); // don't run apron past end
                 
                 // Compute the linear offset for this particular row
-                const int   row_start_offset = get_group_id(1) * ${image_width};  // n * width for the nth row
+                const int   row_start_offset = blockIdx.y * ${image_width};  // n * width for the nth row
                 
                 
                 // Align the start of the apron so that we get coallesced reads.  This may mean reading extra data that we
@@ -346,7 +351,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 const int apron_start_aligned = tile_start - ${row_kernel_radius_aligned};
                 
                 // Compute the data position that this particular thread will load
-                const int input_load_offset = apron_start_aligned + get_local_id(0);
+                const int input_load_offset = apron_start_aligned + threadIdx.x;
                 
                 // Do the actual load
                 if(input_load_offset >= apron_start){
@@ -364,7 +369,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // At this point, hopefully all of the data we need is loaded into the tile cache
                 
                 // Synchronize with the other threads so that we're sure we've loaded
-                barrier(CLK_LOCAL_MEM_FENCE);
+                __syncthreads();
                 
                 
                 // --------------------------------------------------------------------
@@ -372,7 +377,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // --------------------------------------------------------------------
 
                 // compute where the result will go
-                const int output_write_offset = tile_start + get_local_id(0);
+                const int output_write_offset = tile_start + threadIdx.x;
 
                 if(output_write_offset <= tile_end_clamped){ // don't write off end of row
                     const int tile_cache_read_offset = output_write_offset - apron_start;
@@ -391,12 +396,12 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             }
             
             
-            __kernel void separable_convolution_col(__global ${TYPE} *output, 
-                                                    __global  const ${TYPE} *input,
-                                                    __global  const float *col_kernel){
+            __global__ void separable_convolution_col(${TYPE} *output, 
+                                                      ${TYPE} *input,
+                                                      float *col_kernel){
 
 
-                __local float tile_cache[${col_tile_width} * (2*${col_kernel_radius} + ${col_tile_height})];
+                __shared__ float tile_cache[${col_tile_width} * (2*${col_kernel_radius} + ${col_tile_height})];
 
                 
                 // --------------------------------------------------------------------
@@ -406,7 +411,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // Some critical indices
                 // "tile" = area where we will actually compute output values (for this work group)
                 // "apron" = additoinal area of the input on either side that we need to access to compute those outputs
-                const int   tile_start = get_group_id(1) * ${col_tile_height};
+                const int   tile_start = blockIdx.y * ${col_tile_height};
                 const int   tile_end = tile_start + ${col_tile_height} - 1;
                 const int   apron_start = tile_start - ${col_kernel_radius};
                 const int   apron_end = tile_end + ${col_kernel_radius};
@@ -417,7 +422,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 const int   apron_end_clamped = min(apron_end, ${image_height}-1);
                 
                 // Compute the linear offset for this particular column
-                const int   col_start_offset = get_group_id(0) * ${col_tile_width} + get_local_id(0);
+                const int   col_start_offset = blockIdx.x * ${col_tile_width} + threadIdx.x;
                 
                 
                 ## // Align the start of the apron so that we get coallesced reads.  This may mean reading extra data that we
@@ -425,13 +430,13 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 
                 
                 // Compute the starting data position that this particular thread will load
-                int     input_load_offset = (apron_start + get_local_id(1)) * ${image_width} + col_start_offset;
+                int     input_load_offset = (apron_start + threadIdx.y) * ${image_width} + col_start_offset;
                 
                 // Compute the starting position to load data into in the tile cache
-                int     tile_cache_offset = get_local_id(1) * ${col_tile_width} + get_local_id(0);
+                int     tile_cache_offset = threadIdx.y * ${col_tile_width} + threadIdx.x;
                 
                 // Do the actual loads
-                for(int y = apron_start + get_local_id(1); y <= apron_end; y += get_local_size(1)){
+                for(int y = apron_start + threadIdx.y; y <= apron_end; y += blockDim.y){
                     if( y < 0 ){
                         tile_cache[tile_cache_offset] = (float)input[col_start_offset - y *${image_width}];
                     } else if(y > apron_end_clamped){
@@ -448,16 +453,16 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 // At this point, hopefully all of the data we need is loaded into the tile cache
                 
                 // Synchronize with the other threads so that we're sure we've loaded
-                barrier(CLK_LOCAL_MEM_FENCE);
+                __syncthreads();
                 
                 // --------------------------------------------------------------------
                 // Compute the covolution value for this thread's assigned pixel
                 // --------------------------------------------------------------------
 
-                input_load_offset = (tile_start + get_local_id(1)) * ${image_width} + col_start_offset;
-                tile_cache_offset = (get_local_id(1) + ${col_kernel_radius}) * ${col_tile_width} + get_local_id(0);
+                input_load_offset = (tile_start + threadIdx.y) * ${image_width} + col_start_offset;
+                tile_cache_offset = (threadIdx.y + ${col_kernel_radius}) * ${col_tile_width} + threadIdx.x;
                 
-                for(int y = tile_start + get_local_id(1); y <= tile_end_clamped; y += get_local_size(1)){
+                for(int y = tile_start + threadIdx.y; y <= tile_end_clamped; y += blockDim.y){
                     float sum = 0;
                     
                     %for k in range(-col_kernel_radius, col_kernel_radius+1):
@@ -476,11 +481,10 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         local_vars.pop("self")
         templated_code = mako.template.Template(code).render(**local_vars)
         #print templated_code
-        program = cl.Program(self.ctx, templated_code)
-
+        
         try:
-            program.build()
-        except cl.RuntimeError as e:
+            program = cuda_compiler.SourceModule(templated_code)
+        except Exception as e:
             print(e)
             exit()
 
@@ -491,6 +495,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
     @clockit
     def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
 
+        self.ctx.push()
         use_cached_buffers = kwargs.get("use_cached_buffers", True)
 
         if input_im.__class__ == numpy.ndarray and input_im.dtype != numpy.float32:
@@ -532,11 +537,11 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         else:
             prg = self.build_program(*build_args)
 
-        row_local_size = (row_kernel_radius_aligned + row_tile_width + row_kernel_radius, 1)
+        row_local_size = (row_kernel_radius_aligned + row_tile_width + row_kernel_radius, 1,1)
         row_group_size = (int_div_up(input_shape[1],row_tile_width), input_shape[0])
         row_global_size = (row_local_size[0]*row_group_size[0], row_local_size[1]*row_group_size[1])
 
-        col_local_size = (col_tile_width, col_hstride)
+        col_local_size = (col_tile_width, col_hstride,1)
         col_group_size = (int_div_up(input_shape[1],col_tile_width), int_div_up(input_shape[0], col_tile_height)) 
         col_global_size = (col_local_size[0]*col_group_size[0], col_local_size[1]*col_group_size[1])
         
@@ -550,7 +555,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             intermediate_dev = self.cached_intermediate_buffers[(input_shape, input_type)]
         else:
             dummy = numpy.array([1], dtype=input_type)
-            intermediate_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * dummy.itemsize)
+            intermediate_dev = cuda.mem_alloc(input_shape[0] * input_shape[1] * dummy.itemsize)
             self.cached_intermediate_buffers[(input_shape, input_type)] = intermediate_dev
 
         # a device buffer for the result, if not already supplied
@@ -563,7 +568,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
                 #print(result_dev)
             else:
                 dummy = numpy.array([1], dtype=input_type)
-                result_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * dummy.itemsize)
+                result_dev = cuda.mem_alloc(input_shape[0] * input_shape[1] * dummy.itemsize)
                 self.cached_result_buffers[(input_shape, input_type)] = result_dev
                 self.cached_shapes[result_dev] = input_shape
                 self.cached_types[result_dev] = input_type
@@ -573,7 +578,9 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         #t = Timer()
         try:
-           exec_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
+           f = prg.get_function("separable_convolution_row")
+           f(intermediate_dev, input_dev, row_dev, grid=[int(e) for e in row_group_size], block=[int(e) for e in row_local_size])
+           self.ctx.synchronize()
         except Exception as e:
            print(input_shape)
            print(intermediate_dev)
@@ -582,10 +589,11 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
            print(row_global_size)
            print(row_local_size)
            raise e
-        exec_evt.wait()
         
         try:
-            exec_evt = prg.separable_convolution_col(self.queue, [int(e) for e in col_global_size], result_dev, intermediate_dev, col_dev, local_size=[int(e) for e in col_local_size])
+            f = prg.get_function("separable_convolution_col")
+            f(result_dev, intermediate_dev, col_dev, grid= [int(e) for e in col_group_size], block=[int(e) for e in col_local_size])
+            self.ctx.synchronize()
         except Exception as e:
             print(input_shape)
             print(result_dev)
@@ -593,7 +601,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             print(row_dev)
             print(row_shape)
             raise e
-        exec_evt.wait()
+            
         #print("Elapsed: %f" % t.elapsed)
 
         if kwargs.get("readback_from_device", False):
@@ -604,6 +612,8 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         else:
             result = result_dev
 
+
+        self.ctx.pop()
         return result
 
 
@@ -622,14 +632,13 @@ def gaussian_kernel(width = 17, sigma = 4.0):
     
 if __name__ == "__main__":
     
-    platforms = cl.get_platforms()
-    platform = platforms[0]
-    devices = platform.get_devices()
-    device = devices[1]
-    ctx = cl.Context([device])
-    queue = cl.CommandQueue(ctx)
-    convolution_kernel = LocalMemorySeparableConvolutionKernel(queue)  
-    convolution_kernel2 = NaiveSeparableConvolutionKernel(queue)
+    cuda.init()
+    assert cuda.Device.count() >= 1
+
+    dev = cuda.Device(0)
+    ctx = dev.make_context()
+    
+    convolution_kernel = LocalMemorySeparableConvolutionKernel(ctx)  
     
     w = 640
     h = 480
@@ -653,27 +662,8 @@ if __name__ == "__main__":
         t = Timer()
         for i in range(0,200):
             result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
-        
         result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
         print("Total time: %f" % t.elapsed)
-    
-    if False:
-        print("uint8")
-        test_im = (255* rand(h,w)).astype(numpy.uint8)
-        (test_im_dev, dummy, dummy2) = convolution_kernel.transfer_to_device(test_im)
-    
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
-    
-    
-    # (test_im_dev, dummy, dummy2) = convolution_kernel2.transfer_to_device(test_im)
-    #     (row_dev, dummy, dummy2) = convolution_kernel2.transfer_to_device(row)
-    #     (col_dev, dummy, dummy2) = convolution_kernel2.transfer_to_device(col)
-    #     
-    #     result1_dev = convolution_kernel2(test_im_dev, row_dev, col_dev, readback_from_device=False)
-    #     result = convolution_kernel2(test_im_dev, row_dev, col_dev, result_im, readback_from_device=True)
-    #     
     
     print result
     

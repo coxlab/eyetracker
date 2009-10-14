@@ -27,12 +27,11 @@
 		5C14991E0ECCDBEF00FB73BB /* EyeTrackerController.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */; };
 		5C14991F0ECCDBEF00FB73BB /* TrackerCameraView.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499080ECCDBEF00FB73BB /* TrackerCameraView.py */; };
 		5C1499200ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990A0ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py */; };
-		5C1499210ECCDBEF00FB73BB /* EdgeDetection.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990B0ECCDBEF00FB73BB /* EdgeDetection.py */; };
+		5C1499210ECCDBEF00FB73BB /* ImageProcessingBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990B0ECCDBEF00FB73BB /* ImageProcessingBackend.py */; };
 		5C1499220ECCDBEF00FB73BB /* EyeFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990C0ECCDBEF00FB73BB /* EyeFeatureFinder.py */; };
 		5C1499230ECCDBEF00FB73BB /* FastRadialFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */; };
 		5C1499240ECCDBEF00FB73BB /* PipelinedFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */; };
 		5C1499250ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */; };
-		5C1499260ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499100ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py */; };
 		5C1499270ECCDBEF00FB73BB /* NoX.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499120ECCDBEF00FB73BB /* NoX.tiff */; };
 		5C1499280ECCDBEF00FB73BB /* OkCheck.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499130ECCDBEF00FB73BB /* OkCheck.tiff */; };
 		5C1499290ECCDBEF00FB73BB /* MightexLEDController.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499160ECCDBEF00FB73BB /* MightexLEDController.py */; };
@@ -49,6 +48,9 @@
 		5C7A87380F81215E007B4724 /* mw_conduit.so in Resources */ = {isa = PBXBuildFile; fileRef = 5C7A87370F81215E007B4724 /* mw_conduit.so */; };
 		5C7A87980F813C5E007B4724 /* _prosilica_cpp.so in Resources */ = {isa = PBXBuildFile; fileRef = 5C7A87970F813C5E007B4724 /* _prosilica_cpp.so */; };
 		5C81AD270EF6FF4C0041F785 /* TestESP300Stages.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */; };
+		5C9EE34D1072B0660051414D /* VanillaBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C9EE34C1072B0660051414D /* VanillaBackend.py */; };
+		5C9EE34F1072B0780051414D /* WovenBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C9EE34E1072B0780051414D /* WovenBackend.py */; };
+		5C9EE3511072B0870051414D /* OpenCLBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C9EE3501072B0870051414D /* OpenCLBackend.py */; };
 		5CA677B40F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */; };
 		5CA677E30F67FC0800773E97 /* EyetrackerUtilities.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CA677E20F67FC0800773E97 /* EyetrackerUtilities.py */; };
 		5CA679480F688D4900773E97 /* TrackerMeasurement.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CA679470F688D4900773E97 /* TrackerMeasurement.py */; };
@@ -56,6 +58,7 @@
 		5CA67A2E0F69771500773E97 /* cocoa_backend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CA67A2D0F69771500773E97 /* cocoa_backend.py */; };
 		5CA67AC80F69B6B600773E97 /* KVCCompliant.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CA67AC70F69B6B600773E97 /* KVCCompliant.py */; };
 		5CBBCDFC1056C504004C69DF /* python2.6_env in Resources */ = {isa = PBXBuildFile; fileRef = 5CBBC2821056C4FE004C69DF /* python2.6_env */; };
+		5CBBE89610574F6F004C69DF /* OpenCLImageProcessing.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */; };
 		5CD24BDF1046DF4200B621C5 /* python_env in Resources */ = {isa = PBXBuildFile; fileRef = 5CD237061046DF3E00B621C5 /* python_env */; };
 		6880E3590FA8CADF0001A812 /* FocusAndZoomController.py in Resources */ = {isa = PBXBuildFile; fileRef = 6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */; };
 		77631A3F0C0748CF005415CB /* main.py in Resources */ = {isa = PBXBuildFile; fileRef = 77631A3E0C0748CF005415CB /* main.py */; };
@@ -80,12 +83,11 @@
 		5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyeTrackerController.py; sourceTree = "<group>"; };
 		5C1499080ECCDBEF00FB73BB /* TrackerCameraView.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TrackerCameraView.py; sourceTree = "<group>"; };
 		5C14990A0ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = CompositeEyeFeatureFinder.py; sourceTree = "<group>"; };
-		5C14990B0ECCDBEF00FB73BB /* EdgeDetection.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EdgeDetection.py; sourceTree = "<group>"; };
+		5C14990B0ECCDBEF00FB73BB /* ImageProcessingBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = ImageProcessingBackend.py; sourceTree = "<group>"; };
 		5C14990C0ECCDBEF00FB73BB /* EyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyeFeatureFinder.py; sourceTree = "<group>"; };
 		5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FastRadialFeatureFinder.py; sourceTree = "<group>"; };
 		5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = PipelinedFeatureFinder.py; sourceTree = "<group>"; };
 		5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = SimpleEyeFeatureFinder.py; sourceTree = "<group>"; };
-		5C1499100ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = StarBurstCircleLstsqFitEyeFeatureFinder.py; sourceTree = "<group>"; };
 		5C1499120ECCDBEF00FB73BB /* NoX.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NoX.tiff; sourceTree = "<group>"; };
 		5C1499130ECCDBEF00FB73BB /* OkCheck.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OkCheck.tiff; sourceTree = "<group>"; };
 		5C1499160ECCDBEF00FB73BB /* MightexLEDController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = MightexLEDController.py; sourceTree = "<group>"; };
@@ -107,6 +109,9 @@
 		5C7A87370F81215E007B4724 /* mw_conduit.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = mw_conduit.so; sourceTree = "<group>"; };
 		5C7A87970F813C5E007B4724 /* _prosilica_cpp.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = _prosilica_cpp.so; path = Camera/Prosilica/_prosilica_cpp.so; sourceTree = "<group>"; };
 		5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TestESP300Stages.py; sourceTree = "<group>"; };
+		5C9EE34C1072B0660051414D /* VanillaBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = VanillaBackend.py; sourceTree = "<group>"; };
+		5C9EE34E1072B0780051414D /* WovenBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = WovenBackend.py; sourceTree = "<group>"; };
+		5C9EE3501072B0870051414D /* OpenCLBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = OpenCLBackend.py; sourceTree = "<group>"; };
 		5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = SubpixelStarburstEyeFeatureFinder.py; sourceTree = "<group>"; };
 		5CA677E20F67FC0800773E97 /* EyetrackerUtilities.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyetrackerUtilities.py; sourceTree = "<group>"; };
 		5CA679470F688D4900773E97 /* TrackerMeasurement.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TrackerMeasurement.py; sourceTree = "<group>"; };
@@ -114,6 +119,7 @@
 		5CA67A2D0F69771500773E97 /* cocoa_backend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = cocoa_backend.py; sourceTree = "<group>"; };
 		5CA67AC70F69B6B600773E97 /* KVCCompliant.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = KVCCompliant.py; sourceTree = "<group>"; };
 		5CBBC2821056C4FE004C69DF /* python2.6_env */ = {isa = PBXFileReference; lastKnownFileType = folder; path = python2.6_env; sourceTree = "<group>"; };
+		5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = OpenCLImageProcessing.py; sourceTree = "<group>"; };
 		5CD22CF41046DC6000B621C5 /* modules.pth */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = modules.pth; sourceTree = "<group>"; };
 		5CD237061046DF3E00B621C5 /* python_env */ = {isa = PBXFileReference; lastKnownFileType = folder; path = python_env; sourceTree = "<group>"; };
 		6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FocusAndZoomController.py; sourceTree = "<group>"; };
@@ -251,14 +257,14 @@
 		5C1499090ECCDBEF00FB73BB /* ImageProcessing */ = {
 			isa = PBXGroup;
 			children = (
+				5C9EE34B1072B0140051414D /* Backends */,
 				5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */,
 				5C14990A0ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py */,
-				5C14990B0ECCDBEF00FB73BB /* EdgeDetection.py */,
 				5C14990C0ECCDBEF00FB73BB /* EyeFeatureFinder.py */,
 				5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */,
 				5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */,
 				5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */,
-				5C1499100ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py */,
+				5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */,
 			);
 			path = ImageProcessing;
 			sourceTree = "<group>";
@@ -333,6 +339,17 @@
 			name = "Test Scripts";
 			sourceTree = "<group>";
 		};
+		5C9EE34B1072B0140051414D /* Backends */ = {
+			isa = PBXGroup;
+			children = (
+				5C14990B0ECCDBEF00FB73BB /* ImageProcessingBackend.py */,
+				5C9EE34C1072B0660051414D /* VanillaBackend.py */,
+				5C9EE34E1072B0780051414D /* WovenBackend.py */,
+				5C9EE3501072B0870051414D /* OpenCLBackend.py */,
+			);
+			name = Backends;
+			sourceTree = "<group>";
+		};
 		5CA679460F688CEB00773E97 /* Measurements */ = {
 			isa = PBXGroup;
 			children = (
@@ -396,12 +413,11 @@
 				5C14991E0ECCDBEF00FB73BB /* EyeTrackerController.py in Resources */,
 				5C14991F0ECCDBEF00FB73BB /* TrackerCameraView.py in Resources */,
 				5C1499200ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py in Resources */,
-				5C1499210ECCDBEF00FB73BB /* EdgeDetection.py in Resources */,
+				5C1499210ECCDBEF00FB73BB /* ImageProcessingBackend.py in Resources */,
 				5C1499220ECCDBEF00FB73BB /* EyeFeatureFinder.py in Resources */,
 				5C1499230ECCDBEF00FB73BB /* FastRadialFeatureFinder.py in Resources */,
 				5C1499240ECCDBEF00FB73BB /* PipelinedFeatureFinder.py in Resources */,
 				5C1499250ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py in Resources */,
-				5C1499260ECCDBEF00FB73BB /* StarBurstCircleLstsqFitEyeFeatureFinder.py in Resources */,
 				5C1499270ECCDBEF00FB73BB /* NoX.tiff in Resources */,
 				5C1499280ECCDBEF00FB73BB /* OkCheck.tiff in Resources */,
 				5C1499290ECCDBEF00FB73BB /* MightexLEDController.py in Resources */,
@@ -427,6 +443,10 @@
 				6880E3590FA8CADF0001A812 /* FocusAndZoomController.py in Resources */,
 				5CD24BDF1046DF4200B621C5 /* python_env in Resources */,
 				5CBBCDFC1056C504004C69DF /* python2.6_env in Resources */,
+				5CBBE89610574F6F004C69DF /* OpenCLImageProcessing.py in Resources */,
+				5C9EE34D1072B0660051414D /* VanillaBackend.py in Resources */,
+				5C9EE34F1072B0780051414D /* WovenBackend.py in Resources */,
+				5C9EE3511072B0870051414D /* OpenCLBackend.py in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

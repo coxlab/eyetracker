@@ -11,7 +11,8 @@ from processing.managers import SyncManager, BaseProxy, CreatorMethod
 from CompositeEyeFeatureFinder import *
 from FastRadialFeatureFinder import *
 #from StarBurstEyeFeatureFinder import *
-from StarBurstCircleLstsqFitEyeFeatureFinder import *
+#from StarBurstCircleLstsqFitEyeFeatureFinder import *
+from SubpixelStarburstEyeFeatureFinder import *
 
 import processing
 import Queue

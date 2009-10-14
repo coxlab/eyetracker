@@ -195,7 +195,8 @@ class POVRaySimulatedCameraDevice:
         #print a
         a = a.mean(2)
         
-        self.im_array = a
+        self.im_array = a.astype(float)
+        #self.im_array = self.im_array[:, 1:]
                 
         # start the analysis process
         self.feature_finder.analyze_image(self.im_array.copy(), None)        
