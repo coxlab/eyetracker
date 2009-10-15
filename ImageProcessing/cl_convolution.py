@@ -496,6 +496,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         if input_im.__class__ == numpy.ndarray and input_im.dtype != numpy.float32:
             raise KernelMustUseFloat32Exception
 
+        wait_for = kwargs.get("wait_for", None)
 
         (input_dev, input_shape, input_type) = self.transfer_to_device(input_im)
         (row_dev, row_shape, row_type) = self.transfer_to_device(row_kernel)
@@ -573,7 +574,10 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         #t = Timer()
         try:
-           exec_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
+            if wait_for is not None:
+                row_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size], wait_for=wait_for)
+            else:
+                row_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
         except Exception as e:
            print(input_shape)
            print(intermediate_dev)
@@ -581,11 +585,12 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
            print(row_dev)
            print(row_global_size)
            print(row_local_size)
+           print(wait_for)
            raise e
-        exec_evt.wait()
+        
         
         try:
-            exec_evt = prg.separable_convolution_col(self.queue, [int(e) for e in col_global_size], result_dev, intermediate_dev, col_dev, local_size=[int(e) for e in col_local_size])
+            exec_evt = prg.separable_convolution_col(self.queue, [int(e) for e in col_global_size], result_dev, intermediate_dev, col_dev, local_size=[int(e) for e in col_local_size], wait_for=[row_evt])
         except Exception as e:
             print(input_shape)
             print(result_dev)
@@ -593,18 +598,20 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             print(row_dev)
             print(row_shape)
             raise e
-        exec_evt.wait()
+        #exec_evt.wait()
         #print("Elapsed: %f" % t.elapsed)
 
+        evt = None
         if kwargs.get("readback_from_device", False):
             if result is None:
-                result = self.transfer_from_device(result_dev, shape=input_shape)
+                result = self.transfer_from_device(result_dev, shape=input_shape, wait_for=[exec_evt])
             else:
-                self.transfer_from_device(result_dev, result)
+                self.transfer_from_device(result_dev, result, wait_for=exec_evt)
         else:
             result = result_dev
+            evt = [exec_evt]
 
-        return result
+        return (result, evt)
 
 
 def gaussian_kernel(width = 17, sigma = 4.0):
@@ -631,12 +638,12 @@ if __name__ == "__main__":
     convolution_kernel = LocalMemorySeparableConvolutionKernel(queue)  
     convolution_kernel2 = NaiveSeparableConvolutionKernel(queue)
     
-    w = 640
-    h = 480
+    w = 512
+    h = 512
     
     #result_im = numpy.zeros_like(test_im)
-    row = gaussian_kernel(17, 4.0)
-    col = gaussian_kernel(17, 4.0)
+    row = gaussian_kernel(7, 4.0)
+    col = gaussian_kernel(7, 4.0)
     #row = numpy.array([-1., 0., 1.])
     #col = numpy.array([1., 2., 1.])
     
@@ -649,22 +656,22 @@ if __name__ == "__main__":
     (test_im_dev,dummy,dummy2) = convolution_kernel.transfer_to_device(test_im)
     
     if True:
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
+        (result, evt) = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
         t = Timer()
         for i in range(0,200):
-            result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
+            (result, evt) = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False, wait_for=None)
         
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
+        (result, evt) = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True, wait_for=evt)
         print("Total time: %f" % t.elapsed)
     
-    if False:
-        print("uint8")
-        test_im = (255* rand(h,w)).astype(numpy.uint8)
-        (test_im_dev, dummy, dummy2) = convolution_kernel.transfer_to_device(test_im)
-    
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
-        result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
+    # if False:
+    #     print("uint8")
+    #     test_im = (255* rand(h,w)).astype(numpy.uint8)
+    #     (test_im_dev, dummy, dummy2) = convolution_kernel.transfer_to_device(test_im)
+    # 
+    #     result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
+    #     result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=False)
+    #     result = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)
     
     
     # (test_im_dev, dummy, dummy2) = convolution_kernel2.transfer_to_device(test_im)
