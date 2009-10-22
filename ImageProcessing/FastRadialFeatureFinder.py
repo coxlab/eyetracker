@@ -19,6 +19,7 @@ from EyeFeatureFinder import *
 from stopwatch import *
 from VanillaBackend import *
 from WovenBackend import *
+from OpenCLBackend import *
 
 opencl_available = True
 try:
@@ -34,7 +35,8 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
     def __init__(self):
 
         self.backend = WovenBackend()
-                
+        #self.backend = OpenCLBackend()
+                        
         self.target_kpixels = 80.0 #8.0
         self.max_target_kpixels = 50.0
         self.min_target_kpixels = 1.0
@@ -76,7 +78,7 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
     # from it
     @clockit
     def analyze_image(self, image, guess = None, **kwargs):
-    
+        print "fr"
         im_array = image
         #im_array = image.astype(double)
         im_array = im_array[::self.ds_factor, ::self.ds_factor]

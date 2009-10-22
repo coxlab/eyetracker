@@ -8,6 +8,7 @@ class WovenBackend (VanillaBackend):
 
     def __init__(self):
         VanillaBackend.__init__(self)
+        
         # reusable storage
         self.cached_shape = None
         self.cached_gauss2d_fft = None
@@ -17,18 +18,20 @@ class WovenBackend (VanillaBackend):
         self.S = None
         self.sepfir_firstpass = None
         
-        self.c_typestring = "float"
+        self.type_string = "float"
+        self.autotuned = False
         
     def autotune(self, example_im):
         
         self.dtype = example_im.dtype
         if(self.dtype == float32):
-            self.c_typestring = 'float'
+            self.type_string = 'float'
         elif(self.dtype == uint8):
-            self.c_typestring = 'uint8'
+            self.type_string = 'uint8'
         else:
-            self.c_typestring = 'double'
+            self.type_string = 'double'
 		
+        print self.type_string
         # (re)initialize reusable storage
         self.cached_shape = example_im.shape
         self.cached_gauss2d_fft = None
@@ -38,20 +41,20 @@ class WovenBackend (VanillaBackend):
         self.S = zeros_like(example_im)
         self.sepfir_firstpass = zeros_like(example_im)
         self.sepfir_result = zeros_like(example_im)
+        
+        self.autotuned = True
         return
 
 
-
     def sobel3x3(self, image,**kwargs):
-        print("sobel size: %d x %d" % image.shape)
         return self.sobel3x3_separable(image)
 
 
     @clockit
     def sobel3x3_separable(self, image, **kwargs):
         
-        sobel_c = array([-1.,0.,1.])
-        sobel_r = array([1.,2.,1.])
+        sobel_c = array([-1.,0.,1.]).astype(image.dtype)
+        sobel_r = array([1.,2.,1.]).astype(image.dtype)
         
         imgx = self.separable_convolution2d(image, sobel_c, sobel_r)
         imgy = self.separable_convolution2d(image, sobel_r, sobel_c)
@@ -63,6 +66,9 @@ class WovenBackend (VanillaBackend):
 
     @clockit
     def separable_convolution2d(self, image, row, col, **kwargs):
+        
+        if not self.autotuned:
+            self.autotune(image)
         
         code = """
             Py_BEGIN_ALLOW_THREADS
@@ -146,7 +152,7 @@ class WovenBackend (VanillaBackend):
                 }
             }
             Py_END_ALLOW_THREADS
-        """ % self.c_typestring
+        """ % self.type_string
         
         firstpass = zeros_like(image)
         result = zeros_like(image)
@@ -158,9 +164,12 @@ class WovenBackend (VanillaBackend):
     # borrowed with some translation from Peter Kovesi's fastradial.m
     @clockit
     def fast_radial_transform(self, image, radii, alpha, **kwargs):
-			
+		
+        if not self.autotuned:
+            self.autotune(image)
+            
         gaussian_kernel_cheat = 1.0
-        reuse_storage = True
+        reuse_storage = False
                     	
         use_spline_approximation = 0
         use_sep_fir = 0
@@ -243,6 +252,8 @@ class WovenBackend (VanillaBackend):
             code = """
             Py_BEGIN_ALLOW_THREADS
             
+            #define __TYPE  %s
+            
             int rows = Nmag[0];
             //int rstart = 0;
             //int rend = rows;
@@ -299,7 +310,7 @@ class WovenBackend (VanillaBackend):
             for(int r = rstart; r < rend; r++){
                 for(int c=cstart; c < cend; c++){
                     int index = r*cols + c;
-                    double O_ = abs(O[index]);
+                    __TYPE O_ = abs(O[index]);
                     if(O_ > kappa) O_ = kappa;
                     
                     F[index] = M[index]/kappa * pow(O_/kappa, alpha);
@@ -308,7 +319,7 @@ class WovenBackend (VanillaBackend):
             
             
             Py_END_ALLOW_THREADS
-            """
+            """ % self.type_string
             
             multithreaded_weave = 0
             
@@ -329,7 +340,10 @@ class WovenBackend (VanillaBackend):
             # by n so that large scales do not lose their relative weighting.
             #A = fspecial('gaussian',[n n], 0.25*n) * n;
             #S = S + filter2(A,F);
-            gauss1d = scipy.signal.gaussian(round(gaussian_kernel_cheat * n), 0.25*n)
+            width = round(gaussian_kernel_cheat * n)
+            if(mod(width,2) == 0):
+                width += 1
+            gauss1d = scipy.signal.gaussian(width, 0.25*n).astype(image.dtype)
             print gauss1d.shape
             
             S += self.separable_convolution2d(F, gauss1d, gauss1d)
@@ -338,55 +352,59 @@ class WovenBackend (VanillaBackend):
         
         return S
 
-        def _find_image_minmax(self, image, **kwargs):
-    
-            if(image == None):
-                return ([0,0], [0,])
-                
-            code = """
-                Py_BEGIN_ALLOW_THREADS
-                #define TYPE	%s
-                
-                int rows = Nimage[0];
-                int cols = Nimage[1];
-                
-                double themax = -999999;
-                double themin = 999999;
-                
-                for(int r = 0; r < rows; r++){
-                    for(int c = 0; c < cols; c++){
+    def find_minmax(self, image, **kwargs):
+        print "Here (woven)"
+        print image
+
+        if(image == None):
+            return ([0,0], [0,])
+            
+        code = """
+            Py_BEGIN_ALLOW_THREADS
+            
+            
+            int rows = Nimage[0];
+            int cols = Nimage[1];
+            
+            #define __TYPE  %s
+            
+            __TYPE themax = -999999;
+            __TYPE themin = 999999;
+            
+            for(int r = 0; r < rows; r++){
+                for(int c = 0; c < cols; c++){
+                    
+                    __TYPE *pixel_ptr = (__TYPE *)((char *)image_array->data + r * image_array->strides[0] + c * image_array->strides[1]);
+                    
+                    
+                    if(*pixel_ptr > themax){
                         
-                        double *pixel_ptr = (TYPE *)((char *)image_array->data + r * image_array->strides[0] + c * image_array->strides[1]);
+                        themax = *pixel_ptr;
+                        coordinates[2] = (__TYPE)r;
+                        coordinates[3] = (__TYPE)c;
+                    }
+                    
+                    if(*pixel_ptr < themin){
                         
-                        
-                        if(*pixel_ptr > themax){
-                            
-                            themax = *pixel_ptr;
-                            coordinates[2] = (double)r;
-                            coordinates[3] = (double)c;
-                        }
-                        
-                        if(*pixel_ptr < themin){
-                            
-                            themin = *pixel_ptr;
-                            coordinates[0] = (double)r;
-                            coordinates[1] = (double)c;
-                        }
+                        themin = *pixel_ptr;
+                        coordinates[0] = (__TYPE)r;
+                        coordinates[1] = (__TYPE)c;
                     }
                 }
-            
-                Py_END_ALLOW_THREADS
-            """ % (self.c_typestring)
-            
-            coordinates = array([0.,0., 0., 0.])
-            themax = 0.
-            themin = 0.
-            
-            inline(code, ['image', 'coordinates'])
-            
-            #print coordinates
-            
-            return (coordinates[0:2], coordinates[2:4])
+            }
+        
+            Py_END_ALLOW_THREADS
+        """ % (self.type_string)
+        
+        coordinates = array([0.,0., 0., 0.])
+        themax = 0.
+        themin = 0.
+        
+        inline(code, ['image', 'coordinates'])
+        
+        #print coordinates
+        
+        return (coordinates[2:4], coordinates[0:2])
 
 
 
@@ -395,18 +413,20 @@ class WovenBackend (VanillaBackend):
         code = """
 			Py_BEGIN_ALLOW_THREADS
 			
+            #define __TYPE  %s
+            
 			int rows = Narr[0];
 			int cols = Narr[1];
 			
 			for(int r=0; r < rows; r++){
 				for(int c=0; c < cols; c++){
-					double *arr_ptr = (double *)((char *)arr_array->data + r*arr_array->strides[0] + c*arr_array->strides[1]);
+					__TYPE *arr_ptr = (__TYPE *)((char *)arr_array->data + r*arr_array->strides[0] + c*arr_array->strides[1]);
 					*arr_ptr = 0.0;
 				}
 			}
 			
 			Py_END_ALLOW_THREADS
-			"""
+			""" % self.type_string
             
         inline(code, ['arr'])
         
@@ -544,7 +564,7 @@ class WovenSSEBackend (WovenBackend):
                     
 
                     int result_offset = r_stride*r + c_stride*c;
-                    double *result_ptr = (double *)((char *)result_array->data + result_offset);
+                    __TYPE *result_ptr = (__TYPE *)((char *)result_array->data + result_offset);
                     result_ptr[0] = 0.0;
 
                     for(int k = 0; k < col_width; k++){
@@ -554,10 +574,10 @@ class WovenSSEBackend (WovenBackend):
                         if(k_index < 0) k_index *= -1;  // reflect at boundaries
                         if(k_index >= h) k_index = h - (k - col_halfwidth);
 
-                        double *image_ptr = (double *)((char *)firstpass_array->data + k_index*fp_r_stride + fp_c_stride*c);
+                        __TYPE *image_ptr = (__TYPE *)((char *)firstpass_array->data + k_index*fp_r_stride + fp_c_stride*c);
 
-                        double kernel_coef = *((double *)((char *)col_array->data + col_array->strides[0]*k));
-                        double before = *result_ptr;
+                        __TYPE kernel_coef = *((__TYPE *)((char *)col_array->data + col_array->strides[0]*k));
+                        __TYPE before = *result_ptr;
                         *result_ptr += kernel_coef * (*image_ptr);
 
                     }

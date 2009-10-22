@@ -264,7 +264,6 @@
 				5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */,
 				5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */,
 				5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */,
-				5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */,
 			);
 			path = ImageProcessing;
 			sourceTree = "<group>";
@@ -346,6 +345,7 @@
 				5C9EE34C1072B0660051414D /* VanillaBackend.py */,
 				5C9EE34E1072B0780051414D /* WovenBackend.py */,
 				5C9EE3501072B0870051414D /* OpenCLBackend.py */,
+				5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */,
 			);
 			name = Backends;
 			sourceTree = "<group>";

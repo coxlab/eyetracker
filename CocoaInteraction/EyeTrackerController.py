@@ -34,7 +34,7 @@ except Exception, e:
     print "Unable to load MW conduit"
 
 # no, actually turn it off...
-mw_enabled = False
+#mw_enabled = False
 
 class FeatureFinderAdaptor (NSObject):
         
@@ -306,7 +306,7 @@ class EyeTrackerController (NSObject):
             NSLog("Failing over to Simulated Camera")
             
             # use a POV-Ray simulated camera + a simpler feature finder that works with it
-            self.camera_device = POVRaySimulatedCameraDevice(self.feature_finder, self.stages, self.leds, -370.0, quiet = 1, image_width=640, image_height=480)
+            self.camera_device = POVRaySimulatedCameraDevice(self.feature_finder, self.stages, self.leds, -370.0, quiet = 1, image_width=320, image_height=240)
             self.camera_device.move_eye(array([10.0, -10.0, 0.0]))
             self.camera_device.acquire_image()
             

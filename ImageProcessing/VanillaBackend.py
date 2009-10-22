@@ -1,5 +1,5 @@
 from ImageProcessingBackend import *
-from scipy.signal import sepfir2d, convolve2d
+from scipy.signal import sepfir2d, convolve2d, gaussian 
 from stopwatch import *
  
 class VanillaBackend (ImageProcessingBackend):
@@ -16,8 +16,8 @@ class VanillaBackend (ImageProcessingBackend):
         sobel_c = array([-1.,0.,1.])
         sobel_r = array([1.,2.,1.])
         
-        imgx = sepfir2d(image, sobel_c, sobel_r)
-        imgy = sepfir2d(image, sobel_r, sobel_c)
+        imgx = self.separable_convolution2d(image, sobel_c, sobel_r)
+        imgy = self.separable_convolution2d(image, sobel_r, sobel_c)
             
         mag = sqrt(imgx**2 + imgy**2) + 1e-16
         
@@ -133,7 +133,11 @@ class VanillaBackend (ImageProcessingBackend):
             # by n so that large scales do not lose their relative weighting.
             #A = fspecial('gaussian',[n n], 0.25*n) * n;
             #S = S + filter2(A,F);
-            gauss1d = scipy.gaussian(round(gaussian_kernel_cheat * n), 0.25*n)
+            width = round(gaussian_kernel_cheat * n)
+            print width
+            if(mod(width,2) == 0):
+                width += 1
+            gauss1d = scipy.signal.gaussian(width, 0.25*n)
                     
             thisS = self.separable_convolution2d(F, gauss1d, gauss1d)
             S += thisS
@@ -145,6 +149,7 @@ class VanillaBackend (ImageProcessingBackend):
 
     def find_minmax(self, image, **kwargs):
     
+        print "here (vanilla)"
         if(image == None):
             return ([0,0], [0,])
             
@@ -155,4 +160,4 @@ class VanillaBackend (ImageProcessingBackend):
         print image
         print min_coord
         print max_coord
-        return ([max_coord[0][0], max_coord[1][0]] , [min_coord[0][0], min_coord[1][0]])
+        return ([min_coord[0][0], min_coord[1][0]], [max_coord[0][0], max_coord[1][0]])

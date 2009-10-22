@@ -44,6 +44,21 @@ def int_align_down(a, b):
     return a - a % b
 
 
+class DeviceBuffer(cl.Buffer):
+    def __init__(self, ctx, flags, arr=None, **kwargs):
+        
+        if arr is not None:
+            cl.Buffer.__init__(self, ctx, flags, 0, arr)
+            self.shape = arr.shape
+            self.dtype = arr.dtype
+        else:
+            self.shape = kwargs.get("shape", None)
+            if self.shape is None:
+                raise UnknownShapeException
+            self.dtype = kwargs.get("dtype", numpy.float32)
+            dummy = numpy.zeros((1,1), dtype=self.dtype)
+            cl.Buffer.__init__(self, ctx, flags, dummy.itemsize * self.shape[0] * self.shape[1])
+        
 class MetaKernel:
 
     def __init__(self, queue):    
@@ -52,9 +67,7 @@ class MetaKernel:
         self.frozen_program = None
         self.queue = queue
         self.ctx = queue.get_info(cl.command_queue_info.CONTEXT)
-        self.cached_shapes = {}
-        self.cached_types = {}
-
+        
     def __call__(self, *args, **kwargs):
         return
     
@@ -73,27 +86,20 @@ class MetaKernel:
     #@clockit
     def transfer_to_device(self, buf):
 
-        buf_device = None
-        buf_shape = None
-        if(buf.__class__ == cl._cl.Buffer):
+        if(buf.__class__ == DeviceBuffer):
             buf_device = buf  # already on the device
-            buf_shape = self.cached_shapes.get(buf_device, None)
-            buf_type = self.cached_types.get(buf_device, None)
         else:
-            buf_device = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, buf)
-            self.cached_shapes[buf_device] = buf.shape
-            self.cached_types[buf_device] = buf.dtype
-            buf_shape = buf.shape
-            buf_type = buf.dtype
-
-        return (buf_device, buf_shape, buf_type)
+            #buf_device = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, buf)
+            buf_device = DeviceBuffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, buf)
+            
+        return buf_device
 
     @clockit
     def transfer_from_device(self, result_device, result_host=None, **kwargs):
         if result_host is None:
             #print("Allocating result buffer")
-            shape = self.cached_shapes.get(result_device, None)
-            dtype = self.cached_types.get(result_device, None)
+            shape = result_device.shape
+            dtype = result_device.dtype
             print dtype
             result_host = numpy.zeros(shape, dtype=dtype)
             
@@ -205,18 +211,10 @@ class NaiveSeparableConvolutionKernel (MetaKernel):
             raise KernelMustUseFloat32Exception
         
         
-        (input_dev, input_shape, input_type) = self.transfer_to_device(input_im)
-        (row_dev, row_shape, row_type) = self.transfer_to_device(row_kernel)
-        (col_dev, col_shape, col_type) = self.transfer_to_device(col_kernel)
+        input_dev = self.transfer_to_device(input_im)
+        row_dev = self.transfer_to_device(row_kernel)
+        col_dev = self.transfer_to_device(col_kernel)
         
-        if input_shape is None:
-            raise UnknownArrayShapeException
-                
-        if row_shape is None:
-            raise UnknownArrayShapeException
-                
-        if col_shape is None:
-            raise UnknownArrayShapeException
                 
         if None in self.cached_programs:
             prg = self.cached_programs[None]
@@ -227,9 +225,9 @@ class NaiveSeparableConvolutionKernel (MetaKernel):
         # a device buffer for the intermediate result
         intermediate_dev = None
         if (use_cached_buffers) and (input_shape in self.cached_intermediate_buffers):
-            intermediate_dev = self.cached_intermediate_buffers[input_shape]
+            intermediate_dev = self.cached_intermediate_buffers[input_im.shape]
         else:
-            intermediate_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * 4)
+            intermediate_dev = DeviceBuffer(self.ctx, mf.READ_WRITE, shape = input_im.shape, dtype=input_im.dtype)
             self.cached_intermediate_buffers[input_shape] = intermediate_dev
         
         # a device buffer for the result, if not already supplied
@@ -239,43 +237,42 @@ class NaiveSeparableConvolutionKernel (MetaKernel):
             if (use_cached_buffers) and (input_shape in self.cached_result_buffers):
                 result_dev  = self.cached_result_buffers[input_shape]
             else:
-                result_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * 4)
+                result_dev = DeviceBuffer(self.ctx, mf.READ_WRITE, input_im.shape[0] * input_im.shape[1] * 4)
                 self.cached_result_buffers[input_shape] = result_dev
-                self.cached_shapes[results_dev] = input_shape
-                self.cached_types[results_dev] = input_type
+                
         else:
             # assume that result is a device buffer already (possibly not a safe assumption)
             result_dev = result
                         
         t = Timer()
         try:
-            exec_evt = prg.separable_convolution_row(self.queue, input_shape, intermediate_dev, input_dev, numpy.uint32(input_shape[1]), numpy.uint32(input_shape[0]), row_dev, numpy.uint32(row_shape[0]))
+            exec_evt = prg.separable_convolution_row(self.queue, input_im.shape, intermediate_dev, input_dev, numpy.uint32(input_im.shape[1]), numpy.uint32(input_im.shape[0]), row_dev, numpy.uint32(row.shape[0]))
         except Exception as e:
-            print(input_shape)
+            print(input_im.shape)
             print(intermediate_dev)
             print(input_dev)
             print(row_dev)
-            print(row_shape)
+            print(row.shape)
             raise e
         exec_evt.wait()
         print("Rows in %f" % t.elapsed)
 
         t = Timer()
         try:
-            exec_evt = prg.separable_convolution_col(self.queue, input_shape, result_dev, intermediate_dev, numpy.uint32(input_shape[1]), numpy.uint32(input_shape[0]), col_dev, numpy.uint32(col_shape[0]))
+            exec_evt = prg.separable_convolution_col(self.queue, input_im.shape, result_dev, intermediate_dev, numpy.uint32(input_im.shape[1]), numpy.uint32(input_im.shape[0]), col_dev, numpy.uint32(col.shape[0]))
         except Exception as e:
-            print(input_shape)
+            print(input_im.shape)
             print(result_dev)
             print(intermediate_dev)
-            print(row_dev)
-            print(row_shape)
+            print(col_dev)
+            print(col.shape)
             raise e
         exec_evt.wait()
         print("Cols in %f" % t.elapsed)
 
         if kwargs.get("readback_from_device", False):
             if result is None:
-                result = self.transfer_from_device(result_dev, shape=input_shape)
+                result = self.transfer_from_device(result_dev, shape=input_im.shape)
             else:
                 self.transfer_from_device(result_dev, result)
         else:
@@ -498,47 +495,40 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         wait_for = kwargs.get("wait_for", None)
 
-        (input_dev, input_shape, input_type) = self.transfer_to_device(input_im)
-        (row_dev, row_shape, row_type) = self.transfer_to_device(row_kernel)
-        (col_dev, col_shape, col_type) = self.transfer_to_device(col_kernel)
+        input_dev = self.transfer_to_device(input_im)
+        row_dev = self.transfer_to_device(row_kernel)
+        col_dev = self.transfer_to_device(col_kernel)
 
-        if input_shape is None:
-            raise UnknownArrayShapeException
 
-        if row_shape is None:
-            raise UnknownArrayShapeException
-
-        if col_shape is None:
-            raise UnknownArrayShapeException
 
         row_tile_width = 128
         col_tile_width = 16
         col_tile_height = 48
         col_hstride = 8
-        assert numpy.mod(row_shape[0],2) == 1, "Kernels must be of odd width"
-        row_kernel_radius = row_shape[0] / 2
+        assert numpy.mod(row.shape[0],2) == 1, "Kernels must be of odd width"
+        row_kernel_radius = row.shape[0] / 2
 
         coallescing_quantum = 16
         row_kernel_radius_aligned = (row_kernel_radius / coallescing_quantum) * coallescing_quantum
         if row_kernel_radius_aligned == 0:
             row_kernel_radius_aligned = coallescing_quantum
 
-        assert numpy.mod(col_shape[0],2) == 1, "Kernels must be of odd width"
-        col_kernel_radius = col_shape[0] / 2
+        assert numpy.mod(col.shape[0],2) == 1, "Kernels must be of odd width"
+        col_kernel_radius = col.shape[0] / 2
         
-        #build_args = (im_shape, row_kernel_radius, row_kernel_radius_aligned, row_tile_width, col_kernel_radius, col_tile_width, col_tile_height, col_hstride
-        build_args = (input_type, input_shape, row_kernel_radius, row_kernel_radius_aligned, row_tile_width, col_kernel_radius, col_tile_width, col_tile_height, col_hstride)
+        #build_args = (im_type, im_shape, row_kernel_radius, row_kernel_radius_aligned, row_tile_width, col_kernel_radius, col_tile_width, col_tile_height, col_hstride
+        build_args = (input_im.dtype, input_im.shape, row_kernel_radius, row_kernel_radius_aligned, row_tile_width, col_kernel_radius, col_tile_width, col_tile_height, col_hstride)
         if build_args in self.cached_programs:
             prg = self.cached_programs[build_args]
         else:
             prg = self.build_program(*build_args)
 
         row_local_size = (row_kernel_radius_aligned + row_tile_width + row_kernel_radius, 1)
-        row_group_size = (int_div_up(input_shape[1],row_tile_width), input_shape[0])
+        row_group_size = (int_div_up(input_im.shape[1],row_tile_width), input_im.shape[0])
         row_global_size = (row_local_size[0]*row_group_size[0], row_local_size[1]*row_group_size[1])
 
         col_local_size = (col_tile_width, col_hstride)
-        col_group_size = (int_div_up(input_shape[1],col_tile_width), int_div_up(input_shape[0], col_tile_height)) 
+        col_group_size = (int_div_up(input_im.shape[1],col_tile_width), int_div_up(input_im.shape[0], col_tile_height)) 
         col_global_size = (col_local_size[0]*col_group_size[0], col_local_size[1]*col_group_size[1])
         
         #print col_local_size
@@ -547,27 +537,28 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
 
         # a device buffer for the intermediate result
         intermediate_dev = None
-        if (use_cached_buffers) and ((input_shape, input_type) in self.cached_intermediate_buffers):
-            intermediate_dev = self.cached_intermediate_buffers[(input_shape, input_type)]
+        if (use_cached_buffers) and ((input_im.shape, input_im.dtype) in self.cached_intermediate_buffers):
+            intermediate_dev = self.cached_intermediate_buffers[(input_im.shape, input_im.dtype)]
         else:
-            dummy = numpy.array([1], dtype=input_type)
-            intermediate_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * dummy.itemsize)
-            self.cached_intermediate_buffers[(input_shape, input_type)] = intermediate_dev
+            #dummy = numpy.array([1], dtype=input_type)
+            #intermediate_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * dummy.itemsize)
+            intermediate_dev = DeviceBuffer(self.ctx, mf.READ_WRITE, shape=input_im.shape, dtype=input_im.dtype)
+            self.cached_intermediate_buffers[(input_im.shape, input_im.dtype)] = intermediate_dev
 
         # a device buffer for the result, if not already supplied
         result_dev = None
         if result is None or result.__class__ == numpy.ndarray:
             # need to make or repurpose a device buffer
-            if (use_cached_buffers) and ((input_shape, input_type) in self.cached_result_buffers):
-                result_dev  = self.cached_result_buffers[(input_shape, input_type)]
+            if (use_cached_buffers) and ((input_im.shape, input_im.dtype) in self.cached_result_buffers):
+                result_dev  = self.cached_result_buffers[(input_im.shape, input_im.dtype)]
                 #print "Here"
                 #print(result_dev)
             else:
-                dummy = numpy.array([1], dtype=input_type)
-                result_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * dummy.itemsize)
-                self.cached_result_buffers[(input_shape, input_type)] = result_dev
-                self.cached_shapes[result_dev] = input_shape
-                self.cached_types[result_dev] = input_type
+                #dummy = numpy.array([1], dtype=input_im.dtype)
+                #result_dev = cl.Buffer(self.ctx, mf.READ_WRITE, input_shape[0] * input_shape[1] * dummy.itemsize)
+                result_dev = DeviceBuffer(self.ctx, mf.READ_WRITE, shape=input_im.shape, dtype=input_im.dtype)
+                self.cached_result_buffers[(input_im.shape, input_im.dtype)] = result_dev
+                
         else:
             # assume that result is a device buffer already (possibly not a safe assumption)
             result_dev = result
@@ -579,7 +570,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
             else:
                 row_evt = prg.separable_convolution_row(self.queue, [int(e) for e in row_global_size], intermediate_dev, input_dev, row_dev, local_size=[int(e) for e in row_local_size])
         except Exception as e:
-           print(input_shape)
+           print(input_im.shape)
            print(intermediate_dev)
            print(input_dev)
            print(row_dev)
@@ -592,11 +583,11 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         try:
             exec_evt = prg.separable_convolution_col(self.queue, [int(e) for e in col_global_size], result_dev, intermediate_dev, col_dev, local_size=[int(e) for e in col_local_size], wait_for=[row_evt])
         except Exception as e:
-            print(input_shape)
+            print(input_im.shape)
             print(result_dev)
             print(intermediate_dev)
-            print(row_dev)
-            print(row_shape)
+            print(col_dev)
+            print(col.shape)
             raise e
         #exec_evt.wait()
         #print("Elapsed: %f" % t.elapsed)
@@ -604,7 +595,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         evt = None
         if kwargs.get("readback_from_device", False):
             if result is None:
-                result = self.transfer_from_device(result_dev, shape=input_shape, wait_for=[exec_evt])
+                result = self.transfer_from_device(result_dev, shape=input_im.shape, wait_for=[exec_evt])
             else:
                 self.transfer_from_device(result_dev, result, wait_for=exec_evt)
         else:
@@ -632,7 +623,7 @@ if __name__ == "__main__":
     platforms = cl.get_platforms()
     platform = platforms[0]
     devices = platform.get_devices()
-    device = devices[1]
+    device = devices[0]
     ctx = cl.Context([device])
     queue = cl.CommandQueue(ctx)
     convolution_kernel = LocalMemorySeparableConvolutionKernel(queue)  
@@ -647,13 +638,13 @@ if __name__ == "__main__":
     #row = numpy.array([-1., 0., 1.])
     #col = numpy.array([1., 2., 1.])
     
-    (row_dev, dummy, dummy2) = convolution_kernel.transfer_to_device(row)
-    (col_dev, dummy, dummy2) = convolution_kernel.transfer_to_device(col)
+    row_dev = convolution_kernel.transfer_to_device(row)
+    col_dev = convolution_kernel.transfer_to_device(col)
     
     print("float32")
     
     test_im = rand(h,w).astype(numpy.float32)
-    (test_im_dev,dummy,dummy2) = convolution_kernel.transfer_to_device(test_im)
+    test_im_dev = convolution_kernel.transfer_to_device(test_im)
     
     if True:
         (result, evt) = convolution_kernel(test_im_dev, row_dev, col_dev, readback_from_device=True)

@@ -175,6 +175,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
     def analyze_image(self, image, guess, **kwargs):
         """ Begin processing an image to find features
         """
+        print "sb"
         
         use_weave = 0
         if("weave" in kwargs):
@@ -191,7 +192,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         if("cached_sobel" in guess):
             self.shortcut_sobel = guess["cached_sobel"]
         
-        image = double(image)
+        #image = double(image)
     
         # compute the image gradient
         if(self.shortcut_sobel == None):
