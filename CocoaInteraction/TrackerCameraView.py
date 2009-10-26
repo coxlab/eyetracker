@@ -100,6 +100,9 @@ class TrackerCameraView(NSOpenGLView):
 #        glFlush()
 
     def drawImage(self):
+        
+        self.texture = glGenTextures(1)
+    
         glColor4f(1.,1.,1.,1.)
         glBindTexture(GL_TEXTURE_2D, self.texture)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
@@ -120,6 +123,7 @@ class TrackerCameraView(NSOpenGLView):
         glVertex3f(-1.0,  -1.0,  0.0) # Top Left
         glEnd()
         glBindTexture(GL_TEXTURE_2D, 0)
+        glDeleteTextures(self.texture)
 
     def renderStage1PupilLocation(self):
         self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.stage1_pupil_position), (1.,0.,0.,0.5), 0.02, 0.002)

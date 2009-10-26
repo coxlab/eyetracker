@@ -24,14 +24,15 @@ from EyetrackerUtilities import *
 from CobraEyeTracker import *
 
 # boost.python wrapper for a MonkeyWorks interprocess conduit
-mw_enabled = False
+#mw_enabled = False
+
 try:
     from mw_conduit import *
     GAZE_H = 0
     GAZE_V = 1
     mw_enabled = True
 except Exception, e:
-    print "Unable to load MW conduit"
+    print("Unable to load MW conduit: %s" % e)
 
 # no, actually turn it off...
 #mw_enabled = False
@@ -49,7 +50,7 @@ class FeatureFinderAdaptor (NSObject):
         for key in self.ffs[0].getKeys():
             self.willChangeValueForKey_(key)
             self.didChangeValueForKey_(key)
-    
+            pass
     
     def valueForKey_(self,key):
         
@@ -336,11 +337,14 @@ class EyeTrackerController (NSObject):
         self.calibrator = StahlLikeCalibrator(self.camera_device, self.stages, self.zoom_and_focus, self.leds, d_halfrange=30, ui_queue=self.ui_queue, r_stage_direction=r_dir, d_guess=d_guess)
         
         if(mw_enabled):
+            print("Creating mw conduit")
             self.mw_conduit = mwIPCServerConduit("cobra1")
+            print("conduit = %s" % self.mw_conduit)
         else:
             self.mw_conduit = None
         
         if(self.mw_conduit != None):
+            print("Initializing conduit")
             self.mw_conduit.initialize()
             self.mw_conduit.sendFloat(GAZE_H, 20.0)
             self.mw_conduit.sendFloat(GAZE_V, 20.0)
@@ -415,6 +419,7 @@ class EyeTrackerController (NSObject):
                     if("pupil_radius" in features and features["pupil_radius"] != None):
                         self.pupil_radius = features["pupil_radius"]
                     
+                    # set values for the bindings GUI
                     self.pupil_position_x = pupil_position[1]
                     self.pupil_position_y = pupil_position[0]
                     self.cr_position_x = cr_position[1]
@@ -428,6 +433,12 @@ class EyeTrackerController (NSObject):
                         if(self.mw_conduit != None):
                             self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
                             self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
+                    else:
+                        if(self.mw_conduit != None):
+                            print("Sent dummy message on conduit")
+                            self.mw_conduit.sendFloat(GAZE_H, 20)
+                            self.mw_conduit.sendFloat(GAZE_V, 20)
+                        
                         
             except Exception, e:
                 print e.message

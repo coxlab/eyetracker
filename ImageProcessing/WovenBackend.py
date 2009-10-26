@@ -404,7 +404,7 @@ class WovenBackend (VanillaBackend):
         
         #print coordinates
         
-        return (coordinates[2:4], coordinates[0:2])
+        return (coordinates[0:2], coordinates[2:4])
 
 
 
