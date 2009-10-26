@@ -11,6 +11,7 @@ from AppKit import *
 import objc
 from objc import IBAction, IBOutlet
 import time
+import httplib
 
 from TrackerMeasurementController import *
 
@@ -35,7 +36,7 @@ except Exception, e:
     print("Unable to load MW conduit: %s" % e)
 
 # no, actually turn it off...
-#mw_enabled = False
+mw_enabled = False
 
 class FeatureFinderAdaptor (NSObject):
         
@@ -184,9 +185,9 @@ class EyeTrackerController (NSObject):
     def awakeFromNib(self):
         
         # Added by DZ to deal with rigs without power zoom and focus
-        self.no_powerzoom = True
+        self.no_powerzoom = False
         
-        self.use_simulated = True
+        self.use_simulated = False
 
 
         use_file_for_cam = False
@@ -204,8 +205,18 @@ class EyeTrackerController (NSObject):
         if self.use_simulated:
             esp300 = SimulatedStageController()
         else:
-            esp300 = ESP300StageController("169.254.0.11", 100)
-            esp300.connect()
+            esp300 = ESP300StageController("169.254.0.9", 8001)
+
+            try:
+                esp300.connect()
+            except Exception as e:
+                print("Restarting serial bridge")
+                kick_in_the_pants = httplib.HTTPConnection('169.254.0.9', 80, timeout=10)
+                kick_in_the_pants.request("GET", "/goforms/resetUnit?")
+                time.sleep(5)
+                esp300.connect()
+                del kick_in_the_pants
+                
         self.stages = EyeTrackerStageController(esp300)
 
 
@@ -216,7 +227,7 @@ class EyeTrackerController (NSObject):
             if self.use_simulated:
                 esp300_2 = SimulatedStageController()
             else:
-                esp300_2 = ESP300StageController("169.254.0.12", 100)
+                esp300_2 = ESP300StageController("169.254.0.9", 8002)
                 esp300_2.connect()
         
         self.zoom_and_focus = FocusAndZoomController(esp300_2)
@@ -251,7 +262,7 @@ class EyeTrackerController (NSObject):
         if(self.use_simulated):
             self.leds = SimulatedLEDController(4)
         else:
-            self.leds = MightexLEDController("169.254.0.10", 100)
+            self.leds = MightexLEDController("169.254.0.9", 8006)
             self.leds.connect()
         
         # camera and feature finders 
@@ -262,7 +273,7 @@ class EyeTrackerController (NSObject):
         
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 0
+        nworkers = 4
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
@@ -390,27 +401,34 @@ class EyeTrackerController (NSObject):
         pool = NSAutoreleasePool.alloc().init()
 
         frame_number = 0
-        
+        tic = time.time()
+        features = None
         while(self.continuously_acquiring):
             self.camera_locked = 1
             
             try:
-                tic = time.time()
+                
                 self.camera_device.acquire_image()
-                features = self.camera_device.process_image(self.features)
-                toc = time.time() - tic
-            
-                frame_number += 1
-                if(frame_number % 100 == 0):
-                    print "real frames: ", frame_number
+                new_features = self.camera_device.process_image(self.features)
+                
+                if(new_features.__class__ == dict and features.__class__ == dict and new_features["frame_number"] != features["frame_number"]):
+                    frame_number += 1
+                features = new_features
+                check_interval = 100
+                if(frame_number % check_interval == 0):
+                    toc = time.time() - tic
+                    print("Real frame rate: %f" % (check_interval / toc))
+                    print("frame number = %d" % features["frame_number"])
+                    tic = time.time()
                     
                 if(features == None):
+                    print("No features found... sleeping")
                     time.sleep(0.1)
                     continue
                     
                 
                 #features["im_array"] = self.camera_device.im_array
-                features["frame_time"] = toc
+                #features["frame_time"] = toc
                 
                 if(features["pupil_position"] != None and features["cr_position"] != None):
                     
@@ -431,13 +449,15 @@ class EyeTrackerController (NSObject):
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
-                            self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
+                            #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
+                            #self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
+                            pass
                     else:
                         if(self.mw_conduit != None):
-                            print("Sent dummy message on conduit")
-                            self.mw_conduit.sendFloat(GAZE_H, 20)
-                            self.mw_conduit.sendFloat(GAZE_V, 20)
+                            #print("Sent dummy message on conduit")
+                            #self.mw_conduit.sendFloat(GAZE_H, 20)
+                            #self.mw_conduit.sendFloat(GAZE_V, 20)
+                            pass
                         
                         
             except Exception, e:

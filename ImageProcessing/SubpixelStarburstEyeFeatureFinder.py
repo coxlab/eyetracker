@@ -171,11 +171,11 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.parameters_updated = True
 
 
-    @clockit
+    ##@clockit
     def analyze_image(self, image, guess, **kwargs):
         """ Begin processing an image to find features
         """
-        print "sb"
+        #print "sb"
         
         use_weave = 0
         if("weave" in kwargs):
@@ -265,7 +265,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         """
         return self.result
         
-    @clockit
+    ##@clockit
     def _find_ray_boundaries(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold, **kwargs):
         """ Find where a set off rays crosses a threshold in an image
             
@@ -332,7 +332,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         
         return boundary_points
 
-    @clockit
+    ##@clockit
     def _find_ray_boundaries_woven(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold, **kwargs):
         """ Find where a set off rays crosses a threshold in an image
 
@@ -469,7 +469,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         vals[bad_elements] = nan
         return vals
     
-    #@clockit
+    ###@clockit
     def _get_image_values_interp(self, im, x,y):
         """ Samples an image at a set of x and y coordinates, using bilinear interpolation
         """
@@ -500,7 +500,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
                 vals[i,j] = val
         return vals    
     
-    @clockit
+    ##@clockit
     def _get_image_values_interp_faster(self, im, x,y):
         """ Samples an image at a set of x and y coordinates, using bilinear interpolation (using no loops)
         """
@@ -549,7 +549,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
         return center, radius, 0.0
     
-    #@clockit      
+    ###@clockit      
     def _fit_circle_to_points_lstsq(self, points):
         """ Fit a circle algebraicly to a set of points, using least squares optimization
         """
@@ -584,7 +584,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         err = mean(self._residuals_circle(array([a,b,c]), points_x, points_y))
         return center_fit, radius_fit, err
 
-    #@clockit
+    ###@clockit
     def _fit_ellipse_to_points(self, points): 
 
         if(points == None or len(points) == 0):
@@ -677,7 +677,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             #return self._fit_circle_to_points_lstsq(points)
             return (array([-1.,-1.]), 0.0, Inf)
 
-    #@clockit
+    ###@clockit
     def _fit_circle_to_points_lstsq_ransac(self, points):
         max_iter = 3
         min_consensus = 8

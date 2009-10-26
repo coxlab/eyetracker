@@ -50,7 +50,7 @@ class WovenBackend (VanillaBackend):
         return self.sobel3x3_separable(image)
 
 
-    @clockit
+    #@clockit
     def sobel3x3_separable(self, image, **kwargs):
         
         sobel_c = array([-1.,0.,1.]).astype(image.dtype)
@@ -64,7 +64,7 @@ class WovenBackend (VanillaBackend):
         return (mag, imgx, imgy)
 
 
-    @clockit
+    #@clockit
     def separable_convolution2d(self, image, row, col, **kwargs):
         
         if not self.autotuned:
@@ -162,7 +162,7 @@ class WovenBackend (VanillaBackend):
 
 
     # borrowed with some translation from Peter Kovesi's fastradial.m
-    @clockit
+    #@clockit
     def fast_radial_transform(self, image, radii, alpha, **kwargs):
 		
         if not self.autotuned:
@@ -344,7 +344,7 @@ class WovenBackend (VanillaBackend):
             if(mod(width,2) == 0):
                 width += 1
             gauss1d = scipy.signal.gaussian(width, 0.25*n).astype(image.dtype)
-            print gauss1d.shape
+            #print gauss1d.shape
             
             S += self.separable_convolution2d(F, gauss1d, gauss1d)
                         
@@ -353,8 +353,8 @@ class WovenBackend (VanillaBackend):
         return S
 
     def find_minmax(self, image, **kwargs):
-        print "Here (woven)"
-        print image
+        #print "Here (woven)"
+        #print image
 
         if(image == None):
             return ([0,0], [0,])

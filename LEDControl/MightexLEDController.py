@@ -47,6 +47,7 @@ class MightexLEDController (IPSerialBridge):
             # set the current (turning on the led)
             self.send("CURRENT %d %d" % (channel, current))
     
+        print "sent again"
     
     def turn_off(self, channel):
     

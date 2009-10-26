@@ -76,9 +76,9 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
     
     # analyze the image and return dictionary of features gleaned
     # from it
-    @clockit
+    ##@clockit
     def analyze_image(self, image, guess = None, **kwargs):
-        print "fr"
+        #print "fr"
         im_array = image
         #im_array = image.astype(double)
         im_array = im_array[::self.ds_factor, ::self.ds_factor]

@@ -40,6 +40,8 @@ class ProsilicaCameraDevice:
 
     def __init__(self, _feature_finder, **kwargs):
         
+        self.frame_number = 0
+        
         self.camera = None
 
         self.im_array = None
@@ -99,10 +101,12 @@ class ProsilicaCameraDevice:
         frame = self.camera.getAndLockCurrentFrame()
         self.im_array = (asarray(frame)).copy()
         self.camera.releaseCurrentFrame()
+        self.frame_number += 1
         
         # start the analysis process
 
-        self.feature_finder.analyze_image(self.im_array.copy(), None)        
+        #self.feature_finder.analyze_image(self.im_array.copy(), None)
+        self.feature_finder.analyze_image(self.im_array.astype(float32), None)        
         return
         
         
@@ -121,6 +125,7 @@ class ProsilicaCameraDevice:
             self.cr_position = features['cr_position'] 
             
         self.nframes_done += 1
+        features["frame_number"] = self.frame_number
         return features
 
 

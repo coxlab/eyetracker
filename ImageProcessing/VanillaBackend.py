@@ -33,7 +33,7 @@ class VanillaBackend (ImageProcessingBackend):
         
         return (mag, imgx, imgy)
 
-    @clockit
+    #@clockit
     def separable_convolution2d(self, image, row, col, **kwargs):
         return sepfir2d(image, row, col)
 

@@ -82,7 +82,7 @@ class MetaKernel:
         self.cached_programs[key] = program
         self.last_program = program
 
-    #@clockit
+    ##@clockit
     def transfer_to_device(self, buf):
 
         if(buf.__class__ == DeviceBuffer):
@@ -93,7 +93,7 @@ class MetaKernel:
             
         return buf_device
 
-    @clockit
+    #@clockit
     def transfer_from_device(self, result_device, result_host=None, **kwargs):
         if result_host is None:
             #print("Allocating result buffer")
@@ -115,7 +115,7 @@ class NaiveSeparableConvolutionKernel (MetaKernel):
         self.cached_row_kernels = {}
         self.cached_col_kernels = {}
      
-    ##@clockit   
+    ###@clockit   
     def build_program(self):
         
         code = """
@@ -201,7 +201,7 @@ class NaiveSeparableConvolutionKernel (MetaKernel):
             
         return program
 
-    ##@clockit
+    ###@clockit
     def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
         
         use_cached_buffers = kwargs.get("use_cached_buffers", True)
@@ -288,7 +288,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         self.cached_row_kernels = {}
         self.cached_col_kernels = {}
 
-    ##@clockit   
+    ###@clockit   
     def build_program(self, dtype, im_shape, row_kernel_radius, row_kernel_radius_aligned, row_tile_width, col_kernel_radius, col_tile_width, col_tile_height, col_hstride):
 
         print "Building kernel..."
@@ -486,7 +486,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         print "Done building."
         return program
 
-    @clockit
+    #@clockit
     def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
 
         use_cached_buffers = kwargs.get("use_cached_buffers", True)
@@ -620,7 +620,7 @@ class FastRadialTransformKernel (MetaKernel):
         self.cached_result_buffers = {}
         self.cached_gaussian_kernels = {}
 
-    ##@clockit   
+    ###@clockit   
     def build_program(self, dtype, im_shape, radii, alpha):
 
         print "Building kernel..."
@@ -628,7 +628,7 @@ class FastRadialTransformKernel (MetaKernel):
 
         print "Done building."
 
-    @clockit
+    #@clockit
     def __call__(self, image, radii, alpha, sobel_triplet=None, **kwargs):
 		
         if sobel_triplet is None:
