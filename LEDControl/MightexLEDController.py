@@ -22,8 +22,12 @@ class MightexLEDController (IPSerialBridge):
         IPSerialBridge.__init__(self, address, port)
         
     def __del__(self):
-        for c in range(0, n_channels):
+        print("Shutting down LEDS")
+        for c in range(0, self.n_channels):
             self.turn_off(c)
+        
+        IPSerialBridge.__del__(self)
+        #self.disconnect()
     
     def current(self, channel):
         
