@@ -14,5 +14,7 @@ class EyeFeatureFinder(KVCCompliant):
     # analyze the image and return dictionary of features gleaned
     # from it 
     def analyze_image(self, image, guess = None, **kwargs):
-        return None
+        return
  
+    def get_processed_image(self):
+        return None

@@ -177,7 +177,7 @@ class StahlLikeCalibrator:
         # Flush queue (somehow a buffer of images is stored during acquisition and must be flushed)
         for i in range(0, 3):
             self.camera.acquire_image()
-            features = self.camera.process_image()
+            features = self.camera.get_processed_image()
         
         pupil_radius = array([])
         cr_radius = array([])
@@ -187,7 +187,7 @@ class StahlLikeCalibrator:
         n_attempt = 0
         while n_count < n and n_attempt < retry:
             self.camera.acquire_image()
-            features = self.camera.process_image()
+            features = self.camera.get_processed_image()
             # Testing on the key 'pupil_position' is enough to guarantee that all other relevant parameters exist
             if features is not None and features['pupil_position'] is not None:
                 pupil_radius = hstack( (pupil_radius, features['pupil_radius']) )
@@ -254,7 +254,7 @@ class StahlLikeCalibrator:
         # ######### Start of Dave's implementation #########
         for i in range(0, n):
             self.camera.acquire_image()
-            avg_features = self.camera.process_image()
+            avg_features = self.camera.get_processed_image()
         avg_features["is_calibrating"] = 1
 
         
@@ -264,7 +264,7 @@ class StahlLikeCalibrator:
               avg_features["pupil_position"] == None or
               avg_features["im_array"] == None):
             self.camera.acquire_image()
-            avg_features = self.camera.process_image()
+            avg_features = self.camera.get_processed_image()
         
         if(self.ui_queue != None):
             try:
@@ -289,7 +289,7 @@ class StahlLikeCalibrator:
         
         for i in range(1, n):
             self.camera.acquire_image()
-            features = self.camera.process_image()
+            features = self.camera.get_processed_image()
             for key in averagable_keys:
                 if(avg_features[key] == None):
                     avg_features[key] += features[key] / float(n)

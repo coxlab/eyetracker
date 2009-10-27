@@ -31,9 +31,15 @@ class PipelinedWorker:
     def start(self):
         while(1):
             input = self.input_queue.get()
+            
+            if input is not None:
+                (im, guess) = input
+            else:
+                im = None
+                guess = None
         
             # else an image
-            self.ff.analyze_image(input)
+            self.ff.analyze_image(im, guess)
             features = self.ff.get_result()
             
             features["transform"] = None
@@ -75,8 +81,14 @@ def worker_loop(ff, image_queue, output_queue, id=-1):
     while(1):
         input = image_queue.get()
         
+        if input is not None:
+            (im, guess) = input
+        else:
+            im = None
+            guess = None
+        
         # else an image
-        ff.analyze_image(input)
+        ff.analyze_image(im, guess)
         features = ff.get_result()
         
         # take these out because they are a bit big
@@ -124,7 +136,7 @@ class PipelinedFeatureFinder:
         if(self.current_input_worker >= len(self.workers)):
             self.current_input_worker = 0
         
-        self.input_queues[self.current_input_worker].put(image)
+        self.input_queues[self.current_input_worker].put((image, guess))
         self.current_input_worker += 1
         
         self.image_queue.put(image)

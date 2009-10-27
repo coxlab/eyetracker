@@ -69,7 +69,7 @@ class FakeCameraDevice:
         
         return
 
-    def	process_image(self, guess = None):
+    def	get_processed_image(self, guess = None):
         if(self.im_array == None):
             raise Exception, "Attempt to process an image without acquiring one"
 

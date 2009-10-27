@@ -74,10 +74,13 @@ class POVRaySimulatedCameraDevice:
         self.tilt = 0.0
         
         self.image_center = (self.w/2, self.h/2)
+        
+        self.frame_number = 0
 
 
     def acquire_image(self):
                     
+        tic = time.time()
         x = self.stages.current_position(self.stages.x_axis)
         y = self.stages.current_position(self.stages.y_axis)
         r = self.stages.current_position(self.stages.r_axis)
@@ -198,11 +201,16 @@ class POVRaySimulatedCameraDevice:
         self.im_array = a.astype(float32)
         #self.im_array = self.im_array[:, 1:]
                 
+        self.frame_number += 1
+        
+        toc = time.time() - tic
+        #print("Actual acquire time: %f" % toc)
+                                
         # start the analysis process
-        self.feature_finder.analyze_image(self.im_array.copy(), None)        
+        self.feature_finder.analyze_image(self.im_array.copy(), {"frame_number" : self.frame_number})        
         return
 
-    def	process_image(self, guess = None):
+    def	get_processed_image(self, guess = None):
         
         #self.feature_finder.analyze_image(self.im_array,None)
         features = self.feature_finder.get_result()

@@ -187,7 +187,7 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = False
+        self.use_simulated = True
 
 
         use_file_for_cam = False
@@ -273,7 +273,7 @@ class EyeTrackerController (NSObject):
         
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 4
+        nworkers = 2
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
@@ -318,7 +318,7 @@ class EyeTrackerController (NSObject):
             NSLog("Failing over to Simulated Camera")
             
             # use a POV-Ray simulated camera + a simpler feature finder that works with it
-            self.camera_device = POVRaySimulatedCameraDevice(self.feature_finder, self.stages, self.leds, -370.0, quiet = 1, image_width=320, image_height=240)
+            self.camera_device = POVRaySimulatedCameraDevice(self.feature_finder, self.stages, self.leds, -370.0, quiet = 1, image_width=160, image_height=120)
             self.camera_device.move_eye(array([10.0, -10.0, 0.0]))
             self.camera_device.acquire_image()
             
@@ -409,16 +409,20 @@ class EyeTrackerController (NSObject):
             try:
                 
                 self.camera_device.acquire_image()
-                new_features = self.camera_device.process_image(self.features)
+                new_features = self.camera_device.get_processed_image(self.features)
                 
-                if(new_features.__class__ == dict and features.__class__ == dict and new_features["frame_number"] != features["frame_number"]):
+                if(new_features.__class__ == dict and features.__class__ == dict 
+                                                  and "frame_number" in new_features
+                                                  and "frame_number" in features
+                                                  and new_features["frame_number"] != features["frame_number"]):
                     frame_number += 1
                 features = new_features
                 check_interval = 100
                 if(frame_number % check_interval == 0):
                     toc = time.time() - tic
                     print("Real frame rate: %f" % (check_interval / toc))
-                    print("frame number = %d" % features["frame_number"])
+                    if features.__class__ == dict and "frame_number" in features:
+                        print("frame number = %d" % features["frame_number"])
                     tic = time.time()
                     
                 if(features == None):
@@ -485,6 +489,7 @@ class EyeTrackerController (NSObject):
         
         try:
             features = self.ui_queue.get_nowait()
+            
         except Empty, e:
             #self.camera_canvas.performSelectorOnMainThread_withObject_waitUntilDone_(objc.selector(self.camera_canvas.scheduleRedisplay,signature='v@:'), objc.nil, False)
             

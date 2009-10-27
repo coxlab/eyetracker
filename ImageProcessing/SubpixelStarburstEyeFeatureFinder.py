@@ -184,6 +184,11 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # Clear the result
         self.result = None
         
+        features ={}
+        if guess is not None and "frame_number" in guess:
+            features["frame_number"] = guess["frame_number"]
+            
+        
         # This is the starting seed-point from which we will start
         cr_guess = guess["cr_position"]
         pupil_guess = guess["pupil_position"]
@@ -231,7 +236,6 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             pupil_radius = 0.0
         
         # Pack up the results
-        features ={}
         try:
             features["cr_position"] = cr_position
             features["pupil_position"] = pupil_position
