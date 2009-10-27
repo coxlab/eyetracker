@@ -62,7 +62,6 @@
 		5CD24BDF1046DF4200B621C5 /* python_env in Resources */ = {isa = PBXBuildFile; fileRef = 5CD237061046DF3E00B621C5 /* python_env */; };
 		6880E3590FA8CADF0001A812 /* FocusAndZoomController.py in Resources */ = {isa = PBXBuildFile; fileRef = 6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */; };
 		77631A3F0C0748CF005415CB /* main.py in Resources */ = {isa = PBXBuildFile; fileRef = 77631A3E0C0748CF005415CB /* main.py */; };
-		7790198F0C07548A00326F66 /* EyeTrackerAppDelegate.py in Resources */ = {isa = PBXBuildFile; fileRef = 7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */; };
 		77C8C1F90C07829500965286 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77C8C1F70C07829500965286 /* MainMenu.xib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -124,7 +123,6 @@
 		5CD237061046DF3E00B621C5 /* python_env */ = {isa = PBXFileReference; lastKnownFileType = folder; path = python_env; sourceTree = "<group>"; };
 		6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FocusAndZoomController.py; sourceTree = "<group>"; };
 		77631A3E0C0748CF005415CB /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
-		7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyeTrackerAppDelegate.py; sourceTree = "<group>"; };
 		77C8C1F80C07829500965286 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* EyeTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EyeTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,7 +152,6 @@
 				5C1499180ECCDBEF00FB73BB /* MotionControl */,
 				5C14991C0ECCDBEF00FB73BB /* Utilities */,
 				5C1498F10ECCDBD900FB73BB /* Camera */,
-				7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -405,7 +402,6 @@
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				77631A3F0C0748CF005415CB /* main.py in Resources */,
-				7790198F0C07548A00326F66 /* EyeTrackerAppDelegate.py in Resources */,
 				77C8C1F90C07829500965286 /* MainMenu.xib in Resources */,
 				5C1498FE0ECCDBD900FB73BB /* FakeCameraDevice.py in Resources */,
 				5C1499040ECCDBD900FB73BB /* ProsilicaCameraDevice.py in Resources */,

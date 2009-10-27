@@ -174,20 +174,35 @@ class EyeTrackerController (NSObject):
     continuously_acquiring = 0
     
     
-    def applicationShouldTerminate_(self, sender):
+    def applicationShouldTerminate_(self, application):
+        NSLog(u"Application should terminate called...")
+
+        
+        
         if(self.stages is not None):
             self.stages.disconnect()
         if(self.zoom_and_focus is not None):
             self.zoom_and_focus.disconnect()
         if(self.leds is not None):
-            self.leds.disconnect()
+            self.leds = None
+            #self.leds.shutdown()
+        
+        self.continuously_acquiring = False
+        self.camera_update_timer.invalidate()
+        
+        time.sleep(5)
+        
+        self.calibrator = None
+        self.camera = None
+        
+        return True
         
     def awakeFromNib(self):
         
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = True
+        self.use_simulated = False
 
 
         use_file_for_cam = False
@@ -273,7 +288,7 @@ class EyeTrackerController (NSObject):
         
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 2
+        nworkers = 4
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
@@ -328,7 +343,7 @@ class EyeTrackerController (NSObject):
         self.start_continuous_acquisition()
         
         update_display_selector = objc.selector(self.updateCameraCanvas,signature='v@:')
-        self.ui_interval = 1./30
+        self.ui_interval = 1./10
         self.camera_update_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(self.ui_interval, self, update_display_selector,None,True)
         self.start_time = time.time()
         self.last_time = self.start_time

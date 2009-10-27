@@ -28,7 +28,7 @@ class IPSerialBridge:
         self.socket.setblocking(0)
         
     def disconnect(self):
-        self.socket.shutdown()
+        self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
       
     

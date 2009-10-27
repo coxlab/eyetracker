@@ -78,8 +78,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 278351255;
-			PBXWorkspaceStateSaveDate = 278351255;
+			PBXPerProjectTemplateStateSaveDate = 278351604;
+			PBXWorkspaceStateSaveDate = 278351604;
 		};
 		perUserProjectItems = {
 			5C00A6C30FA89C04003D9FE0 = 5C00A6C30FA89C04003D9FE0 /* PBXTextBookmark */;
@@ -933,7 +933,6 @@
 	};
 	5CA6790D0F6869AC00773E97 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
-		fRef = 7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */;
 		name = "EyeTrackerAppDelegate.py: 1";
 		rLen = 0;
 		rLoc = 0;
@@ -1099,13 +1098,6 @@
 			sepNavIntBoundsRect = "{{0, 0}, {767, 558}}";
 			sepNavSelRange = "{168, 0}";
 			sepNavVisRange = "{0, 507}";
-		};
-	};
-	7790198E0C07548A00326F66 /* EyeTrackerAppDelegate.py */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1014, 626}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 336}";
 		};
 	};
 	8D1107260486CEB800E47090 /* EyeTracker */ = {
