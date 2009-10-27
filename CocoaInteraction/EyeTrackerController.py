@@ -328,7 +328,8 @@ class EyeTrackerController (NSObject):
         self.start_continuous_acquisition()
         
         update_display_selector = objc.selector(self.updateCameraCanvas,signature='v@:')
-        self.camera_update_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(1./30, self, update_display_selector,None,True)
+        self.ui_interval = 1./30
+        self.camera_update_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(self.ui_interval, self, update_display_selector,None,True)
         self.start_time = time.time()
         self.last_time = self.start_time
         
@@ -403,6 +404,8 @@ class EyeTrackerController (NSObject):
         frame_number = 0
         tic = time.time()
         features = None
+        
+        self.last_ui_put_time = time.time()
         while(self.continuously_acquiring):
             self.camera_locked = 1
             
@@ -471,10 +474,13 @@ class EyeTrackerController (NSObject):
                 for f in formatted[2]:
                     print f
             
-            try:
-                self.ui_queue.put_nowait(features)
-            except:
-                pass
+            if (time.time() - self.last_ui_put_time) > self.ui_interval:
+                try:
+                    self.ui_queue.put_nowait(features)
+                    self.last_ui_put_time = time.time()
+                except:
+                    pass
+            
             
         self.camera_locked = 0
         
