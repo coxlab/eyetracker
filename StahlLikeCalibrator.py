@@ -345,7 +345,7 @@ class StahlLikeCalibrator:
             # correct frst y_equator based on the possible displacemnt of the top CR
             y_equator = self.y_equator + (cr_coordinates[:,self.y_image_axis] - self.y_topCR_ref)
             y_displacement = pupil_coordinates[:,self.y_image_axis] - y_equator
-            elevation = arcsin( y_displacement / self.Rp ) * 180/pi
+            elevation = -arcsin( y_displacement / self.Rp ) * 180/pi
             azimuth = arcsin( (pupil_coordinates[:,self.x_image_axis] - cr_coordinates[:,self.x_image_axis]) / sqrt( self.Rp**2 - y_displacement**2 ) ) * 180/pi                
         else:
             print "Calibration must be run before transformations are allowed"

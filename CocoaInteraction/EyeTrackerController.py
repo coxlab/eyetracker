@@ -25,7 +25,7 @@ from EyetrackerUtilities import *
 from CobraEyeTracker import *
 
 # boost.python wrapper for a MonkeyWorks interprocess conduit
-#mw_enabled = False
+mw_enabled = False
 
 try:
     from mw_conduit import *
@@ -125,6 +125,7 @@ class EyeTrackerController (NSObject):
     
     pupil_position_x = objc.ivar(u"pupil_position_x")
     pupil_position_y = objc.ivar(u"pupil_position_y")
+    pupil_radius = objc.ivar(u"pupil_radius")
     cr_position_x = objc.ivar(u"cr_position_x")
     cr_position_y = objc.ivar(u"cr_position_y")
     
@@ -286,6 +287,8 @@ class EyeTrackerController (NSObject):
         self.features = None
         self.frame_rates = []
         
+        #self.azimuth_set = 0.0
+        #self.elevation_set = 0.0
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
         nworkers = 0
@@ -458,7 +461,7 @@ class EyeTrackerController (NSObject):
                     pupil_position = features["pupil_position"]
                     cr_position = features["cr_position"]
                     if("pupil_radius" in features and features["pupil_radius"] != None):
-                        self.pupil_radius = features["pupil_radius"]
+                        pupil_radius = features["pupil_radius"]
                     
                     
                     if(self.calibrator.calibrated):
@@ -467,8 +470,8 @@ class EyeTrackerController (NSObject):
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
-                            self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
+                            self.mw_conduit.sendFloat(GAZE_V, self.gaze_elevation)
+                            self.mw_conduit.sendFloat(GAZE_H, self.gaze_azimuth)
                             pass
                     else:
                         if(self.mw_conduit != None):
@@ -481,6 +484,7 @@ class EyeTrackerController (NSObject):
                     if(frame_number % check_interval == 0):
                         self._.pupil_position_x = pupil_position[1]
                         self._.pupil_position_y = pupil_position[0]
+                        self._.pupil_radius = pupil_radius
                         self._.cr_position_x = cr_position[1]
                         self._.cr_position_y = cr_position[0]
                         self._.gaze_azimuth = self.gaze_azimuth
@@ -705,7 +709,7 @@ class EyeTrackerController (NSObject):
     def report_gaze(self, az=None, el=None):
         # TODO: fix for consistency
         if(self.camera_device.__class__ == POVRaySimulatedCameraDevice):
-            self.camera_device.move_eye(array([self.azimuth_set, self.elevation_set, 0.0]))
+            self.camera_device.move_eye(array([self.measurement_controller.azimuth_set, self.measurement_controller.elevation_set, 0.0]))
         
         mean_el, mean_az, std_el, std_az = self.calibrator.report_set_gaze_values()
         
@@ -732,8 +736,8 @@ class EyeTrackerController (NSObject):
     def collect_gaze_set_blocking(self):
         for h in range(-15,15,5):
             for v in range(-15,15,5):
-                self.azimuth_set = h
-                self.elevation_set = v
+                self.measurement_controller._.azimuth_set = h
+                self.measurement_controller._.elevation_set = v
                 self.report_gaze()
                 
                 time.sleep(0.25)

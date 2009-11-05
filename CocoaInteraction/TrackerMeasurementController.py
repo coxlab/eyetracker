@@ -29,8 +29,8 @@ class TrackerMeasurementController(NSArrayController):
     overall_controller = IBOutlet()
 
     def awakeFromNib(self):
-        self.azimuth_set = 0.0
-        self.elevation_set = 0.0
+        self._.azimuth_set = 0.0
+        self._.elevation_set = 0.0
         
     def add_measurement(self, mean_az, mean_el, std_az, std_el, true_az=None, true_el=None):
         
