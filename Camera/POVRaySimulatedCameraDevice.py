@@ -10,7 +10,7 @@ import Povray as pov
 from numpy import *
 import os
 import PIL.Image
-import pylab
+import matplotlib.pylab as pylab
 import time
 #from EyeTrackerCameraDevice import *
 

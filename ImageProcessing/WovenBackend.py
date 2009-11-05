@@ -162,7 +162,7 @@ class WovenBackend (VanillaBackend):
 
 
     # borrowed with some translation from Peter Kovesi's fastradial.m
-    #@clockit
+    @clockit
     def fast_radial_transform(self, image, radii, alpha, **kwargs):
 		
         if not self.autotuned:
@@ -340,13 +340,27 @@ class WovenBackend (VanillaBackend):
             # by n so that large scales do not lose their relative weighting.
             #A = fspecial('gaussian',[n n], 0.25*n) * n;
             #S = S + filter2(A,F);
-            width = round(gaussian_kernel_cheat * n)
+            
+            if True:
+                width = round(gaussian_kernel_cheat * n)
+                if(mod(width,2) == 0):
+                    width += 1
+                gauss1d = scipy.signal.gaussian(width, 0.5*n).astype(image.dtype)
+                #print gauss1d.shape
+                
+                S += self.separable_convolution2d(F, gauss1d, gauss1d)
+            else:
+                S += F
+
+        if False:
+            width = round(gaussian_kernel_cheat * radii[len(radii)-1])
             if(mod(width,2) == 0):
                 width += 1
-            gauss1d = scipy.signal.gaussian(width, 0.25*n).astype(image.dtype)
+            gauss1d = scipy.signal.gaussian(width, 0.25*width).astype(image.dtype)
             #print gauss1d.shape
             
-            S += self.separable_convolution2d(F, gauss1d, gauss1d)
+            S = self.separable_convolution2d(S, gauss1d, gauss1d)
+
                         
         S = S/len(radii);  # Average
         

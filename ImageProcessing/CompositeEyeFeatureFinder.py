@@ -10,7 +10,7 @@
 from EyeFeatureFinder import *
 from scipy import *
 import time
-from pylab import *
+from matplotlib.pylab import *
 from PIL import Image
 from PIL import ImageFilter
 from numpy import *

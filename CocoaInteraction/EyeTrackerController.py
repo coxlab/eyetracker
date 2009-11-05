@@ -19,7 +19,7 @@ from Queue import Queue, Empty
 
 from numpy import *
 from scipy import *
-from pylab import *
+from matplotlib.pylab import *
 
 from EyetrackerUtilities import *
 from CobraEyeTracker import *
@@ -202,7 +202,7 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = False
+        self.use_simulated = True
 
 
         use_file_for_cam = False
@@ -288,7 +288,7 @@ class EyeTrackerController (NSObject):
         
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 4
+        nworkers = 0
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)

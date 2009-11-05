@@ -17,7 +17,7 @@
 import prosilica as p
 #from EyeTrackerCameraDevice import *
 from numpy import *
-import pylab
+import matplotlib.pylab as pylab
 
 import os
 import time

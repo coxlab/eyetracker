@@ -13,7 +13,7 @@ import objc
 from objc import IBAction, IBOutlet
 import matplotlib
 matplotlib.use("module://cocoa_backend")
-from pylab import *
+from matplotlib.pylab import *
 
 from CobraEyeTracker import *
 
