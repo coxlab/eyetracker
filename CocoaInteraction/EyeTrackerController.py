@@ -36,7 +36,7 @@ except Exception, e:
     print("Unable to load MW conduit: %s" % e)
 
 # no, actually turn it off...
-mw_enabled = False
+#mw_enabled = False
 
 class FeatureFinderAdaptor (NSObject):
         
@@ -343,7 +343,7 @@ class EyeTrackerController (NSObject):
         self.start_continuous_acquisition()
         
         update_display_selector = objc.selector(self.updateCameraCanvas,signature='v@:')
-        self.ui_interval = 1./10
+        self.ui_interval = 1./15
         self.camera_update_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(self.ui_interval, self, update_display_selector,None,True)
         self.start_time = time.time()
         self.last_time = self.start_time
@@ -438,6 +438,7 @@ class EyeTrackerController (NSObject):
                 check_interval = 100
                 if(frame_number % check_interval == 0):
                     toc = time.time() - tic
+                    self.frame_rate = check_interval / toc
                     print("Real frame rate: %f" % (check_interval / toc))
                     if features.__class__ == dict and "frame_number" in features:
                         print("frame number = %d" % features["frame_number"])
@@ -459,11 +460,6 @@ class EyeTrackerController (NSObject):
                     if("pupil_radius" in features and features["pupil_radius"] != None):
                         self.pupil_radius = features["pupil_radius"]
                     
-                    # set values for the bindings GUI
-                    self.pupil_position_x = pupil_position[1]
-                    self.pupil_position_y = pupil_position[0]
-                    self.cr_position_x = cr_position[1]
-                    self.cr_position_y = cr_position[0]
                     
                     if(self.calibrator.calibrated):
                         #pupil_coordinates = [self.pupil_position_x, self.pupil_position_y]
@@ -471,8 +467,8 @@ class EyeTrackerController (NSObject):
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
-                            #self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
+                            self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
+                            self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
                             pass
                     else:
                         if(self.mw_conduit != None):
@@ -480,7 +476,16 @@ class EyeTrackerController (NSObject):
                             #self.mw_conduit.sendFloat(GAZE_H, 20)
                             #self.mw_conduit.sendFloat(GAZE_V, 20)
                             pass
-                        
+                    
+                    # set values for the bindings GUI
+                    if(frame_number % check_interval == 0):
+                        self._.pupil_position_x = pupil_position[1]
+                        self._.pupil_position_y = pupil_position[0]
+                        self._.cr_position_x = cr_position[1]
+                        self._.cr_position_y = cr_position[0]
+                        self._.gaze_azimuth = self.gaze_azimuth
+                        self._.gaze_elevation = self.gaze_elevation
+                        self._.frame_rate = self.frame_rate
                         
             except Exception, e:
                 print e.message
@@ -948,17 +953,17 @@ class EyeTrackerController (NSObject):
 
     @IBAction
     def readPos_(self, sender):
-        self.x_current = self.stages.current_position(self.stages.x_axis)
-        self.y_current = self.stages.current_position(self.stages.y_axis)
-        self.r_current = self.stages.current_position(self.stages.r_axis)
+        self._.x_current = self.stages.current_position(self.stages.x_axis)
+        self._.y_current = self.stages.current_position(self.stages.y_axis)
+        self._.r_current = self.stages.current_position(self.stages.r_axis)
         
-        self.focus_current = self.zoom_and_focus.current_focus()
-        self.zoom_current = self.zoom_and_focus.current_zoom()
+        self._.focus_current = self.zoom_and_focus.current_focus()
+        self._.zoom_current = self.zoom_and_focus.current_zoom()
 #        if(self.calibrator.calibrated):
         self.d_current = self.calibrator.d
         if self.calibrator.Rp is not None and self.calibrator.pixels_per_mm is not None:
-            self.rp_current = self.calibrator.Rp / self.calibrator.pixels_per_mm
-        self.pupil_cr_diff = self.calibrator.pupil_cr_diff
+            self._.rp_current = self.calibrator.Rp / self.calibrator.pixels_per_mm
+        self._.pupil_cr_diff = self.calibrator.pupil_cr_diff
         
         #else:
         #    self.d_current = objc.nil
