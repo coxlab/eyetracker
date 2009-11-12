@@ -277,7 +277,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             im -- An image (usually a gradient magnitude image) in which crossing will be found
             seed_point -- the origin from which rays will be projected
             zero_referenced_rays -- the set of rays (starting at zero) to sample.  nrays x ray_sampling x image_dimension
-            central_cutoff_index -- the index along zero_referenced_rays below which we are sure that we are
+            cutoff_index -- the index along zero_referenced_rays below which we are sure that we are
                                     still within the feature.  Used to normalize threshold.
             threshold -- the threshold to cross, expressed in standard deviations across the ray samples
         """
@@ -318,7 +318,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         
         
         # scan inward-to-outward to find the first threshold crossing
-        for r in range(0, vals.shape[0]):
+        for r in range(cutoff_index, vals.shape[0]):
             crossed = False
             for v in range(1, vals.shape[1]):
                 if(isnan(v)):
@@ -344,7 +344,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             im -- An image (usually a gradient magnitude image) in which crossing will be found
             seed_point -- the origin from which rays will be projected
             zero_referenced_rays -- the set of rays (starting at zero) to sample.  nrays x ray_sampling x image_dimension
-            central_cutoff_index -- the index along zero_referenced_rays below which we are sure that we are
+            cutoff_index -- the index along zero_referenced_rays below which we are sure that we are
                                     still within the feature.  Used to normalize threshold.
             threshold -- the threshold to cross, expressed in standard deviations across the ray samples
         """
@@ -418,7 +418,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             
             double normalized_threshold = std_val * threshold + mean_val;
             
-            for(int r=0; r < n_rays; r++){
+            for(int r=cutoff_index; r < n_rays; r++){
                 short crossed = 0;
                 for(int s=1; s < n_ray_samples; s++){
                     int index = r*n_ray_samples + s;
