@@ -283,7 +283,7 @@ class TrackerCameraView(NSOpenGLView):
         
         
         glBegin(GL_LINES)
-        glColor((0.,1.,0.,1.0))
+        glColor((0.,0.8,0.,1.0))
         
             
         for i in range(0, len(pupil_rays_start)):
@@ -304,16 +304,19 @@ class TrackerCameraView(NSOpenGLView):
         
         glEnd()
         
-    
-        glBegin(GL_POINTS)
-        glColor((1.,0.,0.,1.))
+        #glPointSize(2.0)
+        glBegin(GL_LINE_LOOP)
+        #glBegin(GL_POINTS)
+        glColor((1.,0.65,0.,1.))
         for i in range(0, len(pupil_boundary)):
             bound = self.__imageCoordsToTextureCoords(pupil_boundary[i])
             glVertex3f( bound[0], bound[1], 0. )
+        glEnd()
         
+        glBegin(GL_LINE_LOOP)
+        glColor((1.0, 0.65, 0.0, 1.0))
         for i in range(0, len(cr_boundary)):
             bound = self.__imageCoordsToTextureCoords(cr_boundary[i])
             glVertex3f( bound[0], bound[1], 0. )
-        
         glEnd()
     
