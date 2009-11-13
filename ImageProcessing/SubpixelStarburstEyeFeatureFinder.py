@@ -318,9 +318,9 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         
         
         # scan inward-to-outward to find the first threshold crossing
-        for r in range(cutoff_index, vals.shape[0]):
+        for r in range(0, vals.shape[0]):
             crossed = False
-            for v in range(1, vals.shape[1]):
+            for v in range(cutoff_index, vals.shape[1]):
                 if(isnan(v)):
                     #print "end of ray"
                     break
@@ -418,9 +418,9 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             
             double normalized_threshold = std_val * threshold + mean_val;
             
-            for(int r=cutoff_index; r < n_rays; r++){
+            for(int r=0; r < n_rays; r++){
                 short crossed = 0;
-                for(int s=1; s < n_ray_samples; s++){
+                for(int s=cutoff_index; s < n_ray_samples; s++){
                     int index = r*n_ray_samples + s;
                     double val = vals[index];
                     
