@@ -203,7 +203,7 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = False
+        self.use_simulated = True
 
 
         use_file_for_cam = False
