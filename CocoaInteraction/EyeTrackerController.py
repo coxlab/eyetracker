@@ -28,9 +28,13 @@ from CobraEyeTracker import *
 #mw_enabled = False
 
 try:
-    from mw_conduit import *
+    sys.path.append("/Library/Application Support/MonkeyWorks/Scripting/Python")
+    import monkeyworks.conduit as mw_conduit
     GAZE_H = 0
     GAZE_V = 1
+    PUPIL_RADIUS = 2
+    TIMESTAMP = 3
+    GAZE_INFO = 4
     mw_enabled = True
 except Exception, e:
     print("Unable to load MW conduit: %s" % e)
@@ -177,8 +181,6 @@ class EyeTrackerController (NSObject):
     def applicationShouldTerminate_(self, application):
         NSLog(u"Application should terminate called...")
 
-        
-        
         if(self.stages is not None):
             self.stages.disconnect()
         if(self.zoom_and_focus is not None):
@@ -365,7 +367,7 @@ class EyeTrackerController (NSObject):
         
         if(mw_enabled):
             print("Creating mw conduit")
-            self.mw_conduit = mwIPCServerConduit("cobra1")
+            self.mw_conduit = mw_conduit.IPCServerConduit("cobra1")
             print("conduit = %s" % self.mw_conduit)
         else:
             self.mw_conduit = None
@@ -373,8 +375,7 @@ class EyeTrackerController (NSObject):
         if(self.mw_conduit != None):
             print("Initializing conduit")
             self.mw_conduit.initialize()
-            self.mw_conduit.sendFloat(GAZE_H, 20.0)
-            self.mw_conduit.sendFloat(GAZE_V, 20.0)
+            self.mw_conduit.send_data(GAZE_INFO, (-1000, -1000, -1000))
         else:
             print "no conduit"
         
@@ -455,6 +456,8 @@ class EyeTrackerController (NSObject):
                 
                 if(features["pupil_position"] != None and features["cr_position"] != None):
                     
+                    timestamp = features.get("timestamp", 0)
+                    
                     pupil_position = features["pupil_position"]
                     cr_position = features["cr_position"]
                     if("pupil_radius" in features and features["pupil_radius"] != None):
@@ -467,14 +470,13 @@ class EyeTrackerController (NSObject):
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
-                            self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
+                            self.mw_conduit.send_data(GAZE_INFO, (float(self.gaze_azimuth), float(self.gaze_elevation), float(self.pupil_radius), int(timestamp)));
+                            
+                            #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
+                            #self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
                             pass
                     else:
                         if(self.mw_conduit != None):
-                            #print("Sent dummy message on conduit")
-                            #self.mw_conduit.sendFloat(GAZE_H, 20)
-                            #self.mw_conduit.sendFloat(GAZE_V, 20)
                             pass
                     
                     # set values for the bindings GUI

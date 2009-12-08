@@ -460,7 +460,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\ncd Camera/Prosilica\n/usr/local/bin/swig -c++ -shadow -python -IProsilicaGigESDK_mac/inc-pc -IProsilica prosilica_cpp.i\nmake prosilica_module\n";
+			shellScript = "# shell script goes here\ncd Camera/Prosilica\n/usr/local/bin/swig -c++ -shadow -python -IProsilicaGigESDK_mac/inc-pc -IProsilica prosilica_cpp.i\nmake -f Makefile.macosx64 prosilica_module\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

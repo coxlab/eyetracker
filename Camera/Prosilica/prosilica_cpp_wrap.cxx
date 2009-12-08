@@ -4136,7 +4136,7 @@ SWIG_AsVal_int (PyObject * obj, int *val)
 }
 
 SWIGINTERN PyObject *tPvFrame___get_array_struct(tPvFrame *self){
-	PyArrayInterface *inter;
+        PyArrayInterface *inter;
 
 		inter = (PyArrayInterface *)malloc(sizeof(PyArrayInterface));
 

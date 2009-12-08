@@ -83,6 +83,8 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
         if(sobel_avg is not None):
             features['sobel_avg'] = sobel_avg
         
+        features['timestamp'] = guess.get('timestamp', 0)
+        
         self.result = self.last = features
 
 

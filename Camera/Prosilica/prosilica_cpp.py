@@ -332,6 +332,7 @@ class tPvFrame(_object):
     def __get_array_struct(*args): return _prosilica_cpp.tPvFrame___get_array_struct(*args)
     def __get_timestamp(*args): return _prosilica_cpp.tPvFrame___get_timestamp(*args)
     __array_struct__ = property(__get_array_struct, doc="Array Protocol")
+    timestamp = property(__get_timestamp)
 
     def __init__(self, *args): 
         this = _prosilica_cpp.new_tPvFrame(*args)
