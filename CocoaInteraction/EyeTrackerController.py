@@ -711,7 +711,7 @@ class EyeTrackerController (NSObject):
         if(self.camera_device.__class__ == POVRaySimulatedCameraDevice):
             self.camera_device.move_eye(array([self.measurement_controller.azimuth_set, self.measurement_controller.elevation_set, 0.0]))
         
-        mean_el, mean_az, std_el, std_az = self.calibrator.report_set_gaze_values()
+        mean_az, mean_el, std_az, std_el = self.calibrator.report_set_gaze_values()
         
         self.measurement_controller.add_measurement(mean_az, mean_el, std_az, std_el,az,el)
         
@@ -730,12 +730,12 @@ class EyeTrackerController (NSObject):
     
     @IBAction
     def collectgazeset_(self, sender):
-        self.execute_calibration_step( self.collect_gaze_set_blocking() )
+        self.execute_calibration_step( self.collect_gaze_set_blocking )
         
         
     def collect_gaze_set_blocking(self):
-        for h in range(-15,15,5):
-            for v in range(-15,15,5):
+        for h in range(-15,16,5): # take this to 16, so that it actually gets to 15
+            for v in range(-15,16,5):
                 self.measurement_controller._.azimuth_set = h
                 self.measurement_controller._.elevation_set = v
                 self.report_gaze()

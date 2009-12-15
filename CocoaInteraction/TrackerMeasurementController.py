@@ -72,7 +72,27 @@ class TrackerMeasurementController(NSArrayController):
             
         figure()
         
-        errorbar(azimuths, elevations, az_errs, el_errs,  'rx')
+        errorbar(azimuths, elevations, az_errs, el_errs,  'bx')
+        grid(alpha=0.5)
+        
+        # calculate errors and plot them
+        for i in xrange(len(azimuths)):
+            # calculate nearest grid intersection
+            x = round(azimuths[i]/5.0) * 5.0
+            y = round(elevations[i]/5.0) * 5.0
+            # calculate error
+            xErr = azimuths[i] - x
+            yErr = elevations[i] - y
+            t = "%.2f,%.2f" % (xErr, yErr)
+            if max(abs(xErr), abs(yErr)) >= 0.5:
+                tSize = 'x-small'
+            else:
+                tSize = 'xx-small'
+            # draw line from nearest intersection to the measured point
+            plot([x,azimuths[i]],[y,elevations[i]],'r')
+            # label the point with the azimuth and elevation error
+            text(azimuths[i], elevations[i], t, size=tSize)
+            
         
         meansq_az = mean((array(azimuths) - array(true_azs))**2)
         meansq_el = mean((array(elevations) - array(true_els))**2)

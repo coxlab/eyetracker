@@ -125,7 +125,7 @@ class ESP300StageController(IPSerialBridge):
         self.send("%dWS%.4f" % (axis, t_wait), 1)
 
     def power_down(self, axis):
-        self.send("%dMF" % axis, 1)
+        self.send("%dMF", axis)
 
 
 
