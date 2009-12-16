@@ -139,7 +139,7 @@ class TrackerCameraView(NSOpenGLView):
         else:
             radius = 10
         
-        #self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.pupil_position), (0.,1.,0.5), 0.06, 0.002)        
+        #self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.pupil_position), (0.,1.,0.5), 0.06, 0.002)
         self.renderCircle(self.__imageCoordsToTextureCoords(self.pupil_position),  self.__imageLengthToTextureLength(radius), (1.,0.,0.0), 0.004)
         #self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.pupil_position),  (1.,0.,0.0), self.__imageLengthToTextureLength(radius), 0.002)
         
@@ -201,6 +201,7 @@ class TrackerCameraView(NSOpenGLView):
         glPushMatrix()
         #glTranslate(100., 100., 0)
         glTranslate(location[0], location[1], 0.0)
+        
         # radius is a 2 long array, is this x and y length?
         # what is the 'weight' is this the thickness of the line?
         r1 = radius + (weight / 2)

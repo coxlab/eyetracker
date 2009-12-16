@@ -202,13 +202,13 @@ class StahlLikeCalibrator:
         
         if pupil_radius.shape[0] > 0:
         
-            # Compensate for lens distorsions
-            cr_position = cr_position.transpose()
-            cr_position = self.CompLensDistor.fully_compensate( cr_position, None )
-            cr_position = cr_position.transpose()
-            pupil_position = pupil_position.transpose()
-            pupil_position = self.CompLensDistor.fully_compensate( pupil_position, None )
-            pupil_position = pupil_position.transpose()
+            ## Compensate for lens distorsions
+            #cr_position = cr_position.transpose()
+            #cr_position = self.CompLensDistor.fully_compensate( cr_position, None )
+            #cr_position = cr_position.transpose()
+            #pupil_position = pupil_position.transpose()
+            #pupil_position = self.CompLensDistor.fully_compensate( pupil_position, None )
+            #pupil_position = pupil_position.transpose()
             
             med_features = features
             med_features["is_calibrating"] = 1
@@ -243,6 +243,7 @@ class StahlLikeCalibrator:
         if(self.ui_queue != None):
             try:
                 self.ui_queue.put_nowait(med_features)
+                #print "!@#$!@#$!@#$!@#$!@#$ used median features"
             except Full, e:
                 print "Calibrator: unable to communicate with GUI"
                 pass
