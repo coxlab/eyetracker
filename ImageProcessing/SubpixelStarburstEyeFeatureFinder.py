@@ -539,7 +539,6 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
     def _fit_mean_to_points(self, points):
         """ Fit the center and radius of a set of points using the mean and std of the point cloud
         """
-        
         if(points == None or len(points) == 0):
             return array([-1.,-1.]), 0.0, Inf
         
@@ -670,7 +669,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
             center_fit = [X0_in[0], Y0_in[0]]
             #print "Estimated Ellipse center =", X0_in, Y0_in
-            return array(center_fit), long_axis, 0.0
+            return array(center_fit), long_axis / 2.0, 0.0
 
         elif test == 0:
             print "Error in ellipse fitting: parabola found instead of ellipse"
