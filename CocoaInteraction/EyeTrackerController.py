@@ -464,12 +464,13 @@ class EyeTrackerController (NSObject):
                     pupil_position = features["pupil_position"]
                     cr_position = features["cr_position"]
                     
+                    pupil_radius = 0.0
                     # get pupil radius in mm
-                    if("pupil_radius" in features and features["pupil_radius"] != None and self.calibrator.pixels_per_mm is not None):
+                    if("pupil_radius" in features and features["pupil_radius"] != None and self.calibrator is not None and self.calibrator.pixels_per_mm is not None):
                         pupil_radius = features["pupil_radius"] / self.calibrator.pixels_per_mm
                     
                     
-                    if(self.calibrator.calibrated):
+                    if(self.calibrator is not None and self.calibrator.calibrated):
                         #pupil_coordinates = [self.pupil_position_x, self.pupil_position_y]
                         #cr_coordinates = [self.cr_position_x, self.cr_position_y]
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)

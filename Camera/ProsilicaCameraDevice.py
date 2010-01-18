@@ -101,7 +101,7 @@ class ProsilicaCameraDevice:
         frame = self.camera.getAndLockCurrentFrame()
         self.im_array = (asarray(frame)).copy()
         timestamp = frame.timestamp
-        print "Timestamp: ", avetimestamp
+        #print "Timestamp: ", timestamp
         self.camera.releaseCurrentFrame()
         self.frame_number += 1
         

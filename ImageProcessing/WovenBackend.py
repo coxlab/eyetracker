@@ -162,7 +162,7 @@ class WovenBackend (VanillaBackend):
 
 
     # borrowed with some translation from Peter Kovesi's fastradial.m
-    @clockit
+    #@clockit
     def fast_radial_transform(self, image, radii, alpha, **kwargs):
 		
         if not self.autotuned:
