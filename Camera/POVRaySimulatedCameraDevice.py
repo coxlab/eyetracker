@@ -205,9 +205,11 @@ class POVRaySimulatedCameraDevice:
         
         toc = time.time() - tic
         #print("Actual acquire time: %f" % toc)
-                                
+        
+        
+        timestamp = int(1000*time.time())
         # start the analysis process
-        self.feature_finder.analyze_image(self.im_array.copy(), {"frame_number" : self.frame_number})        
+        self.feature_finder.analyze_image(self.im_array.copy(), {"frame_number" : self.frame_number, "timestamp" : timestamp})        
         return
 
     def	get_processed_image(self, guess = None):

@@ -48,7 +48,7 @@ namespace std {
 %extend tPvFrame {
 
 	PyObject* __get_array_struct(){
-	PyArrayInterface *inter;
+        PyArrayInterface *inter;
 
 		inter = (PyArrayInterface *)malloc(sizeof(PyArrayInterface));
 
@@ -81,6 +81,7 @@ namespace std {
 	
 	%pythoncode{
 		__array_struct__ = property(__get_array_struct, doc="Array Protocol")
+		timestamp = property(__get_timestamp)
 	}
 }
 

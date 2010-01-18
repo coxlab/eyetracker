@@ -100,6 +100,8 @@ class ProsilicaCameraDevice:
 
         frame = self.camera.getAndLockCurrentFrame()
         self.im_array = (asarray(frame)).copy()
+        timestamp = frame.timestamp
+        print "Timestamp: ", avetimestamp
         self.camera.releaseCurrentFrame()
         self.frame_number += 1
         
@@ -108,7 +110,7 @@ class ProsilicaCameraDevice:
         #self.feature_finder.analyze_image(self.im_array.copy(), None)
         
         # push the image to the feature analyzer
-        self.feature_finder.analyze_image(self.im_array.astype(float32), {"frame_number" : self.frame_number})        
+        self.feature_finder.analyze_image(self.im_array.astype(float32), {"frame_number" : self.frame_number, "timestamp" : timestamp})        
         return
         
         
