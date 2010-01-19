@@ -2475,36 +2475,35 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 #define SWIGTYPE_p_f_p_tPvFrame__void swig_types[4]
 #define SWIGTYPE_p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void swig_types[5]
 #define SWIGTYPE_p_float swig_types[6]
-#define SWIGTYPE_p_int64_t swig_types[7]
-#define SWIGTYPE_p_long swig_types[8]
-#define SWIGTYPE_p_p_PyObject swig_types[9]
-#define SWIGTYPE_p_p_p_char swig_types[10]
-#define SWIGTYPE_p_p_void swig_types[11]
-#define SWIGTYPE_p_short swig_types[12]
-#define SWIGTYPE_p_size_type swig_types[13]
-#define SWIGTYPE_p_std__invalid_argument swig_types[14]
-#define SWIGTYPE_p_std__vectorTtPvCameraInfo_std__allocatorTtPvCameraInfo_t_t swig_types[15]
-#define SWIGTYPE_p_std__vectorTtPvCameraInfo_std__allocatorTtPvCameraInfo_t_t__allocator_type swig_types[16]
-#define SWIGTYPE_p_std__vectorTtPvCameraInfo_std__allocatorTtPvCameraInfo_t_t__value_type swig_types[17]
-#define SWIGTYPE_p_swig__PySwigIterator swig_types[18]
-#define SWIGTYPE_p_tPvAccessFlags swig_types[19]
-#define SWIGTYPE_p_tPvAttributeFlags swig_types[20]
-#define SWIGTYPE_p_tPvAttributeInfo swig_types[21]
-#define SWIGTYPE_p_tPvBayerPattern swig_types[22]
-#define SWIGTYPE_p_tPvCameraInfo swig_types[23]
-#define SWIGTYPE_p_tPvDatatype swig_types[24]
-#define SWIGTYPE_p_tPvErr swig_types[25]
-#define SWIGTYPE_p_tPvFrame swig_types[26]
-#define SWIGTYPE_p_tPvImageFormat swig_types[27]
-#define SWIGTYPE_p_tPvInterface swig_types[28]
-#define SWIGTYPE_p_tPvIpConfig swig_types[29]
-#define SWIGTYPE_p_tPvIpSettings swig_types[30]
-#define SWIGTYPE_p_tPvLinkEvent swig_types[31]
-#define SWIGTYPE_p_unsigned_long swig_types[32]
-#define SWIGTYPE_p_value_type swig_types[33]
-#define SWIGTYPE_p_void swig_types[34]
-static swig_type_info *swig_types[36];
-static swig_module_info swig_module = {swig_types, 35, 0, 0, 0, 0};
+#define SWIGTYPE_p_long swig_types[7]
+#define SWIGTYPE_p_p_PyObject swig_types[8]
+#define SWIGTYPE_p_p_p_char swig_types[9]
+#define SWIGTYPE_p_p_void swig_types[10]
+#define SWIGTYPE_p_short swig_types[11]
+#define SWIGTYPE_p_size_type swig_types[12]
+#define SWIGTYPE_p_std__invalid_argument swig_types[13]
+#define SWIGTYPE_p_std__vectorTtPvCameraInfo_std__allocatorTtPvCameraInfo_t_t swig_types[14]
+#define SWIGTYPE_p_std__vectorTtPvCameraInfo_std__allocatorTtPvCameraInfo_t_t__allocator_type swig_types[15]
+#define SWIGTYPE_p_std__vectorTtPvCameraInfo_std__allocatorTtPvCameraInfo_t_t__value_type swig_types[16]
+#define SWIGTYPE_p_swig__PySwigIterator swig_types[17]
+#define SWIGTYPE_p_tPvAccessFlags swig_types[18]
+#define SWIGTYPE_p_tPvAttributeFlags swig_types[19]
+#define SWIGTYPE_p_tPvAttributeInfo swig_types[20]
+#define SWIGTYPE_p_tPvBayerPattern swig_types[21]
+#define SWIGTYPE_p_tPvCameraInfo swig_types[22]
+#define SWIGTYPE_p_tPvDatatype swig_types[23]
+#define SWIGTYPE_p_tPvErr swig_types[24]
+#define SWIGTYPE_p_tPvFrame swig_types[25]
+#define SWIGTYPE_p_tPvImageFormat swig_types[26]
+#define SWIGTYPE_p_tPvInterface swig_types[27]
+#define SWIGTYPE_p_tPvIpConfig swig_types[28]
+#define SWIGTYPE_p_tPvIpSettings swig_types[29]
+#define SWIGTYPE_p_tPvLinkEvent swig_types[30]
+#define SWIGTYPE_p_unsigned_long swig_types[31]
+#define SWIGTYPE_p_value_type swig_types[32]
+#define SWIGTYPE_p_void swig_types[33]
+static swig_type_info *swig_types[35];
+static swig_module_info swig_module = {swig_types, 34, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4158,12 +4157,14 @@ SWIGINTERN PyObject *tPvFrame___get_array_struct(tPvFrame *self){
 					
 		return PyCObject_FromVoidPtr(inter,0);
 	}
-SWIGINTERN int64_t tPvFrame___get_timestamp(tPvFrame *self){
+SWIGINTERN PyObject *tPvFrame___get_timestamp(tPvFrame *self){
+//    int64_t __get_timestamp(){
         int64_t timestamp = 0;
         timestamp += self->TimestampLo;
         timestamp += self->TimestampHi << 32;
         
-        return timestamp;
+//        return timestamp;
+        return PyLong_FromLong(timestamp);
     }
 
 
@@ -8855,7 +8856,7 @@ fail:
 SWIGINTERN PyObject *_wrap_tPvFrame___get_timestamp(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   tPvFrame *arg1 = (tPvFrame *) 0 ;
-  int64_t result;
+  PyObject *result = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
@@ -8866,8 +8867,8 @@ SWIGINTERN PyObject *_wrap_tPvFrame___get_timestamp(PyObject *SWIGUNUSEDPARM(sel
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "tPvFrame___get_timestamp" "', argument " "1"" of type '" "tPvFrame *""'"); 
   }
   arg1 = reinterpret_cast< tPvFrame * >(argp1);
-  result = tPvFrame___get_timestamp(arg1);
-  resultobj = SWIG_NewPointerObj((new int64_t(static_cast< const int64_t& >(result))), SWIGTYPE_p_int64_t, SWIG_POINTER_OWN |  0 );
+  result = (PyObject *)tPvFrame___get_timestamp(arg1);
+  resultobj = result;
   return resultobj;
 fail:
   return NULL;
@@ -11814,7 +11815,6 @@ static swig_type_info _swigt__p_difference_type = {"_p_difference_type", "differ
 static swig_type_info _swigt__p_f_p_tPvFrame__void = {"_p_f_p_tPvFrame__void", "void (*)(tPvFrame *)|tPvFrameCallback", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void = {"_p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void", "void (*)(void *,enum tPvInterface,enum tPvLinkEvent,unsigned long)|tPvLinkCallback", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_float = {"_p_float", "float *|tPvFloat32 *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_int64_t = {"_p_int64_t", "int64_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_long = {"_p_long", "long *|tPvInt32 *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_PyObject = {"_p_p_PyObject", "PyObject **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_p_char = {"_p_p_p_char", "char ***|tPvAttrListPtr *", 0, 0, (void*)0, 0};
@@ -11851,7 +11851,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_f_p_tPvFrame__void,
   &_swigt__p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void,
   &_swigt__p_float,
-  &_swigt__p_int64_t,
   &_swigt__p_long,
   &_swigt__p_p_PyObject,
   &_swigt__p_p_p_char,
@@ -11888,7 +11887,6 @@ static swig_cast_info _swigc__p_difference_type[] = {  {&_swigt__p_difference_ty
 static swig_cast_info _swigc__p_f_p_tPvFrame__void[] = {  {&_swigt__p_f_p_tPvFrame__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void[] = {  {&_swigt__p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_float[] = {  {&_swigt__p_float, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_int64_t[] = {  {&_swigt__p_int64_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_long[] = {  {&_swigt__p_long, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_PyObject[] = {  {&_swigt__p_p_PyObject, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_p_char[] = {  {&_swigt__p_p_p_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -11925,7 +11923,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_f_p_tPvFrame__void,
   _swigc__p_f_p_void_enum_tPvInterface_enum_tPvLinkEvent_unsigned_long__void,
   _swigc__p_float,
-  _swigc__p_int64_t,
   _swigc__p_long,
   _swigc__p_p_PyObject,
   _swigc__p_p_p_char,
