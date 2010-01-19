@@ -70,13 +70,15 @@ namespace std {
 					
 		return PyCObject_FromVoidPtr(inter,0);
 	}
-    
-    int64_t __get_timestamp(){
+  
+    PyObject *__get_timestamp(){
+//    int64_t __get_timestamp(){
         int64_t timestamp = 0;
         timestamp += self->TimestampLo;
         timestamp += self->TimestampHi << 32;
         
-        return timestamp;
+//        return timestamp;
+        return PyLong_FromLong(timestamp);
     }
 	
 	%pythoncode{
