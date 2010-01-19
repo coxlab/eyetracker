@@ -476,7 +476,7 @@ class EyeTrackerController (NSObject):
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            print "filling conduit:", (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp))
+                            #print "filling conduit:", (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp))
                             self.mw_conduit.send_data(GAZE_INFO, (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp)));
                             
                             #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
