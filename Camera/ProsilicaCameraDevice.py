@@ -76,6 +76,12 @@ class ProsilicaCameraDevice:
         
         self.camera.setAttribute("BinningX", 1)
         self.camera.setAttribute("BinningY", 1)
+        try:
+            self.timestampFrequency = self.camera.getUint32Attribute("TimeStampFrequency")
+            print "Found TimestampFrequency of: %f" % self.timestampFrequency
+        except:
+            self.timestampFrequency = 1
+            print "attribute: TimestampFrequency not found for camera, defaulting to 1"
         self.camera.startContinuousCapture()
         
         if(self.acquire_continuously): 
@@ -100,7 +106,11 @@ class ProsilicaCameraDevice:
 
         frame = self.camera.getAndLockCurrentFrame()
         self.im_array = (asarray(frame)).copy()
-        timestamp = frame.timestamp
+        # We could convert the timestamp from clock cycles to seconds by dividing by the available timestampFrequency
+        # However, this could result in rounding errors. It might be easier to account for this in analysis scripts
+        # or pass along timestampFrequency 
+        timestamp = frame.timestamp / self.timestampFrequency
+        #timestamp = frame.timestamp
         #print "Timestamp: ", timestamp
         self.camera.releaseCurrentFrame()
         self.frame_number += 1
