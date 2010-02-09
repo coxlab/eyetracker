@@ -109,7 +109,7 @@ class ProsilicaCameraDevice:
         # We could convert the timestamp from clock cycles to seconds by dividing by the available timestampFrequency
         # However, this could result in rounding errors. It might be easier to account for this in analysis scripts
         # or pass along timestampFrequency 
-        timestamp = frame.timestamp / self.timestampFrequency
+        timestamp = frame.timestamp / float(self.timestampFrequency)
         #timestamp = frame.timestamp
         #print "Timestamp: ", timestamp
         self.camera.releaseCurrentFrame()
