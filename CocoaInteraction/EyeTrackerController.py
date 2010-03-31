@@ -205,7 +205,7 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = True
+        self.use_simulated = False
 
 
         use_file_for_cam = False
@@ -476,8 +476,8 @@ class EyeTrackerController (NSObject):
                         self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            print "filling conduit:", (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp))
-                            self.mw_conduit.send_data(GAZE_INFO, (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp)));
+                            #print "filling conduit:", (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp))
+                            self.mw_conduit.send_data(GAZE_INFO, (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), float(timestamp)));
                             
                             #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
                             #self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
@@ -970,7 +970,7 @@ class EyeTrackerController (NSObject):
         self._.focus_current = self.zoom_and_focus.current_focus()
         self._.zoom_current = self.zoom_and_focus.current_zoom()
 #        if(self.calibrator.calibrated):
-        self.d_current = self.calibrator.d
+        self._.d_current = self.calibrator.d
         if self.calibrator.Rp is not None and self.calibrator.pixels_per_mm is not None:
             self._.rp_current = self.calibrator.Rp / self.calibrator.pixels_per_mm
         self._.pupil_cr_diff = self.calibrator.pupil_cr_diff

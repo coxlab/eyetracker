@@ -138,9 +138,11 @@ class TrackerCameraView(NSOpenGLView):
             radius = self.pupil_radius
         else:
             radius = 10
-        
+        # print self.im_array.shape = 120, 160
+        # print self.__imageLengthToTextureLength(60.0) = 0.5, 0.375
+        #self.renderCircle(self.__imageCoordsToTextureCoords((60.0,80.0)), self.__imageLengthToTextureLength(60.0), (0., 1., 0.), 0.004)
         #self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.pupil_position), (0.,1.,0.5), 0.06, 0.002)
-        self.renderCircle(self.__imageCoordsToTextureCoords(self.pupil_position),  self.__imageLengthToTextureLength(radius), (1.,0.,0.0), 0.004)
+        self.renderCircle(self.__imageCoordsToTextureCoords(self.pupil_position),  self.__imageLengthToTextureLength(radius), (1.,0.,0.0), 0.004 )
         #self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.pupil_position),  (1.,0.,0.0), self.__imageLengthToTextureLength(radius), 0.002)
         
         return
@@ -192,7 +194,7 @@ class TrackerCameraView(NSOpenGLView):
         return
                 
     def __imageLengthToTextureLength(self, length):
-        return array([length/self.im_array.shape[0], length/self.im_array.shape[1]])
+        return array([2.0 * length/self.im_array.shape[0], 2.0 *length/self.im_array.shape[1]])
         
     def __imageCoordsToTextureCoords(self, coords):
         return array([1., -1.]) *  (2.0 * (array([coords[1], coords[0]]) / array([self.im_array.shape[1], self.im_array.shape[0]])) - 1.0)
@@ -206,7 +208,7 @@ class TrackerCameraView(NSOpenGLView):
         # what is the 'weight' is this the thickness of the line?
         r1 = radius + (weight / 2)
         r2 = radius - (weight / 2)
-            
+        
         n_segments = 200
         
         glBegin(GL_TRIANGLE_STRIP)

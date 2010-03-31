@@ -31,7 +31,7 @@ deactivate () {
 # unset irrelavent variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/davidcox/Repositories/coxlab/eyetracker/python2.6_env"
+VIRTUAL_ENV="/Users/$USER/Repositories/coxlab/eyetracker/python2.6_env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
