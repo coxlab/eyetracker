@@ -51,12 +51,15 @@ if __name__ == "__main__":
     import numpy
     from pylab import *
     
-    test_im = (rand(768,1024)).astype(numpy.float32)
-    row = array([0.25, 0.3, 0.4, 0.6, 0.7, 0.6, 0.4, 0.3, 0.25]).astype(numpy.float32)
+    test_im = (rand(2250,2250)).astype(numpy.float32)
+    #test_im = (rand(768,1024)).astype(numpy.float32)
+    row = array([0.25, 0.3, 0.4]).astype(numpy.float32)
+    #row = array([0.25, 0.3, 0.4, 0.6, 0.7, 0.6, 0.4, 0.3, 0.25]).astype(numpy.float32)
     #row = array([0.25, 0.4, 0.6, 0.4, 0.25]).astype(numpy.float32)
     row = row / sum(row)
     
     col = row
+    
     cl_backend = OpenCLBackend()
     vanilla_backend = VanillaBackend()
     woven_backend = WovenBackend()
@@ -64,10 +67,13 @@ if __name__ == "__main__":
     woven_backend.autotune(test_im)
     cl_backend.autotune(test_im)
     print("CL Filtering...")
-    row_dev = cl.Buffer(cl_backend.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, row.astype(float32))
-    col_dev = cl.Buffer(cl_backend.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, col.astype(float32))
+    #row_dev = cl.Buffer(cl_backend.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, row.astype(float32))
+    #col_dev = cl.Buffer(cl_backend.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, 0, col.astype(float32))
     
-    print cl_backend.device.name
+    row_dev = DeviceBuffer(cl_backend.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, row.astype(float32))
+    col_dev = DeviceBuffer(cl_backend.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, col.astype(float32))
+    
+    #print cl_backend.device.name
     
     cl_filtered = cl_backend.separable_convolution2d(test_im.astype(float32), row_dev, col_dev, readback_from_device=False, im_shape=test_im.shape, row_shape=row.shape, col_shape=col.shape)
     for i in range(0,8):
