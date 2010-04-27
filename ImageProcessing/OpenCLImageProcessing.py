@@ -486,7 +486,7 @@ class LocalMemorySeparableConvolutionKernel (MetaKernel):
         print "Done building."
         return program
 
-    #@clockit
+    @clockit
     def __call__(self, input_im, row_kernel, col_kernel, result=None, input_shape=None, row_shape=None, col_shape=None, **kwargs):
 
         use_cached_buffers = kwargs.get("use_cached_buffers", True)
