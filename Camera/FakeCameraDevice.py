@@ -65,7 +65,7 @@ class FakeCameraDevice:
         if(self.acquire_continuously):
             pass
         else:
-            self.feature_finder.analyze_image(self.im_array, None);
+            self.feature_finder.analyze_image(self.im_array, {'timestamp': time.time()});
         
         return
 
