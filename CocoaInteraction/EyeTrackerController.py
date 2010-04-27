@@ -205,7 +205,7 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = False
+        self.use_simulated = True
 
 
         use_file_for_cam = False
@@ -300,13 +300,13 @@ class EyeTrackerController (NSObject):
             workers = self.feature_finder.workers
             
             for worker in workers:
-                sb_ff = worker.StarBurstEyeFeatureFinder_() # create in worker process
-                fr_ff = worker.FastRadialFeatureFinder_() # create in worker process
+                sb_ff = worker.StarBurstEyeFeatureFinder() # create in worker process
+                fr_ff = worker.FastRadialFeatureFinder() # create in worker process
                 
                 self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
                 self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
                 
-                worker.set_main_feature_finder(worker.CompositeEyeFeatureFinder_(fr_ff, sb_ff)) # create in worker process
+                worker.set_main_feature_finder(worker.CompositeEyeFeatureFinder(fr_ff, sb_ff)) # create in worker process
             
             self.feature_finder.start()  # start the worker loops  
         else:

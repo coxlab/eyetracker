@@ -6,12 +6,10 @@
 #  Copyright (c) 2008 The Rowland Institute at Harvard. All rights reserved.
 #
 
-from processing.managers import SyncManager, BaseProxy, CreatorMethod
-#from CobraEyeTracker import *
+from multiprocessing.managers import SyncManager, BaseProxy
+
 from CompositeEyeFeatureFinder import *
 from FastRadialFeatureFinder import *
-#from StarBurstEyeFeatureFinder import *
-#from StarBurstCircleLstsqFitEyeFeatureFinder import *
 from SubpixelStarburstEyeFeatureFinder import *
 
 import processing
@@ -54,10 +52,10 @@ def worker_thread(worker):
 
 class PipelinedWorkerProcessManager(SyncManager):
 
-    CompositeEyeFeatureFinder_ = CreatorMethod(CompositeEyeFeatureFinder)
-    FastRadialFeatureFinder_ = CreatorMethod(FastRadialFeatureFinder)
-    StarBurstEyeFeatureFinder_ = CreatorMethod(SubpixelStarburstEyeFeatureFinder)
-    PipelinedWorker_ = CreatorMethod(PipelinedWorker)
+    #CompositeEyeFeatureFinder_ = CreatorMethod(CompositeEyeFeatureFinder)
+    #FastRadialFeatureFinder_ = CreatorMethod(FastRadialFeatureFinder)
+    #StarBurstEyeFeatureFinder_ = CreatorMethod(SubpixelStarburstEyeFeatureFinder)
+    #PipelinedWorker_ = CreatorMethod(PipelinedWorker)
     
     def __init__(self, queue_size = None):
         print "instantiating process manager"
@@ -67,6 +65,11 @@ class PipelinedWorkerProcessManager(SyncManager):
         self.input_queue = self.Queue(queue_size)
         self.output_queue = self.Queue(queue_size)
         self.worker = None
+        
+        self.register('CompositeEyeFeatureFinder', CompositeEyeFeatureFinder)
+        self.register('FastRadialFeatureFinder', FastRadialFeatureFinder)
+        self.register('SubpixelStarburstEyeFeatureFinder', SubpixelStarburstEyeFeatureFinder)
+        self.register('PipelinedWorker', PipelinedWorker)
     
     def set_main_feature_finder(self, ff):
         self.ff = ff
