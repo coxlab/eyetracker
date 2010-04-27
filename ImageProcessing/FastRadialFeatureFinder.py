@@ -55,7 +55,7 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         
         self.do_refinement_phase = 0
         
-        self.shortcut_at_sobel = 0
+        self.return_sobel = 0
         
         self.cache_sobel = True
         self.cached_sobel = None
@@ -126,6 +126,11 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         features['im_array'] = im_array
         features['im_shape'] = im_array.shape
         
+        if self.return_sobel:
+            # this is very inefficient, and only for debugging
+            (m,x,y) = self.backend.sobel3x3(im_array)
+            features['sobel']  = m
+        
         self.result = features
         
             
@@ -142,13 +147,14 @@ if __name__ == "__main__":
     import PIL.Image
     import time
     
-    pil_im = pil_im = PIL.Image.open("/Users/davidcox/Development/svn.coxlab.org/eyetracking/code/EyeTrackerStageDriver/example_eyes/RatEye_snap20_zoom.jpg")
+    pil_im = pil_im = PIL.Image.open("/Users/davidcox/Repositories/coxlab/eyetracker/ImageProcessing/RatEye_snap12_zoom.jpg")
     im = asarray(pil_im).astype(numpy.float64)
     
-    noplot = 1
+    noplot = 0
     
     f = FastRadialFeatureFinder()
-    trials = 50
+    f.return_sobel = True;
+    trials = 100
     
     if(0):
         tic = time.time()
@@ -166,6 +172,8 @@ if __name__ == "__main__":
         f.reuse_storage = 0
         f.use_sse3 = 0
         f.filter = 'sepfir'
+        f.analyze_image(im, filter='sepfir')
+        test = f.get_result()
         tic = time.time()
         for i in range(0,trials):
             f.analyze_image(im, filter='sepfir')
@@ -179,8 +187,10 @@ if __name__ == "__main__":
             pylab.imshow(test['transform'])
             
             pylab.figure()
-            #pylab.imshow(im, cmap=pylab.cm.gray)
-            pylab.imshow(test['im_array'], cmap=pylab.cm.gray)
+            
+            #pylab.imshow(test['im_array'], cmap=pylab.cm.gray)
+            pylab.imshow(test['sobel'], cmap=pylab.cm.gray)
+            
             pylab.hold('on')
             cr = test['cr_position']
             pupil = test['pupil_position']
@@ -216,5 +226,5 @@ if __name__ == "__main__":
         foreach(lambda t: sepfir_multithread_test(t,f, im), range(0,trials), 3)
         print 'Sep FIR (multithreaded): ', (time.time() - tic)/trials	
 	
-    pylab.show()
+    #pylab.show()
 	
