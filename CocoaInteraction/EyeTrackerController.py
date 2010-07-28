@@ -25,11 +25,11 @@ from EyetrackerUtilities import *
 from CobraEyeTracker import *
 
 # boost.python wrapper for a MonkeyWorks interprocess conduit
-mw_enabled = False
+mw_enabled = True
 
 try:
-    sys.path.append("/Library/Application Support/MonkeyWorks/Scripting/Python")
-    import monkeyworks.conduit as mw_conduit
+    sys.path.append("/Library/Application Support/MWorks/Scripting/Python")
+    import mworks.conduit as mw_conduit
     GAZE_H = 0
     GAZE_V = 1
     PUPIL_RADIUS = 2
@@ -205,7 +205,7 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = True
+        self.use_simulated = False
 
 
         use_file_for_cam = False
@@ -293,16 +293,17 @@ class EyeTrackerController (NSObject):
         #self.elevation_set = 0.0
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 0
+        nworkers = 4
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
             workers = self.feature_finder.workers
             
+            
             for worker in workers:
-                sb_ff = worker.StarBurstEyeFeatureFinder() # create in worker process
                 fr_ff = worker.FastRadialFeatureFinder() # create in worker process
-                
+                sb_ff = worker.StarBurstEyeFeatureFinder() # create in worker process
+                                
                 self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
                 self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
                 
@@ -420,15 +421,20 @@ class EyeTrackerController (NSObject):
         print "Started continuously acquiring"
         pool = NSAutoreleasePool.alloc().init()
 
+        frame_rate = -1.0
         frame_number = 0
         tic = time.time()
         features = None
+        gaze_azimuth = 0.0
+        gaze_elevation = 0.0
+        
         
         self.last_ui_put_time = time.time()
         while(self.continuously_acquiring):
             self.camera_locked = 1
             
             try:
+                
                 
                 self.camera_device.acquire_image()
                 new_features = self.camera_device.get_processed_image(self.features)
@@ -438,11 +444,12 @@ class EyeTrackerController (NSObject):
                                                   and "frame_number" in features
                                                   and new_features["frame_number"] != features["frame_number"]):
                     frame_number += 1
+                    
                 features = new_features
                 check_interval = 100
                 if(frame_number % check_interval == 0):
                     toc = time.time() - tic
-                    self.frame_rate = check_interval / toc
+                    frame_rate = check_interval / toc
                     print("Real frame rate: %f" % (check_interval / toc))
                     if features.__class__ == dict and "frame_number" in features:
                         print("frame number = %d" % features["frame_number"])
@@ -473,11 +480,11 @@ class EyeTrackerController (NSObject):
                     if(self.calibrator is not None and self.calibrator.calibrated):
                         #pupil_coordinates = [self.pupil_position_x, self.pupil_position_y]
                         #cr_coordinates = [self.cr_position_x, self.cr_position_y]
-                        self.gaze_elevation, self.gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
+                        gaze_elevation, gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
                             #print "filling conduit:", (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp))
-                            self.mw_conduit.send_data(GAZE_INFO, (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), float(timestamp)));
+                            self.mw_conduit.send_data(GAZE_INFO, (float(gaze_azimuth), float(gaze_elevation), float(pupil_radius), float(timestamp)));
                             
                             #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
                             #self.mw_conduit.sendFloat(GAZE_V, self.gaze_azimuth)
@@ -493,9 +500,9 @@ class EyeTrackerController (NSObject):
                         self._.pupil_radius = pupil_radius
                         self._.cr_position_x = cr_position[1]
                         self._.cr_position_y = cr_position[0]
-                        self._.gaze_azimuth = self.gaze_azimuth
-                        self._.gaze_elevation = self.gaze_elevation
-                        self._.frame_rate = self.frame_rate
+                        self._.gaze_azimuth = gaze_azimuth
+                        self._.gaze_elevation = gaze_elevation
+                        self._.frame_rate = frame_rate
                         
             except Exception, e:
                 print e.message
@@ -604,7 +611,7 @@ class EyeTrackerController (NSObject):
         if(time_since_last_update > time_between_updates):
             self.last_update_time = time.time()
             #print "N Frames: ", self.frame_count
-            self.frame_rate = mean(array(self.frame_rates))
+            frame_rate = mean(array(self.frame_rates))
             self.frame_rates = []
             self.frame_rate_accum = 0
             #self.frame_rate = self.n_frames / (time.time() - self.last_time)
