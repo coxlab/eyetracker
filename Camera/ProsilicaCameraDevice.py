@@ -90,6 +90,7 @@ class ProsilicaCameraDevice:
         
 
     def __del__(self):
+        print "Deleting camera (in python)"
         if(self.acquire_continuously):
             self.acquisition_thread.terminate()
         if(self.camera != None):

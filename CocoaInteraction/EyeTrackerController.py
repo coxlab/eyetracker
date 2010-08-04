@@ -193,14 +193,18 @@ class EyeTrackerController (NSObject):
         self.continuously_acquiring = False
         self.camera_update_timer.invalidate()
         
-        time.sleep(5)
+        time.sleep(1)
         
         self.calibrator = None
-        self.camera = None
+        #self.camera = None
+        self.camera_device = None
         
         return True
         
     def awakeFromNib(self):
+        
+        # necessary for applicationShouldTerminate
+        NSApp().setDelegate_(self)
         
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
