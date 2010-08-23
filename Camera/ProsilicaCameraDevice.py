@@ -120,7 +120,7 @@ class ProsilicaCameraDevice:
         #self.feature_finder.analyze_image(self.im_array.copy(), None)
         
         # push the image to the feature analyzer
-        self.feature_finder.analyze_image(self.im_array.astype(float32), {"frame_number" : self.frame_number, "timestamp" : timestamp})        
+        self.feature_finder.analyze_image(self.im_array.astype(float32), {"pupil_position":self.pupil_position, "cr_position": self.cr_position, "frame_number" : self.frame_number, "timestamp" : timestamp})        
         return
         
         

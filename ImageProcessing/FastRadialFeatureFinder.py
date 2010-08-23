@@ -19,21 +19,22 @@ from EyeFeatureFinder import *
 from stopwatch import *
 from VanillaBackend import *
 from WovenBackend import *
-from OpenCLBackend import *
-
-opencl_available = True
-try:
-    import pyopencl as cl
-    cl_ctx = cl.create_context_from_type(cl.device_type.ALL)
-    cl_queue = cl.CommandQueue(ctx)
-except Exception, e:
-    opencl_available = False
+#from OpenCLBackend import *
+#
+#opencl_available = True
+#try:
+#    import pyopencl as cl
+#    cl_ctx = cl.create_context_from_type(cl.device_type.ALL)
+#    cl_queue = cl.CommandQueue(ctx)
+#except Exception, e:
+#    opencl_available = False
 
 
 class FastRadialFeatureFinder (EyeFeatureFinder):
 
     def __init__(self):
 
+        #self.backend = VanillaBackend()
         self.backend = WovenBackend()
         #self.backend = OpenCLBackend()
                         
@@ -76,9 +77,9 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
     
     # analyze the image and return dictionary of features gleaned
     # from it
-    ##@clockit
+    @clockit
     def analyze_image(self, image, guess = None, **kwargs):
-        #print "fr"
+        print "fr"
         im_array = image
         #im_array = image.astype(double)
         im_array = im_array[::self.ds_factor, ::self.ds_factor]
@@ -139,18 +140,18 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         
     def get_result(self):
         return self.result
-    
  
-if __name__ == "__main__":
-    import pylab
+def test_it():
+
+    import matplotlib.pylab as plt
     import numpy
-    import PIL.Image
+    from matplotlib.pylab import imread
     import time
     
-    pil_im = pil_im = PIL.Image.open("/Users/davidcox/Repositories/coxlab/eyetracker/ImageProcessing/RatEye_snap12_zoom.jpg")
-    im = asarray(pil_im).astype(numpy.float64)
+    im = imread("/Users/davidcox/Repositories/coxlab/eyetracker/ImageProcessing/RatEye_snap12_zoom.jpg")
+    im = im.astype(numpy.float64)
     
-    noplot = 0
+    noplot = 1
     
     f = FastRadialFeatureFinder()
     f.return_sobel = True;
@@ -163,9 +164,9 @@ if __name__ == "__main__":
     
         print 'FFT: ', (time.time() - tic)/trials
 
-        pylab.figure()
-        pylab.imshow(test['transform'])
-        pylab.title('FFT')
+        plt.figure()
+        plt.imshow(test['transform'])
+        plt.title('FFT')
         
     if(1):
         
@@ -183,20 +184,20 @@ if __name__ == "__main__":
         print '\t ', 1. / seconds_per_frame, ' FPS' 
 
         if(not noplot):
-            pylab.figure()
-            pylab.imshow(test['transform'])
+            plt.figure()
+            plt.imshow(test['transform'])
             
-            pylab.figure()
+            plt.figure()
             
             #pylab.imshow(test['im_array'], cmap=pylab.cm.gray)
-            pylab.imshow(test['sobel'], cmap=pylab.cm.gray)
+            plt.imshow(test['sobel'], cmap=pylab.cm.gray)
             
-            pylab.hold('on')
+            plt.hold('on')
             cr = test['cr_position']
             pupil = test['pupil_position']
-            pylab.plot([cr[1]], [cr[0]], 'r+')
-            pylab.plot([pupil[1]], [pupil[0]], 'b+')
-            pylab.title('Sep FIR')
+            plt.plot([cr[1]], [cr[0]], 'r+')
+            plt.plot([pupil[1]], [pupil[0]], 'b+')
+            plt.title('Sep FIR')
         
     if(0):
         tic = time.time()
@@ -204,9 +205,9 @@ if __name__ == "__main__":
             test = f.analyze_image(im, filter='spline')
         print 'SPLINE: ', (time.time() - tic)/trials
         
-        pylab.figure()
-        pylab.imshow(test['transform'])
-        pylab.title('SPLINE')
+        plt.figure()
+        plt.imshow(test['transform'])
+        plt.title('SPLINE')
 
     if(0):
         tic = time.time()
@@ -214,9 +215,9 @@ if __name__ == "__main__":
             test = f.analyze_image(im)
         print 'Convolve2d: ', (time.time() - tic)/trials
         
-        pylab.figure()
-        pylab.imshow(test['transform'])
-        pylab.title('Convolve2d')
+        plt.figure()
+        plt.imshow(test['transform'])
+        plt.title('Convolve2d')
 	
     if(0):
         f.reuse_storage = 1	
@@ -228,3 +229,6 @@ if __name__ == "__main__":
 	
     #pylab.show()
 	
+
+if __name__ == "__main__":
+    test_it()

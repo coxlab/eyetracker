@@ -38,8 +38,9 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
         
 
     # ==================================== function: analyzeImage ========================================
+    @clockit
     def analyze_image(self, im, guess = None, **kwargs):
-
+        
                     
         # #### FEATURE FINDER # 1: Get intial guess of pupil and CR using the fast radial finder
         #self.ff_fast_radial.target_kpixels = 10 #50

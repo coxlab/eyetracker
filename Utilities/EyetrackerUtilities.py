@@ -9,6 +9,8 @@
 import sys
 import traceback
 
+from stopwatch import clockit
+
 def formatted_exception(max_tb_level=5):
     cla, exc, trbk = sys.exc_info()
     exc_name = cla.__name__

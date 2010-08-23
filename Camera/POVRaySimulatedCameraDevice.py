@@ -22,7 +22,8 @@ class POVRaySimulatedCameraDevice:
         
         self.image_center = array([0,0])
         
-        self.cr_pos = array([0.,0.])
+        self.cr_position = array([0.,0.])
+        self.pupil_position = array([0.,0.])
         
         self.l0_offset = array([0.,43., 0.])
         self.l1_offset = array([43., 0., 0.])
@@ -185,9 +186,9 @@ class POVRaySimulatedCameraDevice:
 #            print "Command = " + command_string
         
         if(self.quiet):
-            command_string = "/opt/local/bin/povray -D +A +O/tmp/eyeball.png +W%d +H%d /tmp/eyeball.pov  >& /dev/null" % (self.w, self.h);
+            command_string = "/usr/local/bin/povray -D +A +O/tmp/eyeball.png +W%d +H%d /tmp/eyeball.pov  >& /dev/null" % (self.w, self.h);
         else:
-            command_string = "/opt/local/bin/povray +O/tmp/eyeball.png +A +W%d +H%d /tmp/eyeball.pov" % (self.w, self.h);
+            command_string = "/usr/local/bin/povray +O/tmp/eyeball.png +A +W%d +H%d /tmp/eyeball.pov" % (self.w, self.h);
             print "Command = " + command_string
             
         os.popen(command_string);
@@ -209,13 +210,18 @@ class POVRaySimulatedCameraDevice:
         
         timestamp = int(1000*time.time())
         # start the analysis process
-        self.feature_finder.analyze_image(self.im_array.copy(), {"frame_number" : self.frame_number, "timestamp" : timestamp})        
+        self.feature_finder.analyze_image(self.im_array.copy(), {"pupil_position":self.pupil_position, "cr_position": self.cr_position, "frame_number" : self.frame_number, "timestamp" : timestamp})        
         return
 
     def	get_processed_image(self, guess = None):
         
         #self.feature_finder.analyze_image(self.im_array,None)
         features = self.feature_finder.get_result()
+        
+        if "cr_position" in features:
+            self.cr_position = features["cr_position"]
+        if "pupil_position" in features:
+            self.pupil_position = features["pupil_position"]
         
         return features
     

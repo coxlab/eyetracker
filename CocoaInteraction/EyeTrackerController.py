@@ -28,13 +28,14 @@ from CobraEyeTracker import *
 mw_enabled = False
 
 try:
-    sys.path.append("/Library/Application Support/MonkeyWorks/Scripting/Python")
-    import monkeyworks.conduit as mw_conduit
+    sys.path.append("/Library/Application Support/MWorks/Scripting/Python")
+    import mworks.conduit as mw_conduit
     GAZE_H = 0
     GAZE_V = 1
     PUPIL_RADIUS = 2
     TIMESTAMP = 3
     GAZE_INFO = 4
+    PING = 5
     mw_enabled = True
 except Exception, e:
     print("Unable to load MW conduit: %s" % e)
@@ -300,13 +301,13 @@ class EyeTrackerController (NSObject):
             workers = self.feature_finder.workers
             
             for worker in workers:
-                sb_ff = worker.StarBurstEyeFeatureFinder() # create in worker process
+                sb_ff = worker.SubpixelStarburstEyeFeatureFinder() # create in worker process
                 fr_ff = worker.FastRadialFeatureFinder() # create in worker process
                 
                 self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
                 self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
                 
-                worker.set_main_feature_finder(worker.CompositeEyeFeatureFinder(fr_ff, sb_ff)) # create in worker process
+                worker.set_main_feature_finder(worker.FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)) # create in worker process
             
             self.feature_finder.start()  # start the worker loops  
         else:
@@ -316,7 +317,7 @@ class EyeTrackerController (NSObject):
             self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
             self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
                 
-            self.feature_finder = CompositeEyeFeatureFinder(fr_ff, sb_ff)
+            self.feature_finder = FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
         
         try:
             if(not use_file_for_cam and not self.use_simulated):
@@ -369,23 +370,28 @@ class EyeTrackerController (NSObject):
         self.calibrator = StahlLikeCalibrator(self.camera_device, self.stages, self.zoom_and_focus, self.leds, d_halfrange=30, ui_queue=self.ui_queue, r_stage_direction=r_dir, d_guess=d_guess)
         
         if(mw_enabled):
-            print("Creating mw conduit")
+            print("Instantiating mw conduit")
             self.mw_conduit = mw_conduit.IPCServerConduit("cobra1")
             print("conduit = %s" % self.mw_conduit)
         else:
             self.mw_conduit = None
         
         if(self.mw_conduit != None):
-            print("Initializing conduit")
-            self.mw_conduit.initialize()
+            print("Initializing conduit...")
+            initialized = self.mw_conduit.initialize()
+            print initialized
+            if not initialized:
+                print("Failed to initialize conduit")
+            
+            print("Sending dummy data (-1000,-1000,-1000) to other side of conduit")
             self.mw_conduit.send_data(GAZE_INFO, (-1000, -1000, -1000))
+            self.mw_conduit.send_data(PING, 0)
+            print("Finished testing conduit")
         else:
             print "no conduit"
         
         
-        
-        
-    
+            
     def start_continuous_acquisition(self):
         print "Starting continuous acquisition"
         self.continuously_acquiring = 1

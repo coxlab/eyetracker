@@ -134,7 +134,8 @@ class PipelinedFeatureFinder:
     def start(self):
         for worker in self.workers:
             worker.start_worker_loop()
-        
+    
+    @clockit
     def analyze_image(self, image, guess = None):
         if(self.current_input_worker >= len(self.workers)):
             self.current_input_worker = 0

@@ -41,6 +41,7 @@
 		5C14992D0ECCDBEF00FB73BB /* SimulatedStageController.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14991B0ECCDBEF00FB73BB /* SimulatedStageController.py */; };
 		5C14992E0ECCDBEF00FB73BB /* IPSerialBridge.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C14991D0ECCDBEF00FB73BB /* IPSerialBridge.py */; };
 		5C1499690ECDD5E900FB73BB /* CobraEyeTracker.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C1499680ECDD5E900FB73BB /* CobraEyeTracker.py */; };
+		5C4A926C12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C4A926B12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py */; };
 		5C6200300EE8CF7B00A3ED1D /* prosilica.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C62002A0EE8CF7B00A3ED1D /* prosilica.py */; };
 		5C6200310EE8CF7B00A3ED1D /* prosilica_cpp.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C62002C0EE8CF7B00A3ED1D /* prosilica_cpp.py */; };
 		5C62FC900EE5CAD200A3ED1D /* StahlLikeCalibrator.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C62FC8F0EE5CAD200A3ED1D /* StahlLikeCalibrator.py */; };
@@ -96,6 +97,7 @@
 		5C14991B0ECCDBEF00FB73BB /* SimulatedStageController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = SimulatedStageController.py; sourceTree = "<group>"; };
 		5C14991D0ECCDBEF00FB73BB /* IPSerialBridge.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = IPSerialBridge.py; sourceTree = "<group>"; };
 		5C1499680ECDD5E900FB73BB /* CobraEyeTracker.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = CobraEyeTracker.py; sourceTree = "<group>"; };
+		5C4A926B12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FrugalCompositeEyeFeatureFinder.py; sourceTree = "<group>"; };
 		5C6200260EE8CF7B00A3ED1D /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = Camera/Prosilica/Makefile; sourceTree = "<group>"; };
 		5C6200270EE8CF7B00A3ED1D /* numpy.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = numpy.i; path = Camera/Prosilica/numpy.i; sourceTree = "<group>"; };
 		5C6200280EE8CF7B00A3ED1D /* Prosilica.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Prosilica.cxx; path = Camera/Prosilica/Prosilica.cxx; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */,
 				5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */,
 				5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */,
+				5C4A926B12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py */,
 			);
 			path = ImageProcessing;
 			sourceTree = "<group>";
@@ -443,6 +446,7 @@
 				5C9EE34D1072B0660051414D /* VanillaBackend.py in Resources */,
 				5C9EE34F1072B0780051414D /* WovenBackend.py in Resources */,
 				5C9EE3511072B0870051414D /* OpenCLBackend.py in Resources */,
+				5C4A926C12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
