@@ -638,8 +638,12 @@ def modsign2map(m):
     ret['pymethoddef'] = getpymethoddef(m) or ''
     return ret
 
-def cb_sign2map(a,var):
+def cb_sign2map(a,var,index=None):
     ret={'varname':a}
+    if index is None or 1: # disable 7712 patch
+        ret['varname_i'] = ret['varname']
+    else:
+        ret['varname_i'] = ret['varname'] + '_' + str(index)
     ret['ctype']=getctype(var)
     if ret['ctype'] in c2capi_map:
         ret['atype']=c2capi_map[ret['ctype']]

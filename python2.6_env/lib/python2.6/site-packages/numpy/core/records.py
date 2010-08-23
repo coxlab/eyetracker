@@ -73,40 +73,69 @@ def find_duplicate(list):
     """Find duplication in a list, return a list of duplicated elements"""
     dup = []
     for i in range(len(list)):
-        if (list[i] in list[i+1:]):
+        if (list[i] in list[i + 1:]):
             if (list[i] not in dup):
                 dup.append(list[i])
     return dup
 
 class format_parser:
-    """Class to convert formats, names, titles description to a dtype
+    """
+    Class to convert formats, names, titles description to a dtype.
 
     After constructing the format_parser object, the dtype attribute is
-      the converted data-type.
+    the converted data-type:
+    ``dtype = format_parser(formats, names, titles).dtype``
 
-    dtype = format_parser(formats, names, titles).dtype
+    Attributes
+    ----------
+    dtype : dtype
+        The converted data-type.
 
     Parameters
     ----------
-    formats : string or list
-        comma-separated format descriptions --- 'f8, i4, a5'
-        list of format description strings --- ['f8', 'i4', 'a5']
-    names : string or (list or tuple of strings)
-        comma-separated field names --- 'col1, col2, col3'
-        list or tuple of field names
+    formats : str or list of str
+        The format description, either specified as a string with
+        comma-separated format descriptions in the form ``'f8, i4, a5'``, or
+        a list of format description strings  in the form
+        ``['f8', 'i4', 'a5']``.
+    names : str or list/tuple of str
+        The field names, either specified as a comma-separated string in the
+        form ``'col1, col2, col3'``, or as a list or tuple of strings in the
+        form ``['col1', 'col2', 'col3']``.
+        An empty list can be used, in that case default field names
+        ('f0', 'f1', ...) are used.
     titles : sequence
-        sequence of title strings or unicode
-    aligned : bool
-        align the fields by padding as the C-compiler would
-    byteorder :
+        Sequence of title strings. An empty list can be used to leave titles
+        out.
+    aligned : bool, optional
+        If True, align the fields by padding as the C-compiler would.
+        Default is False.
+    byteorder : str, optional
         If specified, all the fields will be changed to the
-        provided byteorder.  Otherwise, the default byteorder is
-        used.
+        provided byte-order.  Otherwise, the default byte-order is
+        used. For all available string specifiers, see `dtype.newbyteorder`.
 
-    Returns
-    -------
-    object
-        A Python object whose dtype attribute is a data-type.
+    See Also
+    --------
+    dtype, typename, sctype2char
+
+    Examples
+    --------
+    >>> np.format_parser(['f8', 'i4', 'a5'], ['col1', 'col2', 'col3'],
+    ...                  ['T1', 'T2', 'T3']).dtype
+    dtype([(('T1', 'col1'), '<f8'), (('T2', 'col2'), '<i4'),
+           (('T3', 'col3'), '|S5')]
+
+    `names` and/or `titles` can be empty lists. If `titles` is an empty list,
+    titles will simply not appear. If `names` is empty, default field names
+    will be used.
+
+    >>> np.format_parser(['f8', 'i4', 'a5'], ['col1', 'col2', 'col3'],
+    ...                  []).dtype
+    dtype([('col1', '<f8'), ('col2', '<i4'), ('col3', '|S5')])
+    >>> np.format_parser(['f8', 'i4', 'a5'], [], []).dtype
+    dtype([('f0', '<f8'), ('f1', '<i4'), ('f2', '|S5')])
+
     """
     def __init__(self, formats, names, titles, aligned=False, byteorder=None):
         self._parseFormats(formats, aligned)
@@ -167,7 +196,7 @@ class format_parser:
             titles = []
 
         if (self._nfields > len(titles)):
-            self._titles += [None]*(self._nfields-len(titles))
+            self._titles += [None] * (self._nfields - len(titles))
 
     def _createdescr(self, byteorder):
         descr = sb.dtype({'names':self._names,
@@ -225,20 +254,21 @@ class record(nt.void):
         if res:
             return self.setfield(val, *res[:2])
         else:
-            if getattr(self,attr,None):
+            if getattr(self, attr, None):
                 return nt.void.__setattr__(self, attr, val)
             else:
                 raise AttributeError, "'record' object has no "\
                       "attribute '%s'" % attr
 
     def pprint(self):
+        """Pretty-print all fields."""
         # pretty-print all fields
         names = self.dtype.names
         maxlen = max([len(name) for name in names])
         rows = []
-        fmt = '%% %ds: %%s' %maxlen
+        fmt = '%% %ds: %%s' % maxlen
         for name in names:
-            rows.append(fmt%(name, getattr(self, name)))
+            rows.append(fmt % (name, getattr(self, name)))
         return "\n".join(rows)
 
 # The recarray is almost identical to a standard array (which supports
@@ -274,7 +304,7 @@ class recarray(ndarray):
         Note that `formats` must be a list, not a tuple.
         Given that `formats` is somewhat limited, we recommend specifying
         `dtype` instead.
-    names : tuple of strings, optional
+    names : tuple of str, optional
         The name of each column, e.g. ``('x', 'y', 'z')``.
     buf : buffer, optional
         By default, a new array is created of the given shape and data-type.
@@ -284,14 +314,14 @@ class recarray(ndarray):
 
     Other Parameters
     ----------------
-    titles : tuple of strings, optional
+    titles : tuple of str, optional
         Aliases for column names.  For example, if `names` were
         ``('x', 'y', 'z')`` and `titles` is
         ``('x_coordinate', 'y_coordinate', 'z_coordinate')``, then
         ``arr['x']`` is equivalent to both ``arr.x`` and ``arr.x_coordinate``.
     byteorder : {'<', '>', '='}, optional
         Byte-order for all fields.
-    aligned : {True, False}, optional
+    aligned : bool, optional
         Align the fields in memory as the C-compiler would.
     strides : tuple of ints, optional
         Buffer (`buf`) is interpreted according to these strides (strides
@@ -308,8 +338,8 @@ class recarray(ndarray):
     See Also
     --------
     rec.fromrecords : Construct a record array from data.
-    record : fundamental data-type for recarray
-    format_parser : determine a data-type from formats, names, titles
+    record : fundamental data-type for `recarray`.
+    format_parser : determine a data-type from formats, names, titles.
 
     Notes
     -----
@@ -375,7 +405,7 @@ class recarray(ndarray):
             return object.__getattribute__(self, attr)
         except AttributeError: # attr must be a fieldname
             pass
-        fielddict = ndarray.__getattribute__(self,'dtype').fields
+        fielddict = ndarray.__getattribute__(self, 'dtype').fields
         try:
             res = fielddict[attr][:2]
         except (TypeError, KeyError):
@@ -399,12 +429,12 @@ class recarray(ndarray):
         try:
             ret = object.__setattr__(self, attr, val)
         except:
-            fielddict = ndarray.__getattribute__(self,'dtype').fields or {}
+            fielddict = ndarray.__getattribute__(self, 'dtype').fields or {}
             if attr not in fielddict:
                 exctype, value = sys.exc_info()[:2]
                 raise exctype, value
         else:
-            fielddict = ndarray.__getattribute__(self,'dtype').fields or {}
+            fielddict = ndarray.__getattribute__(self, 'dtype').fields or {}
             if attr not in fielddict:
                 return ret
             if newattr:         # We just added this one
@@ -415,7 +445,7 @@ class recarray(ndarray):
                     return ret
         try:
             res = fielddict[attr][:2]
-        except (TypeError,KeyError):
+        except (TypeError, KeyError):
             raise AttributeError, "record array has no attribute %s" % attr
         return self.setfield(val, *res)
 
@@ -431,10 +461,10 @@ class recarray(ndarray):
 
     def field(self, attr, val=None):
         if isinstance(attr, int):
-            names = ndarray.__getattribute__(self,'dtype').names
+            names = ndarray.__getattribute__(self, 'dtype').names
             attr = names[attr]
 
-        fielddict = ndarray.__getattribute__(self,'dtype').fields
+        fielddict = ndarray.__getattribute__(self, 'dtype').fields
 
         res = fielddict[attr][:2]
 
@@ -521,7 +551,7 @@ def fromarrays(arrayList, dtype=None, shape=None, formats=None,
 
     for k, obj in enumerate(arrayList):
         nn = len(descr[k].shape)
-        testshape = obj.shape[:len(obj.shape)-nn]
+        testshape = obj.shape[:len(obj.shape) - nn]
         if testshape != shape:
             raise ValueError, "array-shape mismatch in array %d" % k
 
@@ -567,17 +597,17 @@ def fromrecords(recList, dtype=None, shape=None, formats=None, names=None,
     nfields = len(recList[0])
     if formats is None and dtype is None:  # slower
         obj = sb.array(recList, dtype=object)
-        arrlist = [sb.array(obj[...,i].tolist()) for i in xrange(nfields)]
+        arrlist = [sb.array(obj[..., i].tolist()) for i in xrange(nfields)]
         return fromarrays(arrlist, formats=formats, shape=shape, names=names,
                           titles=titles, aligned=aligned, byteorder=byteorder)
 
     if dtype is not None:
-        descr = sb.dtype(dtype)
+        descr = sb.dtype((record, dtype))
     else:
         descr = format_parser(formats, names, titles, aligned, byteorder)._descr
 
     try:
-        retval = sb.array(recList, dtype = descr)
+        retval = sb.array(recList, dtype=descr)
     except TypeError:  # list of lists instead of list of tuples
         if (shape is None or shape == 0):
             shape = len(recList)
@@ -595,7 +625,6 @@ def fromrecords(recList, dtype=None, shape=None, formats=None, names=None,
 
     res = retval.view(recarray)
 
-    res.dtype = sb.dtype((record, res.dtype))
     return res
 
 
@@ -615,7 +644,7 @@ def fromstring(datastring, dtype=None, shape=None, offset=0, formats=None,
 
     itemsize = descr.itemsize
     if (shape is None or shape == 0 or shape == -1):
-        shape = (len(datastring)-offset) / itemsize
+        shape = (len(datastring) - offset) / itemsize
 
     _array = recarray(shape, descr, buf=datastring, offset=offset)
     return _array
@@ -674,14 +703,14 @@ def fromfile(fd, dtype=None, shape=None, offset=0, formats=None,
     itemsize = descr.itemsize
 
     shapeprod = sb.array(shape).prod()
-    shapesize = shapeprod*itemsize
+    shapesize = shapeprod * itemsize
     if shapesize < 0:
         shape = list(shape)
         shape[ shape.index(-1) ] = size / -shapesize
         shape = tuple(shape)
         shapeprod = sb.array(shape).prod()
 
-    nbytes = shapeprod*itemsize
+    nbytes = shapeprod * itemsize
 
     if nbytes > size:
         raise ValueError(
@@ -765,7 +794,7 @@ def array(obj, dtype=None, shape=None, offset=0, strides=None, formats=None,
         obj = sb.array(obj)
         if dtype is not None and (obj.dtype != dtype):
             obj = obj.view(dtype)
-        res  = obj.view(recarray)
+        res = obj.view(recarray)
         if issubclass(res.dtype.type, nt.void):
             res.dtype = sb.dtype((record, res.dtype))
         return res

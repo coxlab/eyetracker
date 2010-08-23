@@ -106,6 +106,7 @@ class Button(Widget):
 
 
         ax.figure.canvas.mpl_connect('button_press_event', self._click)
+        ax.figure.canvas.mpl_connect('button_release_event', self._release)
         ax.figure.canvas.mpl_connect('motion_notify_event', self._motion)
         ax.set_navigate(False)
         ax.set_axis_bgcolor(color)
@@ -117,8 +118,21 @@ class Button(Widget):
         self._lastcolor = color
 
     def _click(self, event):
-        if event.inaxes != self.ax: return
-        if not self.eventson: return
+        if event.inaxes != self.ax:
+            return
+        if not self.eventson:
+            return
+        if event.canvas.mouse_grabber != self.ax:
+            event.canvas.grab_mouse(self.ax)
+
+    def _release(self, event):
+        if event.canvas.mouse_grabber != self.ax:
+            return
+        event.canvas.release_mouse(self.ax)
+        if not self.eventson:
+            return
+        if event.inaxes != self.ax:
+            return
         for cid, func in self.observers.items():
             func(event)
 
@@ -209,6 +223,7 @@ class Slider(Widget):
         ax.set_navigate(False)
 
         ax.figure.canvas.mpl_connect('button_press_event', self._update)
+        ax.figure.canvas.mpl_connect('button_release_event', self._update)
         if dragging:
             ax.figure.canvas.mpl_connect('motion_notify_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
@@ -227,14 +242,35 @@ class Slider(Widget):
         self.closedmax = closedmax
         self.slidermin = slidermin
         self.slidermax = slidermax
+        self.drag_active  = False
 
     def _update(self, event):
         'update the slider position'
-        if event.button !=1: return
-        if event.inaxes != self.ax: return
+        if event.button != 1:
+            return
+
+        if event.name == 'button_press_event' and event.inaxes == self.ax:
+            self.drag_active = True
+            event.canvas.grab_mouse(self.ax)
+
+        if not self.drag_active:
+            return
+
+        elif ((event.name == 'button_release_event')
+             or (event.name == 'button_press_event' and event.inaxes != self.ax)):
+            self.drag_active = False
+            event.canvas.release_mouse(self.ax)
+            return
+
         val = event.xdata
-        if not self.closedmin and val<=self.valmin: return
-        if not self.closedmax and val>=self.valmax: return
+        if val <= self.valmin:
+            if not self.closedmin:
+                return
+            val = self.valmin
+        elif val >= self.valmax:
+            if not self.closedmax:
+                return
+            val = self.valmax
 
         if self.slidermin is not None:
             if val<=self.slidermin.val: return
@@ -669,6 +705,8 @@ class Cursor:
         self.vertOn = True
         self.useblit = useblit
 
+        if useblit:
+            lineprops['animated'] = True
         self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
@@ -741,10 +779,14 @@ class MultiCursor:
 
     """
     def __init__(self, canvas, axes, useblit=True, **lineprops):
+
         self.canvas = canvas
         self.axes = axes
         xmin, xmax = axes[-1].get_xlim()
         xmid = 0.5*(xmin+xmax)
+        if useblit:
+            lineprops['animated'] = True
+
         self.lines = [ax.axvline(xmid, visible=False, **lineprops) for ax in axes]
 
         self.visible = True
@@ -1011,7 +1053,8 @@ class RectangleSelector:
     """
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=None, minspany=None, useblit=False,
-                 lineprops=None, rectprops=None, spancoords='data'):
+                 lineprops=None, rectprops=None, spancoords='data',
+                 button=None):
 
         """
         Create a selector in ax.  When a selection is made, clear
@@ -1041,6 +1084,15 @@ class RectangleSelector:
         spancoords is one of 'data' or 'pixels'.  If 'data', minspanx
         and minspanx will be interpreted in the same coordinates as
         the x and ya axis, if 'pixels', they are in pixels
+
+        button is a list of integers indicating which mouse buttons should
+        be used for rectangle selection.  You can also specify a single
+        integer if only a single button is desired.  Default is None, which
+        does not limit which button can be used.
+        Note, typically:
+         1 = left mouse button
+         2 = center mouse button (scroll wheel)
+         3 = right mouse button
         """
         self.ax = ax
         self.visible = True
@@ -1078,6 +1130,11 @@ class RectangleSelector:
         self.minspanx = minspanx
         self.minspany = minspany
 
+        if button is None or isinstance(button, list):
+            self.validButtons = button
+        elif isinstance(button, int):
+            self.validButtons = [button]
+
         assert(spancoords in ('data', 'pixels'))
 
         self.spancoords = spancoords
@@ -1102,6 +1159,12 @@ class RectangleSelector:
         # If canvas was locked
         if not self.canvas.widgetlock.available(self):
             return True
+
+        # Only do rectangle selection if event was triggered
+        # with a desired button
+        if self.validButtons is not None:
+            if not event.button in self.validButtons:
+                return True
 
         # If no button was pressed yet ignore the event if it was out
         # of the axes

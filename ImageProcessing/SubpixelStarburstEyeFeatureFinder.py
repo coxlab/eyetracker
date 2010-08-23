@@ -96,7 +96,8 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         if('fitting_algorithm' in kwargs):
             self.fitting_algorithm = kwargs['fitting_algorithm']
         else:
-            self.fitting_algorithm = 'ellipse_least_squares'
+            #self.fitting_algorithm = 'ellipse_least_squares'
+            self.fitting_algorithm = 'circle_least_squares'
             
         pupil_rays = None
         cr_rays = None
@@ -586,7 +587,8 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # Calculate the location of center and radius
         center_fit = array([-a/2, -b/2])
         radius_fit = sqrt( (center_fit[0]**2 + center_fit[1]**2) - c )
-        err = mean(self._residuals_circle(array([a,b,c]), points_x, points_y))
+        err = sum(self._residuals_circle(array([a,b,c]), points_x, points_y)**2)
+        print(err)
         return center_fit, radius_fit, err
 
     ##@clockit

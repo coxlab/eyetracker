@@ -19,6 +19,7 @@ This provides several classes used for blocking interaction with figure windows:
 
 from matplotlib import path, verbose
 from matplotlib.cbook import is_sequence_of_strings
+import matplotlib.lines as mlines
 
 class BlockingInput(object):
     """
@@ -161,6 +162,10 @@ class BlockingMouseInput(BlockingInput):
         '''
 
         event = self.events[-1]
+        if event.key is None:
+            # at least in mac os X gtk backend some key returns None.
+            return
+
         key = event.key.lower()
 
         if key in ['backspace', 'delete']:
@@ -190,10 +195,10 @@ class BlockingMouseInput(BlockingInput):
         BlockingInput.pop(self,-1)
 
         # This will exit even if not in infinite mode.  This is
-        # consistent with matlab and sometimes quite useful, but will
+        # consistent with MATLAB and sometimes quite useful, but will
         # require the user to test how many points were actually
         # returned before using data.
-        self.fig.canvas.stop_event_loop(event)
+        self.fig.canvas.stop_event_loop()
 
     def mouse_event_pop( self, event ):
         """
@@ -218,18 +223,10 @@ class BlockingMouseInput(BlockingInput):
 
         # If desired plot up click
         if self.show_clicks:
-
-            # make sure we don't mess with the axes zoom
-            xlim = event.inaxes.get_xlim()
-            ylim = event.inaxes.get_ylim()
-
-            # plot the clicks
-            self.marks.extend(
-                event.inaxes.plot([event.xdata,], [event.ydata,], 'r+') )
-
-            # before we draw, make sure to reset the limits
-            event.inaxes.set_xlim(xlim)
-            event.inaxes.set_ylim(ylim)
+            line = mlines.Line2D([event.xdata], [event.ydata],
+                                 marker='+', color='r')
+            event.inaxes.add_line(line)
+            self.marks.append(line)
             self.fig.canvas.draw()
 
 
@@ -243,16 +240,9 @@ class BlockingMouseInput(BlockingInput):
 
         if self.show_clicks:
 
-            # make sure we don't mess with the axes zoom
-            xlim = event.inaxes.get_xlim()
-            ylim = event.inaxes.get_ylim()
-
             mark = self.marks.pop(index)
             mark.remove()
 
-            # before we draw, make sure to reset the limits
-            event.inaxes.set_xlim(xlim)
-            event.inaxes.set_ylim(ylim)
             self.fig.canvas.draw()
             # NOTE: I do NOT understand why the above 3 lines does not work
             # for the keyboard backspace event on windows XP wxAgg.
@@ -271,19 +261,10 @@ class BlockingMouseInput(BlockingInput):
     def cleanup(self,event=None):
         # clean the figure
         if self.show_clicks:
-            if event:
-                # make sure we don't mess with the axes zoom
-                xlim = event.inaxes.get_xlim()
-                ylim = event.inaxes.get_ylim()
 
             for mark in self.marks:
                 mark.remove()
             self.marks = []
-
-            if event:
-                # before we draw, make sure to reset the limits
-                event.inaxes.set_xlim(xlim)
-                event.inaxes.set_ylim(ylim)
 
             self.fig.canvas.draw()
 
@@ -310,6 +291,12 @@ class BlockingContourLabeler( BlockingMouseInput ):
     def __init__(self,cs):
         self.cs = cs
         BlockingMouseInput.__init__(self, fig=cs.ax.figure )
+
+    def add_click(self, event):
+        self.button1(event)
+
+    def pop_click(self, event, index=-1):
+        self.button3(event)
 
     def button1(self,event):
         """
@@ -376,10 +363,6 @@ class BlockingContourLabeler( BlockingMouseInput ):
         broken contour - once humpty-dumpty is broken, he can't be put
         back together.  In inline mode, this does nothing.
         """
-        # Remove this last event - not too important for clabel use
-        # since clabel normally doesn't have a maximum number of
-        # events, but best for cleanliness sake.
-        BlockingInput.pop(self)
 
         if self.inline:
             pass

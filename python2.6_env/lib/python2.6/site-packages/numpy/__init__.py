@@ -58,6 +58,8 @@ linalg
     Core Linear Algebra Tools
 fft
     Core FFT routines
+polynomial
+    Polynomial tools
 testing
     Numpy testing tools
 f2py
@@ -93,7 +95,7 @@ the source code).
 Copies vs. in-place operation
 -----------------------------
 Most of the functions in `numpy` return a copy of the array argument
-(e.g., `sort`).  In-place versions of these functions are often
+(e.g., `np.sort`).  In-place versions of these functions are often
 available as array methods, i.e. ``x = np.array([1,2,3]); x.sort()``.
 Exceptions to this rule are documented.
 
@@ -138,13 +140,17 @@ else:
 
     import core
     from core import *
+    import compat
     import lib
     from lib import *
     import linalg
     import fft
+    import polynomial
     import random
     import ctypeslib
     import ma
+    import matrixlib as _mat
+    from matrixlib import *
 
     # Make these accessible from numpy name-space
     #  but not imported in from numpy import *
@@ -155,5 +161,6 @@ else:
     __all__.extend(['__version__', 'pkgload', 'PackageLoader',
                'show_config'])
     __all__.extend(core.__all__)
+    __all__.extend(_mat.__all__)
     __all__.extend(lib.__all__)
     __all__.extend(['linalg', 'fft', 'random', 'ctypeslib', 'ma'])
