@@ -8,7 +8,7 @@
 
 from multiprocessing.managers import SyncManager, BaseProxy
 
-from CompositeEyeFeatureFinder import *
+from FrugalCompositeEyeFeatureFinder import *
 from FastRadialFeatureFinder import *
 from SubpixelStarburstEyeFeatureFinder import *
 
@@ -66,7 +66,7 @@ class PipelinedWorkerProcessManager(SyncManager):
         self.output_queue = self.Queue(queue_size)
         self.worker = None
         
-        self.register('CompositeEyeFeatureFinder', CompositeEyeFeatureFinder)
+        self.register('FrugalCompositeEyeFeatureFinder', FrugalCompositeEyeFeatureFinder)
         self.register('FastRadialFeatureFinder', FastRadialFeatureFinder)
         self.register('SubpixelStarburstEyeFeatureFinder', SubpixelStarburstEyeFeatureFinder)
         self.register('PipelinedWorker', PipelinedWorker)

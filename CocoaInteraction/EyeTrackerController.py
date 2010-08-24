@@ -155,6 +155,7 @@ class EyeTrackerController (NSObject):
     
     radial_symmetry_feature_finder_adaptor = objc.IBOutlet()
     starburst_feature_finder_adaptor = objc.IBOutlet()
+    composite_feature_finder_adaptor = objc.IBOutlet()
     
     camera_device = None
     
@@ -294,7 +295,7 @@ class EyeTrackerController (NSObject):
         #self.elevation_set = 0.0
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
-        nworkers = 0
+        nworkers = 2
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
@@ -307,17 +308,22 @@ class EyeTrackerController (NSObject):
                 self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
                 self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
                 
-                worker.set_main_feature_finder(worker.FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)) # create in worker process
+                comp_ff = worker.FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
+                self.composite_feature_finder_adaptor.addFeatureFinder(comp_ff)
+                
+                worker.set_main_feature_finder(comp_ff) # create in worker process
             
             self.feature_finder.start()  # start the worker loops  
         else:
             sb_ff = SubpixelStarburstEyeFeatureFinder()
             fr_ff = FastRadialFeatureFinder()
+            comp_ff = FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
             
             self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
             self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
-                
-            self.feature_finder = FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
+             
+            self.composite_feature_finder_adaptor.addFeatureFinder(comp_ff)
+            self.feature_finder = comp_ff
         
         try:
             if(not use_file_for_cam and not self.use_simulated):

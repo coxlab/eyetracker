@@ -36,13 +36,15 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
         
         self.first_run = True
 
-        self.reseed_threshold = 100.
+        self.reseed_threshold = 400.0
         self.minimum_frames_to_reseed = 50
         self.reseed_count = self.minimum_frames_to_reseed
-        
+    
+    def update_parameters(self):
+        pass
 
     # ==================================== function: analyzeImage ========================================
-    @clockit
+    #@clockit
     def analyze_image(self, im, guess = None, **kwargs):
         
         features = None
@@ -72,7 +74,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
             cr_error = features['starburst']['cr_err']
             pupil_error = features['starburst']['pupil_err']
             error_level = max(cr_error, pupil_error)
-            print("error_level: %f" % error_level)
+            #print("error_level: %f" % error_level)
         
         if self.first_run or error_level > self.reseed_threshold or self.reseed_count <= 0:
             reseed = True

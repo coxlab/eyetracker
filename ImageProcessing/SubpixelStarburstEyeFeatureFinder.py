@@ -172,7 +172,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.parameters_updated = True
 
 
-    @clockit
+    #@clockit
     def analyze_image(self, image, guess, **kwargs):
         """ Begin processing an image to find features
         """
@@ -623,8 +623,10 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         X = hstack( (x**2, x*y, y**2, x, y) )
         # print "X = ", X    
         
+        fit_err = 0
         try:
             A = dot( sum(X,axis=0), linalg.inv(dot(X.transpose(),X)) )
+            
         except linalg.LinAlgError:
             print "A linear algebra error has occurred while ellipse fitting"
             return (array([-1.0, -1.0]), 0.0, Inf)
@@ -671,9 +673,17 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             X0_in       = P_in[0];
             Y0_in       = P_in[1];
 
-            center_fit = [X0_in[0], Y0_in[0]]
+            center_fit = array([X0_in[0], Y0_in[0]])
+            
+            # determine the fit error
+            centered_points = points_array -  ones((points_array.shape[0],1)) *center_fit
+            r_data = sqrt(centered_points[:,0]**2 + centered_points[:,1]**2)            
+            thetas = arctan(centered_points[:,1] / centered_points[:,0])
+            r_fit = a*b / sqrt( (b*cos(thetas))**2 + (a*sin(thetas)**2) )
+            fit_err = sum((r_fit - r_data) **2)
+            
             #print "Estimated Ellipse center =", X0_in, Y0_in
-            return array(center_fit), long_axis / 2.0, 0.0
+            return center_fit, long_axis / 2.0, fit_err
 
         elif test == 0:
             print "Error in ellipse fitting: parabola found instead of ellipse"
