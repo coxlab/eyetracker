@@ -218,6 +218,9 @@ class POVRaySimulatedCameraDevice:
         #self.feature_finder.analyze_image(self.im_array,None)
         features = self.feature_finder.get_result()
         
+        if(features == None):
+            return features
+            
         if "cr_position" in features:
             self.cr_position = features["cr_position"]
         if "pupil_position" in features:

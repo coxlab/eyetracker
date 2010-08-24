@@ -50,6 +50,7 @@ class PipelinedWorker:
 def worker_thread(worker):
     worker.start()
 
+
 class PipelinedWorkerProcessManager(SyncManager):
 
     #CompositeEyeFeatureFinder_ = CreatorMethod(CompositeEyeFeatureFinder)
@@ -60,22 +61,20 @@ class PipelinedWorkerProcessManager(SyncManager):
     def __init__(self, queue_size = None):
         print "instantiating process manager"
         SyncManager.__init__(self)
+        
         self.start()
+        
         self.ff = None
         self.input_queue = self.Queue(queue_size)
         self.output_queue = self.Queue(queue_size)
         self.worker = None
         
-        self.register('FrugalCompositeEyeFeatureFinder', FrugalCompositeEyeFeatureFinder)
-        self.register('FastRadialFeatureFinder', FastRadialFeatureFinder)
-        self.register('SubpixelStarburstEyeFeatureFinder', SubpixelStarburstEyeFeatureFinder)
-        self.register('PipelinedWorker', PipelinedWorker)
-    
+
     def set_main_feature_finder(self, ff):
         self.ff = ff
     
     def start_worker_loop(self):
-        self.worker = self.PipelinedWorker_(self.ff, self.input_queue, self.output_queue)
+        self.worker = self.PipelinedWorker(self.ff, self.input_queue, self.output_queue)
         self.worker_thread = threading.Thread(target=worker_thread, args=[self.worker])
         self.worker_thread.start()
         
@@ -103,6 +102,10 @@ def worker_loop(ff, image_queue, output_queue, id=-1):
         output_queue.put(pickle.dumps(features))  
         
     
+PipelinedWorkerProcessManager.register('FrugalCompositeEyeFeatureFinder', FrugalCompositeEyeFeatureFinder)
+PipelinedWorkerProcessManager.register('FastRadialFeatureFinder', FastRadialFeatureFinder)
+PipelinedWorkerProcessManager.register('StarBurstEyeFeatureFinder', SubpixelStarburstEyeFeatureFinder)
+PipelinedWorkerProcessManager.register('PipelinedWorker', PipelinedWorker)
 
 class PipelinedFeatureFinder:
 

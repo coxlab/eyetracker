@@ -257,6 +257,18 @@
 			5C8F2BA91224232A007CABB6 /* PBXTextBookmark */ = 5C8F2BA91224232A007CABB6 /* PBXTextBookmark */;
 			5C8F2BAA1224232A007CABB6 /* PBXTextBookmark */ = 5C8F2BAA1224232A007CABB6 /* PBXTextBookmark */;
 			5C8F2BAB1224232A007CABB6 /* PBXTextBookmark */ = 5C8F2BAB1224232A007CABB6 /* PBXTextBookmark */;
+			5C8F2BAF12242426007CABB6 /* PBXTextBookmark */ = 5C8F2BAF12242426007CABB6 /* PBXTextBookmark */;
+			5C8F2BB012242426007CABB6 /* PBXTextBookmark */ = 5C8F2BB012242426007CABB6 /* PBXTextBookmark */;
+			5C8F2BB112242426007CABB6 /* PBXTextBookmark */ = 5C8F2BB112242426007CABB6 /* PBXTextBookmark */;
+			5C8F2BB212242426007CABB6 /* PBXTextBookmark */ = 5C8F2BB212242426007CABB6 /* PBXTextBookmark */;
+			5C8F2BB61224244B007CABB6 /* PBXTextBookmark */ = 5C8F2BB61224244B007CABB6 /* PBXTextBookmark */;
+			5C8F2BB71224244B007CABB6 /* PBXTextBookmark */ = 5C8F2BB71224244B007CABB6 /* PBXTextBookmark */;
+			5C8F2BB81224244B007CABB6 /* PBXTextBookmark */ = 5C8F2BB81224244B007CABB6 /* PBXTextBookmark */;
+			5C8F2BBE122424B3007CABB6 /* PBXTextBookmark */ = 5C8F2BBE122424B3007CABB6 /* PBXTextBookmark */;
+			5C8F2BC412242598007CABB6 /* PBXTextBookmark */ = 5C8F2BC412242598007CABB6 /* PBXTextBookmark */;
+			5C8F2BC512242598007CABB6 /* PBXTextBookmark */ = 5C8F2BC512242598007CABB6 /* PBXTextBookmark */;
+			5C8F2BC612242598007CABB6 /* PBXTextBookmark */ = 5C8F2BC612242598007CABB6 /* PBXTextBookmark */;
+			5C8F2BC712242598007CABB6 /* PBXTextBookmark */ = 5C8F2BC712242598007CABB6 /* PBXTextBookmark */;
 			5CA092860F0E68A000062E67 = 5CA092860F0E68A000062E67 /* PBXTextBookmark */;
 			5CA093430F0EA2A200062E67 = 5CA093430F0EA2A200062E67 /* PBXTextBookmark */;
 			5CA678030F67FEBC00773E97 = 5CA678030F67FEBC00773E97 /* PBXTextBookmark */;
@@ -419,23 +431,23 @@
 	};
 	5C1498FC0ECCDBD900FB73BB /* ProsilicaCameraDevice.py */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1510, 2370}}";
-			sepNavSelRange = "{3691, 70}";
-			sepNavVisRange = "{3568, 822}";
+			sepNavIntBoundsRect = "{{0, 0}, {1510, 2220}}";
+			sepNavSelRange = "{4036, 49}";
+			sepNavVisRange = "{3222, 1212}";
 		};
 	};
 	5C1498FD0ECCDBD900FB73BB /* POVRaySimulatedCameraDevice.py */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1447, 3540}}";
-			sepNavSelRange = "{6319, 8}";
-			sepNavVisRange = "{5914, 617}";
+			sepNavIntBoundsRect = "{{0, 0}, {1447, 3405}}";
+			sepNavSelRange = "{7102, 0}";
+			sepNavVisRange = "{6306, 1230}";
 		};
 	};
 	5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {767, 16080}}";
-			sepNavSelRange = "{8222, 0}";
-			sepNavVisRange = "{7653, 1489}";
+			sepNavIntBoundsRect = "{{0, 0}, {767, 16665}}";
+			sepNavSelRange = "{8352, 0}";
+			sepNavVisRange = "{8238, 1562}";
 			sepNavWindowFrame = "{{253, 147}, {750, 558}}";
 		};
 	};
@@ -478,9 +490,9 @@
 	};
 	5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {767, 2505}}";
-			sepNavSelRange = "{582, 0}";
-			sepNavVisRange = "{1110, 1462}";
+			sepNavIntBoundsRect = "{{0, 0}, {767, 2565}}";
+			sepNavSelRange = "{3010, 0}";
+			sepNavVisRange = "{533, 1129}";
 		};
 	};
 	5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */ = {
@@ -548,7 +560,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 388";
 		rLen = 0;
-		rLoc = 12756;
+		rLoc = 12503;
 		rType = 0;
 		vrLen = 967;
 		vrLoc = 12145;
@@ -709,7 +721,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 426";
 		rLen = 36;
-		rLoc = 14173;
+		rLoc = 13920;
 		rType = 0;
 		vrLen = 755;
 		vrLoc = 18623;
@@ -829,7 +841,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 426";
 		rLen = 36;
-		rLoc = 14173;
+		rLoc = 13920;
 		rType = 0;
 		vrLen = 755;
 		vrLoc = 18623;
@@ -839,7 +851,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 404";
 		rLen = 0;
-		rLoc = 13109;
+		rLoc = 12856;
 		rType = 0;
 		vrLen = 914;
 		vrLoc = 12494;
@@ -849,7 +861,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 398";
 		rLen = 0;
-		rLoc = 12874;
+		rLoc = 12621;
 		rType = 0;
 		vrLen = 927;
 		vrLoc = 12401;
@@ -859,7 +871,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 398";
 		rLen = 0;
-		rLoc = 13019;
+		rLoc = 12766;
 		rType = 0;
 		vrLen = 993;
 		vrLoc = 12539;
@@ -886,7 +898,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 424";
 		rLen = 36;
-		rLoc = 14173;
+		rLoc = 13920;
 		rType = 0;
 		vrLen = 1693;
 		vrLoc = 16479;
@@ -983,7 +995,7 @@
 		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
 		name = "PipelinedFeatureFinder.py: 138";
 		rLen = 0;
-		rLoc = 4099;
+		rLoc = 3703;
 		rType = 0;
 		vrLen = 864;
 		vrLoc = 3666;
@@ -993,7 +1005,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 424";
 		rLen = 36;
-		rLoc = 14173;
+		rLoc = 13920;
 		rType = 0;
 		vrLen = 1693;
 		vrLoc = 16479;
@@ -1003,7 +1015,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 297";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 921;
 		vrLoc = 7801;
@@ -1013,7 +1025,7 @@
 		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
 		name = "PipelinedFeatureFinder.py: 138";
 		rLen = 0;
-		rLoc = 4099;
+		rLoc = 3703;
 		rType = 0;
 		vrLen = 564;
 		vrLoc = 2787;
@@ -1033,7 +1045,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 297";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 938;
 		vrLoc = 7801;
@@ -1043,7 +1055,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 304";
 		rLen = 0;
-		rLoc = 8467;
+		rLoc = 8377;
 		rType = 0;
 		vrLen = 1138;
 		vrLoc = 8195;
@@ -1052,8 +1064,8 @@
 		isa = PBXTextBookmark;
 		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
 		name = "PipelinedFeatureFinder.py: 71";
-		rLen = 33;
-		rLoc = 2158;
+		rLen = 0;
+		rLoc = 1990;
 		rType = 0;
 		vrLen = 1095;
 		vrLoc = 1371;
@@ -1063,7 +1075,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 304";
 		rLen = 0;
-		rLoc = 8467;
+		rLoc = 8377;
 		rType = 0;
 		vrLen = 1151;
 		vrLoc = 8195;
@@ -1073,7 +1085,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 304";
 		rLen = 0;
-		rLoc = 8492;
+		rLoc = 8402;
 		rType = 0;
 		vrLen = 1179;
 		vrLoc = 8054;
@@ -1083,7 +1095,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 297";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 1103;
 		vrLoc = 8147;
@@ -1093,7 +1105,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 297";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 1177;
 		vrLoc = 8147;
@@ -1149,8 +1161,8 @@
 		isa = PBXTextBookmark;
 		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
 		name = "PipelinedFeatureFinder.py: 71";
-		rLen = 33;
-		rLoc = 2158;
+		rLen = 0;
+		rLoc = 1990;
 		rType = 0;
 		vrLen = 619;
 		vrLoc = 2843;
@@ -1210,7 +1222,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 297";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 1177;
 		vrLoc = 8147;
@@ -1220,7 +1232,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 320";
 		rLen = 0;
-		rLoc = 9624;
+		rLoc = 9371;
 		rType = 0;
 		vrLen = 1147;
 		vrLoc = 8325;
@@ -1230,7 +1242,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 320";
 		rLen = 0;
-		rLoc = 9624;
+		rLoc = 9371;
 		rType = 0;
 		vrLen = 549;
 		vrLoc = 210;
@@ -2155,7 +2167,7 @@
 		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
 		name = "PipelinedFeatureFinder.py: 138";
 		rLen = 8;
-		rLoc = 4091;
+		rLoc = 3695;
 		rType = 0;
 		vrLen = 628;
 		vrLoc = 3772;
@@ -2232,7 +2244,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 325";
 		rLen = 0;
-		rLoc = 9582;
+		rLoc = 9329;
 		rType = 0;
 		vrLen = 1692;
 		vrLoc = 8202;
@@ -2322,7 +2334,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 325";
 		rLen = 0;
-		rLoc = 9582;
+		rLoc = 9329;
 		rType = 0;
 		vrLen = 1671;
 		vrLoc = 8223;
@@ -2332,7 +2344,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 298";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 1045;
 		vrLoc = 7383;
@@ -2342,7 +2354,7 @@
 		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
 		name = "EyeTrackerController.py: 298";
 		rLen = 0;
-		rLoc = 8222;
+		rLoc = 8221;
 		rType = 0;
 		vrLen = 1489;
 		vrLoc = 7653;
@@ -2372,7 +2384,7 @@
 		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
 		name = "PipelinedFeatureFinder.py: 71";
 		rLen = 0;
-		rLoc = 2164;
+		rLoc = 1990;
 		rType = 0;
 		vrLen = 961;
 		vrLoc = 409;
@@ -2386,6 +2398,126 @@
 		rType = 0;
 		vrLen = 1462;
 		vrLoc = 1110;
+	};
+	5C8F2BAF12242426007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */;
+		name = "SubpixelStarburstEyeFeatureFinder.py: 43";
+		rLen = 0;
+		rLoc = 1157;
+		rType = 0;
+		vrLen = 1089;
+		vrLoc = 411;
+	};
+	5C8F2BB012242426007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
+		name = "EyeTrackerController.py: 312";
+		rLen = 0;
+		rLoc = 8572;
+		rType = 0;
+		vrLen = 1686;
+		vrLoc = 8395;
+	};
+	5C8F2BB112242426007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
+		name = "PipelinedFeatureFinder.py: 72";
+		rLen = 0;
+		rLoc = 1990;
+		rType = 0;
+		vrLen = 1125;
+		vrLoc = 2270;
+	};
+	5C8F2BB212242426007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
+		name = "PipelinedFeatureFinder.py: 105";
+		rLen = 0;
+		rLoc = 3010;
+		rType = 0;
+		vrLen = 1073;
+		vrLoc = 2370;
+	};
+	5C8F2BB61224244B007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */;
+		name = "PipelinedFeatureFinder.py: 105";
+		rLen = 0;
+		rLoc = 3010;
+		rType = 0;
+		vrLen = 1129;
+		vrLoc = 533;
+	};
+	5C8F2BB71224244B007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
+		name = "EyeTrackerController.py: 312";
+		rLen = 0;
+		rLoc = 8572;
+		rType = 0;
+		vrLen = 1653;
+		vrLoc = 8395;
+	};
+	5C8F2BB81224244B007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
+		name = "EyeTrackerController.py: 214";
+		rLen = 0;
+		rLoc = 5602;
+		rType = 0;
+		vrLen = 1084;
+		vrLoc = 5569;
+	};
+	5C8F2BBE122424B3007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
+		name = "EyeTrackerController.py: 303";
+		rLen = 0;
+		rLoc = 8352;
+		rType = 0;
+		vrLen = 1640;
+		vrLoc = 8354;
+	};
+	5C8F2BC412242598007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */;
+		name = "EyeTrackerController.py: 303";
+		rLen = 0;
+		rLoc = 8352;
+		rType = 0;
+		vrLen = 1562;
+		vrLoc = 8238;
+	};
+	5C8F2BC512242598007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1498FC0ECCDBD900FB73BB /* ProsilicaCameraDevice.py */;
+		name = "ProsilicaCameraDevice.py: 133";
+		rLen = 49;
+		rLoc = 4036;
+		rType = 0;
+		vrLen = 1212;
+		vrLoc = 3222;
+	};
+	5C8F2BC612242598007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1498FD0ECCDBD900FB73BB /* POVRaySimulatedCameraDevice.py */;
+		name = "POVRaySimulatedCameraDevice.py: 215";
+		rLen = 0;
+		rLoc = 6849;
+		rType = 0;
+		vrLen = 1295;
+		vrLoc = 6297;
+	};
+	5C8F2BC712242598007CABB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5C1498FD0ECCDBD900FB73BB /* POVRaySimulatedCameraDevice.py */;
+		name = "POVRaySimulatedCameraDevice.py: 223";
+		rLen = 0;
+		rLoc = 7102;
+		rType = 0;
+		vrLen = 1230;
+		vrLoc = 6306;
 	};
 	5C9EE34C1072B0660051414D /* VanillaBackend.py */ = {
 		uiCtxt = {
@@ -2437,9 +2569,9 @@
 	};
 	5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {767, 12915}}";
-			sepNavSelRange = "{3230, 0}";
-			sepNavVisRange = "{384, 1116}";
+			sepNavIntBoundsRect = "{{0, 0}, {767, 12900}}";
+			sepNavSelRange = "{1157, 0}";
+			sepNavVisRange = "{411, 1089}";
 		};
 	};
 	5CA677E20F67FC0800773E97 /* EyetrackerUtilities.py */ = {
