@@ -62,6 +62,7 @@
 		5CBBE89610574F6F004C69DF /* OpenCLImageProcessing.py in Resources */ = {isa = PBXBuildFile; fileRef = 5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */; };
 		5CD24BDF1046DF4200B621C5 /* python_env in Resources */ = {isa = PBXBuildFile; fileRef = 5CD237061046DF3E00B621C5 /* python_env */; };
 		6880E3590FA8CADF0001A812 /* FocusAndZoomController.py in Resources */ = {isa = PBXBuildFile; fileRef = 6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */; };
+		68E6A446122F0B2E004B45F4 /* eye.icns in Resources */ = {isa = PBXBuildFile; fileRef = 68E6A445122F0B2E004B45F4 /* eye.icns */; };
 		77631A3F0C0748CF005415CB /* main.py in Resources */ = {isa = PBXBuildFile; fileRef = 77631A3E0C0748CF005415CB /* main.py */; };
 		77C8C1F90C07829500965286 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77C8C1F70C07829500965286 /* MainMenu.xib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
@@ -124,6 +125,7 @@
 		5CD22CF41046DC6000B621C5 /* modules.pth */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = modules.pth; sourceTree = "<group>"; };
 		5CD237061046DF3E00B621C5 /* python_env */ = {isa = PBXFileReference; lastKnownFileType = folder; path = python_env; sourceTree = "<group>"; };
 		6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FocusAndZoomController.py; sourceTree = "<group>"; };
+		68E6A445122F0B2E004B45F4 /* eye.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = eye.icns; sourceTree = "<group>"; };
 		77631A3E0C0748CF005415CB /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
 		77C8C1F80C07829500965286 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				68E6A445122F0B2E004B45F4 /* eye.icns */,
 				5CBBC2821056C4FE004C69DF /* python2.6_env */,
 				5CD237061046DF3E00B621C5 /* python_env */,
 				5C7A87370F81215E007B4724 /* mw_conduit.so */,
@@ -447,6 +450,7 @@
 				5C9EE34F1072B0780051414D /* WovenBackend.py in Resources */,
 				5C9EE3511072B0870051414D /* OpenCLBackend.py in Resources */,
 				5C4A926C12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py in Resources */,
+				68E6A446122F0B2E004B45F4 /* eye.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
