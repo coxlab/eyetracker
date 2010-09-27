@@ -62,11 +62,9 @@ class FakeCameraDevice:
         
 
     def acquire_image(self):
-        if(self.acquire_continuously):
-            pass
-        else:
-            self.feature_finder.analyze_image(self.im_array, {'timestamp': time.time()});
         
+        self.feature_finder.analyze_image(self.im_array, {'timestamp': time.time()});
+       
         return
 
     def	get_processed_image(self, guess = None):
@@ -79,7 +77,8 @@ class FakeCameraDevice:
 
         if(features == None):
             return features
-        #print features
+
+        
 
         # Pupil features
         if 'pupil_position' in features:

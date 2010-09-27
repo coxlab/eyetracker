@@ -62,6 +62,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
                 self.ff_starburst.analyze_image(im, guess.copy())
                 features = self.ff_starburst.get_result()
             except Exception, e:
+                features = {}
                 features['pupil_radius'] = None
                 features['cr_radius'] = None
                 features['pupil_position'] = None

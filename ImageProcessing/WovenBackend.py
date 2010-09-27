@@ -345,7 +345,7 @@ class WovenBackend (VanillaBackend):
                 width = round(gaussian_kernel_cheat * n)
                 if(mod(width,2) == 0):
                     width += 1
-                gauss1d = scipy.signal.gaussian(width, 0.5*n).astype(image.dtype)
+                gauss1d = scipy.signal.gaussian(width, 0.25*n).astype(image.dtype)
                 #print gauss1d.shape
                 
                 S += self.separable_convolution2d(F, gauss1d, gauss1d)
