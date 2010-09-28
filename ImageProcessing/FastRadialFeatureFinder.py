@@ -58,6 +58,9 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         
         self.return_sobel = 0
         
+        self.albino_mode = True
+        self.albino_threshold = 10.
+        
         self.cache_sobel = True
         self.cached_sobel = None
         self.compute_sobel_avg = True # for autofocus
@@ -74,6 +77,11 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         self.available_filters = [u"sepfir", u"spline", u"fft", u"convolve2d"]
         
         self.result = None
+        
+        self.restrict_top = 20
+        self.restrict_bottom = 120
+        self.restrict_left = 30
+        self.restrict_right = 157
     
     # analyze the image and return dictionary of features gleaned
     # from it
@@ -112,20 +120,41 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         ds = self.ds_factor;
         
         S = self.backend.fast_radial_transform(im_array, self.radiuses_to_try, self.alpha)        
-        (min_coords, max_coords) = self.backend.find_minmax(S)
+        
+        S[:, 0:self.restrict_left] = -1.
+        S[:, self.restrict_right:] = -1.
+        S[0:self.restrict_top,:] = -1.
+        S[self.restrict_bottom:,:] = -1.
+        
+        if self.albino_mode:
+            (pupil_coords, cr_coords) = self.find_albino_features(S, im_array);
+        else:
+            (pupil_coords, cr_coords) = self.backend.find_minmax(S)
+        
+        
+        if pupil_coords == None:
+            pupil_coords = array([0.,0.])
+            
+        if cr_coords == None:
+            cr_coords = array([0.,0.])
         
         if(self.correct_downsampling):
-            features['pupil_position'] = array([min_coords[0], min_coords[1]]) * ds
-            features['cr_position'] = array([max_coords[0], max_coords[1]]) * ds 
+            features['pupil_position'] = array([pupil_coords[0], pupil_coords[1]]) * ds
+            features['cr_position'] = array([cr_coords[0], cr_coords[1]]) * ds 
             features['dwnsmp_factor_coord'] = 1           
         else:
-            features['pupil_position'] = array([min_coords[0], min_coords[1]])
-            features['cr_position'] = array([max_coords[0], max_coords[1]])      
+            features['pupil_position'] = array([pupil_coords[0], pupil_coords[1]])
+            features['cr_position'] = array([cr_coords[0], cr_coords[1]])      
             features['dwnsmp_factor_coord'] = ds      
 
         features['transform'] = S
         features['im_array'] = im_array
         features['im_shape'] = im_array.shape
+        
+        features['restrict_top'] = self.restrict_top
+        features['restrict_bottom'] = self.restrict_bottom
+        features['restrict_left'] = self.restrict_left
+        features['restrict_right'] = self.restrict_right
         
         if self.return_sobel:
             # this is very inefficient, and only for debugging
@@ -140,6 +169,38 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         
     def get_result(self):
         return self.result
+ 
+    def find_albino_features(self, T, im):
+        import scipy.ndimage as ndi
+    
+        binarized = zeros_like(T)
+        binarized[T > self.albino_threshold] = True
+        (labels, nlabels) = ndi.label(binarized)
+        slices = ndi.find_objects(labels)
+        
+        intensities = []
+        transform_means = []
+        
+        if len(slices) < 2:
+            return (None, None)
+        
+        for s in slices:
+        
+            transform_means.append(mean(T[s]))
+            intensities.append(mean(im[s]))
+        
+        sorted_transform_means = argsort(transform_means)
+        candidate1 = sorted_transform_means[-1]
+        candidate2 = sorted_transform_means[-2]
+        
+        c1_center = array(ndi.center_of_mass(im, labels, candidate1 + 1))
+        c2_center = array(ndi.center_of_mass(im, labels, candidate2 + 1))
+        
+        if intensities[candidate1] > intensities[candidate2]:
+            return (c2_center, c1_center)
+        else:
+            return (c1_center, c2_center)
+            
  
 def test_it():
 

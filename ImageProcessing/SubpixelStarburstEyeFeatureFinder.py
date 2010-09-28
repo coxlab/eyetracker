@@ -189,7 +189,13 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         if guess is not None and "frame_number" in guess:
             features["frame_number"] = guess["frame_number"]
             
-        
+        if guess is not None and "restrict_top" in guess:
+            features["restrict_top"] = guess["restrict_top"]
+            features["restrict_bottom"] = guess["restrict_bottom"]
+            features["restrict_left"] = guess["restrict_left"]
+            features["restrict_right"] = guess["restrict_right"]
+            
+            
         # This is the starting seed-point from which we will start
         cr_guess = guess["cr_position"]
         pupil_guess = guess["pupil_position"]
@@ -237,7 +243,10 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             pupil_radius = 0.0
         
         # Pack up the results
+        
         try:
+            
+            features["transform"] = guess["transform"]
             features["cr_position"] = cr_position
             features["pupil_position"] = pupil_position
             features["cr_radius"] = cr_radius

@@ -41,7 +41,7 @@ except Exception, e:
     print("Unable to load MW conduit: %s" % e)
 
 # no, actually turn it off...
-#mw_enabled = False
+mw_enabled = False
 
 class FeatureFinderAdaptor (NSObject):
         
@@ -211,10 +211,10 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = True
+        self.use_simulated = False
 
 
-        use_file_for_cam = False
+        use_file_for_cam = True
         
         self.simulated_eye_x = 0.0
         self.simulated_eye_y = 0.0
@@ -300,7 +300,7 @@ class EyeTrackerController (NSObject):
         
         # set up real featutre finders (these won't be used if we use a fake camera instead)
 
-        nworkers = 2
+        nworkers = 0
 
         if(nworkers != 0):
             
@@ -346,7 +346,7 @@ class EyeTrackerController (NSObject):
         
         if use_file_for_cam:
             #self.camera_device = FakeCameraDevice(self.feature_finder, "/Users/davidcox/Repositories/svn.coxlab.org/eyetracking/code/EyeTracker/Snapshot.bmp")
-            self.camera_device = FakeCameraDevice(self.feature_finder, "/Users/labuser/Development/eyetracking/code/EyeTracker/Snapshot.bmp")
+            self.camera_device = FakeCameraDevice(self.feature_finder, "/Users/davidcox/Desktop/albino2/Snapshot2.bmp")
             self.camera_device.acquire_image()
         
         if self.use_simulated and self.camera_device == None:
@@ -453,8 +453,6 @@ class EyeTrackerController (NSObject):
             self.camera_locked = 1
             
             try:
-                
-                
                 self.camera_device.acquire_image()
                 new_features = self.camera_device.get_processed_image(self.features)
                 
@@ -525,6 +523,7 @@ class EyeTrackerController (NSObject):
                         
             except Exception, e:
                 print e.message
+                print self.camera_device
                 formatted = formatted_exception()
                 print formatted[0], ": "
                 for f in formatted[2]:
@@ -613,6 +612,27 @@ class EyeTrackerController (NSObject):
             self.camera_canvas.is_calibrating = features['is_calibrating']
         else:
             self.camera_canvas.is_calibrating =  0
+
+        if 'restrict_top' in features:
+            self.camera_canvas.restrict_top = features['restrict_top']
+        else:
+            self.camera_canvas.restrict_top = None
+
+        if 'restrict_bottom' in features:
+            self.camera_canvas.restrict_bottom = features['restrict_bottom']
+        else:
+            self.camera_canvas.restrict_bottom = None
+            
+        if 'restrict_left' in features:
+            self.camera_canvas.restrict_left = features['restrict_left']
+        else:
+            self.camera_canvas.restrict_left = None
+        
+        if 'restrict_right' in features:
+            self.camera_canvas.restrict_right = features['restrict_right']
+        else:
+            self.camera_canvas.restrict_right = None
+        
             
         self.camera_canvas.setNeedsDisplay_(True)
         #self.camera_canvas.performSelectorOnMainThread_withObject_waitUntilDone_(objc.selector(self.camera_canvas.scheduleRedisplay,signature='v@:'), objc.nil, False)

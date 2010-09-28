@@ -28,6 +28,10 @@ class TrackerCameraView(NSOpenGLView):
         self.pupil_radius = None
         self.cr_radius = None
         self.starburst = None
+        self.restrict_top = None
+        self.restrict_bottom= None
+        self.restrict_left = None
+        self.restrict_right = None
         self.is_calibrating = 0
         
 
@@ -94,6 +98,8 @@ class TrackerCameraView(NSOpenGLView):
         if(self.is_calibrating != None and self.is_calibrating):
             self.renderCalibrating()
             
+        #self.renderRestrictionBox()
+            
     
         self.openGLContext().flushBuffer()
         
@@ -157,6 +163,45 @@ class TrackerCameraView(NSOpenGLView):
         #self.renderCrossHairs(self.__imageCoordsToTextureCoords(self.cr_position),(0.,0.,1.), self.__imageLengthToTextureLength(radius), .002)
         
         return    
+    
+    def renderRestrictionBox(self):
+    
+        if (self.restrict_top is None) or (self.restrict_bottom is None) or (self.restrict_left is None) or (self.restrict_right is None):
+           return
+        
+        (t,l) = self.__imageCoordsToTextureCoords(array([self.im_array.shape[0] - self.restrict_left, self.im_array.shape[1] -self.restrict_top]))
+        (b,r) = self.__imageCoordsToTextureCoords(array([self.im_array.shape[0] - self.restrict_right, self.im_array.shape[1] -self.restrict_bottom]))
+ 
+        
+        a = 0.005
+        
+        blue_color = 1.0
+        glBegin(GL_QUADS)
+        glColor((0,0,blue_color))
+        glVertex3f(l, t, 0.)
+        glVertex3f(l+a, t, 0.)
+        glVertex3f(l+a, b, 0.)
+        glVertex3f(l, b, 0.)
+
+        glVertex3f(r, t, 0.)
+        glVertex3f(r-a, t, 0.)
+        glVertex3f(r-a, b, 0.)
+        glVertex3f(r, b, 0.)
+
+        glVertex3f(l, t, 0.)
+        glVertex3f(l, t+a, 0.)
+        glVertex3f(r, t+a, 0.)
+        glVertex3f(r, t, 0.)
+
+
+        glVertex3f(l, b, 0.)
+        glVertex3f(l, b-a, 0.)
+        glVertex3f(r, b-a, 0.)
+        glVertex3f(r, b, 0.)
+
+        glEnd() 
+        return
+
     
     def renderCalibrating(self):
     
