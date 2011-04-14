@@ -44,7 +44,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
         pass
 
     # ==================================== function: analyzeImage ========================================
-    #@clockit
+    ##@clockit
     def analyze_image(self, im, guess = None, **kwargs):
         
         features = None
@@ -111,7 +111,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
                 features['cr_radius'] = None
                 features['pupil_position'] = None
                 features['cr_position'] = None
-                print e.message
+                print("Error: %s" % e.message)
                 
                 
             features['im_array_stage1'] = im_array_stage1    

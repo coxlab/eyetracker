@@ -83,11 +83,11 @@
 		5C1498FD0ECCDBD900FB73BB /* POVRaySimulatedCameraDevice.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = POVRaySimulatedCameraDevice.py; sourceTree = "<group>"; };
 		5C1499070ECCDBEF00FB73BB /* EyeTrackerController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyeTrackerController.py; sourceTree = "<group>"; };
 		5C1499080ECCDBEF00FB73BB /* TrackerCameraView.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TrackerCameraView.py; sourceTree = "<group>"; };
-		5C14990A0ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = CompositeEyeFeatureFinder.py; sourceTree = "<group>"; };
+		5C14990A0ECCDBEF00FB73BB /* CompositeEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = CompositeEyeFeatureFinder.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5C14990B0ECCDBEF00FB73BB /* ImageProcessingBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = ImageProcessingBackend.py; sourceTree = "<group>"; };
 		5C14990C0ECCDBEF00FB73BB /* EyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyeFeatureFinder.py; sourceTree = "<group>"; };
-		5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FastRadialFeatureFinder.py; sourceTree = "<group>"; };
-		5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = PipelinedFeatureFinder.py; sourceTree = "<group>"; };
+		5C14990D0ECCDBEF00FB73BB /* FastRadialFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = FastRadialFeatureFinder.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
+		5C14990E0ECCDBEF00FB73BB /* PipelinedFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = PipelinedFeatureFinder.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5C14990F0ECCDBEF00FB73BB /* SimpleEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = SimpleEyeFeatureFinder.py; sourceTree = "<group>"; };
 		5C1499120ECCDBEF00FB73BB /* NoX.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NoX.tiff; sourceTree = "<group>"; };
 		5C1499130ECCDBEF00FB73BB /* OkCheck.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OkCheck.tiff; sourceTree = "<group>"; };
@@ -98,7 +98,7 @@
 		5C14991B0ECCDBEF00FB73BB /* SimulatedStageController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = SimulatedStageController.py; sourceTree = "<group>"; };
 		5C14991D0ECCDBEF00FB73BB /* IPSerialBridge.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = IPSerialBridge.py; sourceTree = "<group>"; };
 		5C1499680ECDD5E900FB73BB /* CobraEyeTracker.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = CobraEyeTracker.py; sourceTree = "<group>"; };
-		5C4A926B12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FrugalCompositeEyeFeatureFinder.py; sourceTree = "<group>"; };
+		5C4A926B12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = FrugalCompositeEyeFeatureFinder.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5C6200260EE8CF7B00A3ED1D /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = Camera/Prosilica/Makefile; sourceTree = "<group>"; };
 		5C6200270EE8CF7B00A3ED1D /* numpy.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = numpy.i; path = Camera/Prosilica/numpy.i; sourceTree = "<group>"; };
 		5C6200280EE8CF7B00A3ED1D /* Prosilica.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Prosilica.cxx; path = Camera/Prosilica/Prosilica.cxx; sourceTree = "<group>"; };
@@ -111,17 +111,17 @@
 		5C7A87370F81215E007B4724 /* mw_conduit.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = mw_conduit.so; sourceTree = "<group>"; };
 		5C7A87970F813C5E007B4724 /* _prosilica_cpp.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = _prosilica_cpp.so; path = Camera/Prosilica/_prosilica_cpp.so; sourceTree = "<group>"; };
 		5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TestESP300Stages.py; sourceTree = "<group>"; };
-		5C9EE34C1072B0660051414D /* VanillaBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = VanillaBackend.py; sourceTree = "<group>"; };
+		5C9EE34C1072B0660051414D /* VanillaBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = VanillaBackend.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5C9EE34E1072B0780051414D /* WovenBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = WovenBackend.py; sourceTree = "<group>"; };
 		5C9EE3501072B0870051414D /* OpenCLBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = OpenCLBackend.py; sourceTree = "<group>"; };
-		5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = SubpixelStarburstEyeFeatureFinder.py; sourceTree = "<group>"; };
+		5CA677B30F67F3E900773E97 /* SubpixelStarburstEyeFeatureFinder.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = SubpixelStarburstEyeFeatureFinder.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5CA677E20F67FC0800773E97 /* EyetrackerUtilities.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyetrackerUtilities.py; sourceTree = "<group>"; };
 		5CA679470F688D4900773E97 /* TrackerMeasurement.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TrackerMeasurement.py; sourceTree = "<group>"; };
 		5CA679490F68927200773E97 /* TrackerMeasurementController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TrackerMeasurementController.py; sourceTree = "<group>"; };
 		5CA67A2D0F69771500773E97 /* cocoa_backend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = cocoa_backend.py; sourceTree = "<group>"; };
 		5CA67AC70F69B6B600773E97 /* KVCCompliant.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = KVCCompliant.py; sourceTree = "<group>"; };
 		5CBBC2821056C4FE004C69DF /* python2.6_env */ = {isa = PBXFileReference; lastKnownFileType = folder; path = python2.6_env; sourceTree = "<group>"; };
-		5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = OpenCLImageProcessing.py; sourceTree = "<group>"; };
+		5CBBE89510574F6F004C69DF /* OpenCLImageProcessing.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = OpenCLImageProcessing.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5CD22CF41046DC6000B621C5 /* modules.pth */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = modules.pth; sourceTree = "<group>"; };
 		5CD237061046DF3E00B621C5 /* python_env */ = {isa = PBXFileReference; lastKnownFileType = folder; path = python_env; sourceTree = "<group>"; };
 		6880E3580FA8CADF0001A812 /* FocusAndZoomController.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = FocusAndZoomController.py; sourceTree = "<group>"; };
@@ -149,7 +149,7 @@
 			children = (
 				5C6200240EE8CF6200A3ED1D /* Prosilica */,
 				5C62FCA70EE84F0F00A3ED1D /* Test Scripts */,
-				5C1499060ECCDBEF00FB73BB /* CocoaInteraction */,
+				5C1499060ECCDBEF00FB73BB /* Cocoa Controllers and Views (Main) */,
 				5C1499090ECCDBEF00FB73BB /* ImageProcessing */,
 				5C62FC8E0EE5CAA200A3ED1D /* Calibration */,
 				5C1499140ECCDBEF00FB73BB /* LEDControl */,
@@ -244,7 +244,7 @@
 			path = Camera;
 			sourceTree = "<group>";
 		};
-		5C1499060ECCDBEF00FB73BB /* CocoaInteraction */ = {
+		5C1499060ECCDBEF00FB73BB /* Cocoa Controllers and Views (Main) */ = {
 			isa = PBXGroup;
 			children = (
 				5CA679460F688CEB00773E97 /* Measurements */,
@@ -253,6 +253,7 @@
 				5CA67A2D0F69771500773E97 /* cocoa_backend.py */,
 				5CA67AC70F69B6B600773E97 /* KVCCompliant.py */,
 			);
+			name = "Cocoa Controllers and Views (Main)";
 			path = CocoaInteraction;
 			sourceTree = "<group>";
 		};
@@ -390,7 +391,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EyeTracker" */;
 			compatibilityVersion = "Xcode 3.0";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* EyeTracker */;
 			projectDirPath = "";
 			projectRoot = "";

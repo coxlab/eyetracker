@@ -24,6 +24,14 @@ from matplotlib.pylab import *
 from EyetrackerUtilities import *
 from CobraEyeTracker import *
 
+
+settings = {}
+try:
+    from EyetrackerLocalSettings import local_settings
+    settings = local_settings
+
+
+
 # boost.python wrapper for a MonkeyWorks interprocess conduit
 mw_enabled = True
 
@@ -40,8 +48,6 @@ try:
 except Exception, e:
     print("Unable to load MW conduit: %s" % e)
 
-# no, actually turn it off...
-mw_enabled = False
 
 class FeatureFinderAdaptor (NSObject):
         
@@ -114,6 +120,7 @@ class EyeTrackerController (NSObject):
     r_current = objc.ivar(u"r_current")
     d_current = objc.ivar(u"d_current")
     rp_current = objc.ivar(u"rp_current")
+    pixels_per_mm_current = objc.ivar(u"pixels_per_mm_current")
     zoom_current = objc.ivar(u"zoom_current")
     focus_current = objc.ivar(u"focus_current")
 
@@ -202,7 +209,16 @@ class EyeTrackerController (NSObject):
         self.camera_device = None
         
         return True
-        
+
+    def simple_alert(self, title, message):
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(title)
+        alert.setInformativeText_(message)
+        alert.setAlertStyle_(NSInformationalAlertStyle)
+        return alert.runModal(); 
+       
+
+    # This is where all of the initialization takes place
     def awakeFromNib(self):
         
         # necessary for applicationShouldTerminate
@@ -211,10 +227,9 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = False
+        self.use_simulated = True
 
-
-        use_file_for_cam = True
+        use_file_for_cam = False
         
         self.simulated_eye_x = 0.0
         self.simulated_eye_y = 0.0
@@ -224,8 +239,11 @@ class EyeTrackerController (NSObject):
     
         self.last_update_time = time.time()
     
-        # stages
-        NSLog("Initializing Motion Control Subsystem (Stages)")
+        # -------------------------------------------------------------
+        # Stages
+        # -------------------------------------------------------------
+
+        NSLog("Initializing Motion Control Subsystem (Stages)...")
         if self.use_simulated:
             esp300 = SimulatedStageController()
         else:
@@ -234,12 +252,19 @@ class EyeTrackerController (NSObject):
             try:
                 esp300.connect()
             except Exception as e:
-                print("Restarting serial bridge")
-                kick_in_the_pants = httplib.HTTPConnection('169.254.0.9', 80, timeout=10)
-                kick_in_the_pants.request("GET", "/goforms/resetUnit?")
-                time.sleep(5)
-                esp300.connect()
-                del kick_in_the_pants
+                print("Attempting to restart serial bridge (this can take several tens of seconds)...")
+                try:
+                    kick_in_the_pants = httplib.HTTPConnection('169.254.0.9', 80, timeout=5)
+                    kick_in_the_pants.request("GET", "/goforms/resetUnit?")
+                    time.sleep(5)
+                    esp300.connect()
+                    del kick_in_the_pants
+                except Exception as e2:
+                    self.simple_alert("Could not connect to serial bridge", 
+                                 "Attempts to 'kick' the serial bridge have failed.  Reverting to simulated mode.")
+                    esp300 = SimulatedStageController()
+                    self.use_simulated = True
+                    
                 
         self.stages = EyeTrackerStageController(esp300)
 
@@ -280,7 +305,10 @@ class EyeTrackerController (NSObject):
         # Manual aligment of pupil and CR
         self.r_2align_pup_cr = 0
         
-        # led controller
+
+        # -------------------------------------------------------------
+        # LED Controller
+        # -------------------------------------------------------------
         NSLog("Initializing LED Control Subsystem")
         
         if(self.use_simulated):
@@ -289,7 +317,11 @@ class EyeTrackerController (NSObject):
             self.leds = MightexLEDController("169.254.0.9", 8006)
             self.leds.connect()
         
-        # camera and feature finders 
+
+        # -------------------------------------------------------------
+        # Camera and Image Processing
+        # -------------------------------------------------------------
+
         NSLog("Initializing Image Processing")       
         
         self.features = None
@@ -325,6 +357,7 @@ class EyeTrackerController (NSObject):
         else:
             sb_ff = SubpixelStarburstEyeFeatureFinder()
             fr_ff = FastRadialFeatureFinder()
+            
             comp_ff = FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
             
             self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
@@ -577,11 +610,11 @@ class EyeTrackerController (NSObject):
         
         if(self.show_feature_map):
             transform_im = features['transform']
-        
-            transform_im -=  min(ravel(transform_im))
-            transform_im = transform_im * 255 /  max(ravel(transform_im))
-            ravelled = ravel(transform_im);
-            self.camera_canvas.im_array = transform_im.astype(uint8)
+            if transform_im is not None:        
+                transform_im -=  min(ravel(transform_im))
+                transform_im = transform_im * 255 /  max(ravel(transform_im))
+                ravelled = ravel(transform_im);
+                self.camera_canvas.im_array = transform_im.astype(uint8)
         else:
             self.camera_canvas.im_array = features['im_array']
         
@@ -1007,6 +1040,20 @@ class EyeTrackerController (NSObject):
         self.leds.turn_on(self.leds.channel4, float(self.IsetCh4))
         return
 
+    @IBAction
+    def setManualCalibration_(self, sender):
+        print "a"
+        if self._.pixels_per_mm_current is None:
+            self._.pixels_per_mm_current = self.calibrator.pixels_per_mm
+        else:
+            self.calibrator.pixels_per_mm = self._.pixels_per_mm_current
+        print "b"        
+        self.calibrator.d = self._.d_current
+        
+        
+        self.calibrator.Rp = self._.rp_current * self._.pixels_per_mm_current
+        
+    
     @IBAction
     def readPos_(self, sender):
         self._.x_current = self.stages.current_position(self.stages.x_axis)

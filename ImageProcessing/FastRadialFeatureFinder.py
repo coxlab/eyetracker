@@ -58,7 +58,7 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         
         self.return_sobel = 0
         
-        self.albino_mode = True
+        self.albino_mode = False
         self.albino_threshold = 10.
         
         self.cache_sobel = True
@@ -85,9 +85,9 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
     
     # analyze the image and return dictionary of features gleaned
     # from it
-    @clockit
+    #@clockit
     def analyze_image(self, image, guess = None, **kwargs):
-        print "fr"
+        #print "fr"
         im_array = image
         #im_array = image.astype(double)
         im_array = im_array[::self.ds_factor, ::self.ds_factor]
@@ -242,7 +242,7 @@ def test_it():
             test = f.get_result()
         seconds_per_frame = (time.time() - tic)/trials
         print 'Sep FIR: ', seconds_per_frame
-        print '\t ', 1. / seconds_per_frame, ' FPS' 
+#print '\t ', 1. / seconds_per_frame, ' FPS' 
 
         if(not noplot):
             plt.figure()

@@ -38,7 +38,7 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
         
 
     # ==================================== function: analyzeImage ========================================
-    @clockit
+    #@clockit
     def analyze_image(self, im, guess = None, **kwargs):
         
                     

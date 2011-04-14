@@ -33,7 +33,7 @@ class VanillaBackend (ImageProcessingBackend):
         
         return (mag, imgx, imgy)
 
-    @clockit
+    #@clockit
     def separable_convolution2d(self, image, row, col, **kwargs):
         return sepfir2d(image, row, col)
 
@@ -134,7 +134,7 @@ class VanillaBackend (ImageProcessingBackend):
             #A = fspecial('gaussian',[n n], 0.25*n) * n;
             #S = S + filter2(A,F);
             width = round(gaussian_kernel_cheat * n)
-            print width
+            #print width
             if(mod(width,2) == 0):
                 width += 1
             gauss1d = scipy.signal.gaussian(width, 0.25*n)
@@ -149,15 +149,15 @@ class VanillaBackend (ImageProcessingBackend):
 
     def find_minmax(self, image, **kwargs):
     
-        print "here (vanilla)"
+        #print "here (vanilla)"
         if(image == None):
             return ([0,0], [0,])
             
         min_coord = nonzero(image == min(image.ravel()))
         max_coord = nonzero(image == max(image.ravel()))
         
-        print image.shape
-        print image
-        print min_coord
-        print max_coord
+        #print image.shape
+        #print image
+        #print min_coord
+        #print max_coord
         return ([min_coord[0][0], min_coord[1][0]], [max_coord[0][0], max_coord[1][0]])

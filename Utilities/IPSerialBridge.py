@@ -78,7 +78,7 @@ class IPSerialBridge:
         #read the response
         ready = 0
         retry_timeout = 0.1
-        timeout = 30.0
+        timeout = 5.0
         tic = time.time()
         while(not ready):
             (ready_to_read, ready_to_write, in_error) = select.select([self.socket],[],[self.socket], retry_timeout)

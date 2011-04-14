@@ -31,7 +31,7 @@ class WovenBackend (VanillaBackend):
         else:
             self.type_string = 'double'
 		
-        print self.type_string
+        #print self.type_string
         # (re)initialize reusable storage
         self.cached_shape = example_im.shape
         self.cached_gauss2d_fft = None
