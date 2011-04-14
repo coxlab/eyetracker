@@ -34,12 +34,16 @@ class VanillaBackend (ImageProcessingBackend):
         return (mag, imgx, imgy)
 
     #@clockit
-    def separable_convolution2d(self, image, row, col, **kwargs):
-        return sepfir2d(image, row, col)
+    def separable_convolution2d(self, im, row, col, **kwargs):
+        print im.shape
+        print row.shape 
+        print col.shape
+        return sepfir2d(array(im), row, col)
 
     # borrowed with some translation from Peter Kovesi's fastradial.m
     def fast_radial_transform(self, image, radii, alpha, **kwargs):
-				
+        
+        
         gaussian_kernel_cheat = 1.0
 				
         (rows, cols) = image.shape

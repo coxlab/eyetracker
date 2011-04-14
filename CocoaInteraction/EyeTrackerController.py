@@ -25,28 +25,33 @@ from EyetrackerUtilities import *
 from CobraEyeTracker import *
 
 
-settings = {}
+global_settings = {}
 try:
-    from EyetrackerLocalSettings import local_settings
-    settings = local_settings
-
+    import EyeTrackerGlobalSettings
+    global_settings = EyeTrackerGlobalSettings.settings
+except:
+    pass
 
 
 # boost.python wrapper for a MonkeyWorks interprocess conduit
 mw_enabled = True
 
-try:
-    sys.path.append("/Library/Application Support/MWorks/Scripting/Python")
-    import mworks.conduit as mw_conduit
-    GAZE_H = 0
-    GAZE_V = 1
-    PUPIL_RADIUS = 2
-    TIMESTAMP = 3
-    GAZE_INFO = 4
-    PING = 5
-    mw_enabled = True
-except Exception, e:
-    print("Unable to load MW conduit: %s" % e)
+if global_settings.get("enable_mw_conduit", True):
+    
+    try:
+        sys.path.append("/Library/Application Support/MWorks/Scripting/Python")
+        import mworks.conduit as mw_conduit
+        GAZE_H = 0
+        GAZE_V = 1
+        PUPIL_RADIUS = 2
+        TIMESTAMP = 3
+        GAZE_INFO = 4
+        PING = 5
+        mw_enabled = True
+    except Exception, e:
+        print("Unable to load MW conduit: %s" % e)
+else:
+    mw_enabled = False
 
 
 class FeatureFinderAdaptor (NSObject):
@@ -227,9 +232,8 @@ class EyeTrackerController (NSObject):
         # Added by DZ to deal with rigs without power zoom and focus
         self.no_powerzoom = False
         
-        self.use_simulated = True
-
-        use_file_for_cam = False
+        self.use_simulated = global_settings.get("use_simulated", False)
+        use_file_for_cam = global_settings.get("use_file_for_camera", False)
         
         self.simulated_eye_x = 0.0
         self.simulated_eye_y = 0.0

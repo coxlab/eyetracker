@@ -49,6 +49,7 @@
 		5C7A87380F81215E007B4724 /* mw_conduit.so in Resources */ = {isa = PBXBuildFile; fileRef = 5C7A87370F81215E007B4724 /* mw_conduit.so */; };
 		5C7A87980F813C5E007B4724 /* _prosilica_cpp.so in Resources */ = {isa = PBXBuildFile; fileRef = 5C7A87970F813C5E007B4724 /* _prosilica_cpp.so */; };
 		5C81AD270EF6FF4C0041F785 /* TestESP300Stages.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */; };
+		5C94C18F13577A8D000D7A48 /* EyeTrackerGlobalSettings.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C94C18E13577A8D000D7A48 /* EyeTrackerGlobalSettings.py */; };
 		5C9EE34D1072B0660051414D /* VanillaBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C9EE34C1072B0660051414D /* VanillaBackend.py */; };
 		5C9EE34F1072B0780051414D /* WovenBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C9EE34E1072B0780051414D /* WovenBackend.py */; };
 		5C9EE3511072B0870051414D /* OpenCLBackend.py in Resources */ = {isa = PBXBuildFile; fileRef = 5C9EE3501072B0870051414D /* OpenCLBackend.py */; };
@@ -111,6 +112,7 @@
 		5C7A87370F81215E007B4724 /* mw_conduit.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = mw_conduit.so; sourceTree = "<group>"; };
 		5C7A87970F813C5E007B4724 /* _prosilica_cpp.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = _prosilica_cpp.so; path = Camera/Prosilica/_prosilica_cpp.so; sourceTree = "<group>"; };
 		5C81AD260EF6FF4C0041F785 /* TestESP300Stages.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = TestESP300Stages.py; sourceTree = "<group>"; };
+		5C94C18E13577A8D000D7A48 /* EyeTrackerGlobalSettings.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = EyeTrackerGlobalSettings.py; sourceTree = "<group>"; };
 		5C9EE34C1072B0660051414D /* VanillaBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; lineEnding = 0; path = VanillaBackend.py; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5C9EE34E1072B0780051414D /* WovenBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = WovenBackend.py; sourceTree = "<group>"; };
 		5C9EE3501072B0870051414D /* OpenCLBackend.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = OpenCLBackend.py; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 			children = (
 				5C6200240EE8CF6200A3ED1D /* Prosilica */,
 				5C62FCA70EE84F0F00A3ED1D /* Test Scripts */,
+				5C94C18D13577A61000D7A48 /* Settings */,
 				5C1499060ECCDBEF00FB73BB /* Cocoa Controllers and Views (Main) */,
 				5C1499090ECCDBEF00FB73BB /* ImageProcessing */,
 				5C62FC8E0EE5CAA200A3ED1D /* Calibration */,
@@ -342,6 +345,14 @@
 			name = "Test Scripts";
 			sourceTree = "<group>";
 		};
+		5C94C18D13577A61000D7A48 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				5C94C18E13577A8D000D7A48 /* EyeTrackerGlobalSettings.py */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
 		5C9EE34B1072B0140051414D /* Backends */ = {
 			isa = PBXGroup;
 			children = (
@@ -459,6 +470,7 @@
 				5C9EE3511072B0870051414D /* OpenCLBackend.py in Resources */,
 				5C4A926C12221F5C0021D741 /* FrugalCompositeEyeFeatureFinder.py in Resources */,
 				68E6A446122F0B2E004B45F4 /* eye.icns in Resources */,
+				5C94C18F13577A8D000D7A48 /* EyeTrackerGlobalSettings.py in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
