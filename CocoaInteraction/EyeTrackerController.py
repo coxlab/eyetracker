@@ -1048,13 +1048,18 @@ class EyeTrackerController (NSObject):
     def setManualCalibration_(self, sender):
         print "a"
         if self._.pixels_per_mm_current is None:
+            if self.calibrator.pixels_per_mm is None:
+                self.calibrator.pixels_per_mm = 0.0
             self._.pixels_per_mm_current = self.calibrator.pixels_per_mm
         else:
             self.calibrator.pixels_per_mm = self._.pixels_per_mm_current
+    
+        
         print "b"        
         self.calibrator.d = self._.d_current
         
-        
+        print "c"
+
         self.calibrator.Rp = self._.rp_current * self._.pixels_per_mm_current
         
     
@@ -1064,10 +1069,13 @@ class EyeTrackerController (NSObject):
         self._.y_current = self.stages.current_position(self.stages.y_axis)
         self._.r_current = self.stages.current_position(self.stages.r_axis)
         
+
+        
         self._.focus_current = self.zoom_and_focus.current_focus()
         self._.zoom_current = self.zoom_and_focus.current_zoom()
 #        if(self.calibrator.calibrated):
         self._.d_current = self.calibrator.d
+        self._.pixels_per_mm_current = self.calibrator.pixels_per_mm
         if self.calibrator.Rp is not None and self.calibrator.pixels_per_mm is not None:
             self._.rp_current = self.calibrator.Rp / self.calibrator.pixels_per_mm
         self._.pupil_cr_diff = self.calibrator.pupil_cr_diff

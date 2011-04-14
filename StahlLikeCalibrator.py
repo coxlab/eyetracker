@@ -365,6 +365,9 @@ class StahlLikeCalibrator:
     def center_vertical(self):
         """Vertically align the camera with the eye"""
         self.center_axis(self.y_stage_axis)
+    
+        # Save the position of the CR spot with the light on the side: this is the y coordinate of the equator
+        #self.y_equator = cr_pos[self.y_image_axis]
 
     def center_axis(self, stage_axis):
         """Align the camera with the eye along the specified axis"""
