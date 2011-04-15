@@ -152,7 +152,7 @@
 				5C6200240EE8CF6200A3ED1D /* Prosilica */,
 				5C62FCA70EE84F0F00A3ED1D /* Test Scripts */,
 				5C94C18D13577A61000D7A48 /* Settings */,
-				5C1499060ECCDBEF00FB73BB /* Cocoa Controllers and Views (Main) */,
+				5C1499060ECCDBEF00FB73BB /* Main Controllers and Views */,
 				5C1499090ECCDBEF00FB73BB /* ImageProcessing */,
 				5C62FC8E0EE5CAA200A3ED1D /* Calibration */,
 				5C1499140ECCDBEF00FB73BB /* LEDControl */,
@@ -247,7 +247,7 @@
 			path = Camera;
 			sourceTree = "<group>";
 		};
-		5C1499060ECCDBEF00FB73BB /* Cocoa Controllers and Views (Main) */ = {
+		5C1499060ECCDBEF00FB73BB /* Main Controllers and Views */ = {
 			isa = PBXGroup;
 			children = (
 				5CA679460F688CEB00773E97 /* Measurements */,
@@ -256,7 +256,7 @@
 				5CA67A2D0F69771500773E97 /* cocoa_backend.py */,
 				5CA67AC70F69B6B600773E97 /* KVCCompliant.py */,
 			);
-			name = "Cocoa Controllers and Views (Main)";
+			name = "Main Controllers and Views";
 			path = CocoaInteraction;
 			sourceTree = "<group>";
 		};

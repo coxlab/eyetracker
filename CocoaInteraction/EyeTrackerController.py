@@ -531,13 +531,12 @@ class EyeTrackerController (NSObject):
                         pupil_radius = features["pupil_radius"] / self.calibrator.pixels_per_mm
                     
                     
-                    if(self.calibrator is not None and self.calibrator.calibrated):
-                        #pupil_coordinates = [self.pupil_position_x, self.pupil_position_y]
-                        #cr_coordinates = [self.cr_position_x, self.cr_position_y]
-                        gaze_elevation, gaze_azimuth = self.calibrator.transform( pupil_position, cr_position)
+                    if self.calibrator is not None:
+                        (gaze_elevation, gaze_azimuth, calibration_status) = self.calibrator.transform( pupil_position, cr_position)
                         
                         if(self.mw_conduit != None):
-                            #print "filling conduit:", (float(self.gaze_azimuth), float(self.gaze_elevation), float(pupil_radius), int(timestamp))
+                        
+                            # TODO: add calibration status
                             self.mw_conduit.send_data(GAZE_INFO, (float(gaze_azimuth), float(gaze_elevation), float(pupil_radius), float(timestamp)));
                             
                             #self.mw_conduit.sendFloat(GAZE_H, self.gaze_elevation)
@@ -549,6 +548,9 @@ class EyeTrackerController (NSObject):
                     
                     # set values for the bindings GUI
                     if(frame_number % check_interval == 0):
+                    
+                        print gaze_azimuth
+                        
                         self._.pupil_position_x = pupil_position[1]
                         self._.pupil_position_y = pupil_position[0]
                         self._.pupil_radius = pupil_radius

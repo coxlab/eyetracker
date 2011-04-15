@@ -24,80 +24,30 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
     
         self.backend = WovenBackend()
 
-        if('shortcut_sobel' in kwargs):
-            self.shortcut_sobel = kwargs['shortcut_sobel']
-        else:
-            self.shortcut_sobel = None
-            
-        # max cr ray length as pixels 
-        if('cr_ray_length' in kwargs):
-            self.cr_ray_length = kwargs['cr_ray_length']
-        else:
-            self.cr_ray_length = 10
+        self.shortcut_sobel = kwargs.get("shortcut_sobel", None)
         
-        # max pupil ray length as pixels 
-        if('pupil_ray_length' in kwargs):
-            self.pupil_ray_length = kwargs['pupil_ray_length']
-        else:
-            self.pupil_ray_length = 25
-        
-        # max cr ray length as pixels
-        if('cr_min_radius' in kwargs):
-            self.cr_min_radius = kwargs['cr_min_radius']
-        else:
-            self.cr_min_radius = 2
+        # following values in pixels
+        self.cr_ray_length = kwargs.get("cr_ray_length", 10)
+        self.pupil_ray_length = kwargs.get("pupil_ray_length", 25)
+        self.cr_min_radius = kwargs.get("cr_min_radius", 2)
+        self.pupil_min_radius = kwargs.get("pupil_min_radius", 2) #14
 
-        # max cr ray length as pixels 
-        if('pupil_min_radius' in kwargs):
-            self.pupil_min_radius = kwargs['pupil_min_radius']
-        else:
-            self.pupil_min_radius = 14
-        
         # how many rays to shoot in the CR
-        if('cr_n_rays' in kwargs):
-            self.cr_n_rays = kwargs['cr_n_rays']
-        else:
-            self.cr_n_rays = 20
+        self.cr_n_rays = kwargs.get("cr_n_rays", 20)
 
         # how many rays to shoot in the pupil
-        if('pupil_n_rays' in kwargs):
-            self.pupil_n_rays = kwargs['pupil_n_rays']
-        else:
-            self.pupil_n_rays = 40
-
+        self.pupil_n_rays = kwargs.get("pupil_n_rays", 40)
        
         # how many pixels per sample along the ray
-        if('cr_ray_sample_spacing' in kwargs):
-            self.cr_ray_sample_spacing = kwargs['cr_ray_sample_spacing']
-        else:
-            self.cr_ray_sample_spacing = 0.5
-
-        # how many pixels per sample along the ray
-        if('pupil_ray_sample_spacing' in kwargs):
-            self.pupil_ray_sample_spacing = kwargs['pupil_ray_sample_spacing']
-        else:
-            self.pupil_ray_sample_spacing = 1
-
-        if('cr_threshold' in kwargs):
-            self.cr_threshold = kwargs['cr_threshold']
-        else:
-            self.cr_threshold = 1.0
-
-        if('pupil_threshold' in kwargs):
-            self.pupil_threshold = kwargs['pupil_threshold']
-        else:
-            self.pupil_threshold = 1.0
+        self.cr_ray_sample_spacing = kwargs.get("cr_ray_sample_spacing", 0.5)
+        self.pupil_ray_sample_spacing = kwargs.get("pupil_ray_sample_spacing", 1)
+    
+        self.cr_threshold = kwargs.get("cr_threshold", 1.0)
+        self.pupil_threshold = kwargs.get("pupil_threshold", 1.0)
+        
+        self.ray_sampling_method = kwargs.get("ray_sampling_method", "interp")
             
-        if('ray_sampling_method' in kwargs):
-            self.ray_sampling_method = kwargs['ray_sampling_method']
-        else:
-            self.ray_sampling_method = 'interp'
-
-        if('fitting_algorithm' in kwargs):
-            self.fitting_algorithm = kwargs['fitting_algorithm']
-        else:
-            #self.fitting_algorithm = 'ellipse_least_squares'
-            self.fitting_algorithm = 'circle_least_squares'
+        self.fitting_algorithm = kwargs.get("fitting_algorithm", "circle_least_squares")
             
         pupil_rays = None
         cr_rays = None

@@ -16,6 +16,14 @@ from Queue import Queue, Full
 
 class StahlLikeCalibrator:
 
+    uncalibrated = 0
+    pupil_only_uncalibrated = 1
+    pupil_only = 2
+    calibrated = 3
+    
+    no_led = -1
+    both_leds = -2
+
     def __init__(self, camera, stages, focus_and_zoom, leds, **kwargs):
         # handles to real-world objects
         self.camera = camera
@@ -23,87 +31,29 @@ class StahlLikeCalibrator:
         self.leds = leds
         self.focus_and_zoom = focus_and_zoom
     
-        if("ui_queue" in kwargs):
-            self.ui_queue = kwargs["ui_queue"]
-        else:
-            self.ui_queue = None
-    
-        if("x_image_axis" in kwargs):
-            self.x_image_axis = kwargs["x_image_axis"] # which axis {0|1} is "X" in the image
-        else:
-            self.x_image_axis = 1
-        
-        if("y_image_axis" in kwargs):
-            self.y_image_axis = kwargs["y_image_axis"] # which axis {0|1} is "Y" in the image
-        else:
-            self.y_image_axis = 0
-        
-        if("x_stage_axis" in kwargs):
-            self.x_stage_axis = kwargs["x_stage_axis"] # which axis number is "X"
-        else:
-            self.x_stage_axis = stages.x_axis
-        
-        if("x_stage_direction" in kwargs):  # a modifier to define which direction is + and -
-            self.x_stage_direction = kwargs["x_stage_direction"]
-        else:
-            self.x_stage_direction = -1
-        
-        if("y_stage_axis" in kwargs):
-            self.y_stage_axis = kwargs["y_stage_axis"] # which axis number is "Y"
-        else:
-            self.y_stage_axis = stages.y_axis
+        self.default_Rp = kwargs.get("default_Rp", 3.2)
 
-        if("y_stage_direction" in kwargs):   # a modifier to define which direction is + and -
-            self.y_stage_direction = kwargs["y_stage_direction"]
-        else:
-            self.y_stage_direction = -1
-
-        if("r_stage_direction" in kwargs):   # a modifier to define which direction is + and -
-            self.r_stage_direction = kwargs["r_stage_direction"]
-        else:
-            self.r_stage_direction = 1
-        
-        if("top_led" in kwargs):
-            self.top_led = kwargs["top_led"] # which LED channel is on top
-        else:
-            self.top_led = leds.channel2
-        
-        if("side_led" in kwargs):
-            self.side_led = kwargs["side_led"] # which LED channel is on the side
-        else:
-            self.side_led = leds.channel1
-            
-        if("visible_led" in kwargs):
-            self.visible_led = kwargs["visible_led"] # which LED channel is the white visible
-        else:
-            self.visible_led = leds.channel3
-        
-        if("d_guess" in kwargs):
-            self.d_guess = kwargs["d_guess"] # approximately how far is the camera from the eye
-        else:
-            self.d_guess = 260 #334 #325 #285 #140.
-        
+        self.ui_queue = kwargs.get("ui_queue", None)
+        self.x_image_axis = kwargs.get("x_image_axis", 1)
+        self.y_image_axis = kwargs.get("y_image_axis", 0)
+        self.x_stage_axis = kwargs.get("x_stage_axis", stages.x_axis)
+        self.x_stage_direction = kwargs.get("x_stage_direction", -1)
+        self.y_stage_axis = kwargs.get("y_stage_axis", stages.y_axis)
+        self.y_stage_direction = kwargs.get("y_stage_direction", -1)
+        self.r_stage_direction = kwargs.get("r_stage_direction", 1)
+        self.top_led = kwargs.get("top_led", leds.channel2)
+        self.side_led = kwargs.get("side_led", leds.channel1)
+        self.visible_led = kwargs.get("visible_led", leds.channel3)
+        self.d_guess = kwargs.get("d_guess", 260)
+                
         self.d = self.d_guess
             
-        if("jog_angle" in kwargs):
-            self.jog_angle = kwargs["jog_angle"]
-        else:
-            self.jog_angle = 3.
+        self.jog_angle = kwargs.get("jog_angle", 3.)
+        self.z_delta = kwargs.get("z_delta", 1.)
+        self.cr_diff_threshold = kwargs.get("cr_diff_threshold", 0.1)
+        self.d_halfrange = kwargs.get("d_halfrange", 50.)  # 0.5 * max range of uncertainty of distance from cam to target
         
-        if("z_delta" in kwargs):
-            self.z_delta = kwargs["z_delta"]
-        else:
-            self.z_delta = 1.
-            
-        if("cr_diff_threshold" in kwargs):
-            self.cr_diff_threshold = kwargs["cr_diff_threshold"]
-        else:
-            self.cr_diff_threshold = 0.1
-        
-        if("d_halfrange" in kwargs):
-            self.d_halfrange = kwargs["d_halfrange"]
-        else:
-            self.d_halfrange = 50 #400  # 0.5 * max range of uncertainty of distance from cam to target
+        self.default_cr_positions = {}
         
         self.pupil_cr_diff = None
         
@@ -335,39 +285,87 @@ class StahlLikeCalibrator:
         """Convert image (pixel) coordinates to degrees of visual angle"""
         
         transform_vector = True
+    
+        which_led = self.no_led
         
-        if(self.calibrated):
+        # check which LED is on
+        if self.leds.soft_status(self.top_led):
+            which_led = self.top_led
         
-            if(pupil_coordinates.ndim == 1):
-                transform_vector = False
-                pupil_coordinates = array([pupil_coordinates])
-                cr_coordinates = array([cr_coordinates])
-                
-            # correct frst y_equator based on the possible displacemnt of the top CR
-            y_equator = self.y_equator + (cr_coordinates[:,self.y_image_axis] - self.y_topCR_ref)
-            y_displacement = pupil_coordinates[:,self.y_image_axis] - y_equator
-            elevation = -arcsin( y_displacement / self.Rp ) * 180/pi
-            azimuth = arcsin( (pupil_coordinates[:,self.x_image_axis] - cr_coordinates[:,self.x_image_axis]) / sqrt( self.Rp**2 - y_displacement**2 ) ) * 180/pi                
+        if self.leds.soft_status(self.side_led):
+            which_led = self.side_led
+            
+        # check if both LEDs are on.
+        if self.leds.soft_status(self.side_led) and self.leds.soft_status(self.top_led):
+            which_led = self.both_leds
+            cr_coordinates = None       # these are junk if both are on
+        
+    
+        
+        # establish the calibration status, this will be forwarded
+        # on so that a decision can be made about how to treat this data
+        calibration_status = self.uncalibrated
+        if cr_coordinates is None and not self.calibrated:
+            calibration_status = self.pupil_only_uncalibrated
+        elif cr_coordinates is None and self.calibrated:
+            calibration_status = self.pupil_only
+        elif self.calibrated:
+            calibration_status = self.calibrated        
+        
+        if calibration_status is self.uncalibrated:
+            return pupil_coordinates[0], pupil_coordinates[1], calibration_status
+        
+        # if we have no cr_coordinates, assume virtual ones
+        if cr_coordinates is None:
+            which_led = self.top_led
+            cr_coordinates = self.default_cr_positions[self.top_led]
+        
+        if(pupil_coordinates.ndim == 1):
+            transform_vector = False
+            pupil_coordinates = array([pupil_coordinates])
+            cr_coordinates = array([cr_coordinates])
+            
+        # create a "virtual" top led, if the side one is on
+        if which_led == self.side_led:
+            cr_coordinates = cr_coordinates - self.default_cr_positions[self.side_led] + self.default_cr_positions[self.top_led]
+            
+        y_equator = self.y_equator + (cr_coordinates[:,self.y_image_axis] - self.y_topCR_ref)
+        
+        if self.Rp is None:
+            Rp = self.default_Rp
         else:
-            print "Calibration must be run before transformations are allowed"
-            return -1.,-1.
+            Rp = self.Rp
+        
+        
+        y_displacement = pupil_coordinates[:,self.y_image_axis] - y_equator
+        
+        elevation = -arcsin( y_displacement / Rp ) * 180/pi
+        azimuth = arcsin( (pupil_coordinates[:,self.x_image_axis] - cr_coordinates[:,self.x_image_axis]) / sqrt( Rp**2 - y_displacement**2 ) ) * 180/pi                
+        
         
         if(transform_vector):
-            return elevation, azimuth
+            return (elevation, azimuth, calibration_status)
         
-        return elevation[0], azimuth[0]
+        return elevation[0], azimuth[0], calibration_status
 
     def center_horizontal(self):
         """Horizontally align the camera with the eye"""
         print "Calibrator: centering horizontal"
         self.center_axis(self.x_stage_axis)
 
+        # Save the position of the CR spot with the light on the top: this is the displacement 
+        # y coordinate of the equator when running with the top LED on
+        if self.top_led in self.default_cr_positions:
+            self.y_topCR_ref = self.default_cr_positions[self.top_led][self.y_image_axis]
+    
+
     def center_vertical(self):
         """Vertically align the camera with the eye"""
         self.center_axis(self.y_stage_axis)
     
         # Save the position of the CR spot with the light on the side: this is the y coordinate of the equator
-        #self.y_equator = cr_pos[self.y_image_axis]
+        if self.side_led in self.default_cr_positions:
+            self.y_equator = self.default_cr_positions[self.side_led][self.y_image_axis]
 
     def center_axis(self, stage_axis):
         """Align the camera with the eye along the specified axis"""
@@ -410,6 +408,8 @@ class StahlLikeCalibrator:
             print "ALIGN TO THE CENTER OF ACQUIRED IMAGE"
             im_shape = features["im_shape"]
             im_center = array(self.camera.im_array.shape) / 2.
+        
+        self.y_equator = im_center[self.y_image_axis]
         
         print("ORIGINAL CR POSITION = %f, %f" % tuple(original_cr))
         print("ORIGINAL PUPIL POSITION = %f, %f" % tuple(original_pupil))
@@ -457,6 +457,8 @@ class StahlLikeCalibrator:
         # 7. (Optional) Report the CR and Pupil Positions, as well as the stage position
         # not right now
         features = self.acquire_averaged_features(self.n_calibration_samples)
+        
+        self.default_cr_positions[chosen_led] = features["cr_position"]
         
         print("FINAL CR POSITION = %f, %f" % tuple(features["cr_position"]))
         print("FINAL PUPIL POSITION = %f, %f" % tuple(features["pupil_position"]))

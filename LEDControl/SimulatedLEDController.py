@@ -37,3 +37,5 @@ class SimulatedLEDController:
     def turn_off(self, channel):
         self.internal_status[channel] = 0
     
+    def soft_status(self, channel):
+        return self.status(channel)
