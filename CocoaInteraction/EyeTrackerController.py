@@ -145,6 +145,8 @@ class EyeTrackerController (NSObject):
     pupil_radius = objc.ivar(u"pupil_radius")
     cr_position_x = objc.ivar(u"cr_position_x")
     cr_position_y = objc.ivar(u"cr_position_y")
+
+    pupil_only = objc.ivar(u"pupil_only")
     
     gaze_azimuth = objc.ivar(u"gaze_azimuth")
     gaze_elevation = objc.ivar(u"gaze_elevation")
@@ -242,6 +244,8 @@ class EyeTrackerController (NSObject):
         self.display_starburst = False
     
         self.last_update_time = time.time()
+    
+        self.pupil_only = False
     
         # -------------------------------------------------------------
         # Stages
@@ -532,8 +536,12 @@ class EyeTrackerController (NSObject):
                     
                     
                     if self.calibrator is not None:
-                        (gaze_elevation, gaze_azimuth, calibration_status) = self.calibrator.transform( pupil_position, cr_position)
-                        
+                    
+                        if not self._.pupil_only:
+                            (gaze_elevation, gaze_azimuth, calibration_status) = self.calibrator.transform( pupil_position, cr_position)
+                        else:
+                            (gaze_elevation, gaze_azimuth, calibration_status) = self.calibrator.transform( pupil_position, None)
+                            
                         if(self.mw_conduit != None):
                         
                             # TODO: add calibration status
