@@ -23,6 +23,7 @@ class MightexLEDController (IPSerialBridge):
         self.internal_status = []
         for i in range(0, self.n_channels):
             self.internal_status.append(0)#self.status(i)
+
     
     def __del__(self):
         print("Shutting down LEDS")
@@ -38,7 +39,6 @@ class MightexLEDController (IPSerialBridge):
         return double(result_string)
     
     def status(self, channel):
-        
         result_string = self.send("?MODE %d" % channel)
         #print result_string
         return self.internal_status[channel]#int(result_string)
