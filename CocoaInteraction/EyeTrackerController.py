@@ -201,6 +201,9 @@ class EyeTrackerController (NSObject):
         if(self.zoom_and_focus is not None):
             self.zoom_and_focus.disconnect()
         if(self.leds is not None):
+            NSLog(u"Turning off LEDs")
+            for i in xrange(4):
+                self.leds.turn_off(i)
             self.leds = None
             #self.leds.shutdown()
         

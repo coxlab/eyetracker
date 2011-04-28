@@ -78,10 +78,10 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         
         self.result = None
         
-        self.restrict_top = 20
-        self.restrict_bottom = 120
-        self.restrict_left = 30
-        self.restrict_right = 157
+        self.restrict_top = 0
+        self.restrict_bottom = 123
+        self.restrict_left = 0
+        self.restrict_right = 164
     
     # analyze the image and return dictionary of features gleaned
     # from it

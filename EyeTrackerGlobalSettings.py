@@ -1,4 +1,4 @@
 
-settings = { "use_simulated" : True,
+settings = { "use_simulated" : False,
              "use_file_for_camera": False,
            }
