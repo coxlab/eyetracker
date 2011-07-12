@@ -40,7 +40,7 @@ class POVRaySimulatedCameraDevice:
         self.Rp_int = self.sclera_radius - 0.1
         
         self.pupil_radius = 0
-        self.Rp = 0
+        self.Rp = self.Rp_int
         self.set_pupil_radius(0.2)
         
         self.pupil_color = (0,0,0)
@@ -56,20 +56,11 @@ class POVRaySimulatedCameraDevice:
         self.feature_finder = _feature_finder
         self.w = 0.
         self.h = 0.
-        if "image_width" in kwargs:
-            self.w = kwargs["image_width"]
-        else:
-            self.w = 320.
-        
-        if "image_height" in kwargs:
-            self.h = kwargs["image_height"]
-        else:
-            self.h = 240.
-        
-        if "quiet" in kwargs:
-            self.quiet = kwargs["quiet"]
-        else:
-            self.quiet = 0
+
+        self.w = kwargs.get("image_width", 320.)
+        self.h = kwargs.get("image_height", 240.)
+            
+        self.quiet = kwargs.get("quiet", 0)
         
         self.droop_angle = 0.0
         self.tilt = 0.0
@@ -77,6 +68,9 @@ class POVRaySimulatedCameraDevice:
         self.image_center = (self.w/2, self.h/2)
         
         self.frame_number = 0
+
+        self.add_noise = kwargs.get("add_noise", True)
+        self.noise_level = kwargs.get("noise_level", 4.0)
 
 
     def acquire_image(self):
@@ -200,7 +194,11 @@ class POVRaySimulatedCameraDevice:
         a = a.mean(2)
         
         self.im_array = a.astype(float32)
-        #self.im_array = self.im_array[:, 1:]
+        
+        
+        if self.add_noise:
+            im_shape = self.im_array.shape
+            self.im_array += self.noise_level * random.randn(im_shape[0], im_shape[1]) 
                 
         self.frame_number += 1
         
@@ -233,6 +231,6 @@ class POVRaySimulatedCameraDevice:
         
     def set_pupil_radius(self, new_radius):
         self.pupil_radius = new_radius
-        self.Rp = sqrt(self.Rp_int**2 - new_radius**2)
+        #self.Rp = sqrt(self.Rp_int**2 - new_radius**2)
         print "Rp = %f, radius = %f" % (self.Rp, self.pupil_radius)
     
