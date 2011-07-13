@@ -19,6 +19,8 @@ import os
 from FastRadialFeatureFinder import *
 from SubpixelStarburstEyeFeatureFinder import *
 
+import logging
+
 
 
 class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
@@ -67,7 +69,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
                 features['cr_radius'] = None
                 features['pupil_position'] = None
                 features['cr_position'] = None
-                print e.message
+                loggin.error(e.message)
                 
         
         
@@ -83,7 +85,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
              
         if reseed:    
         
-            print("RESEEDING")
+            logging.debug("RESEEDING")
             self.reseed_count = self.minimum_frames_to_reseed
                                                                                                                                                                                                                                                                                                                                                                                                                                         
             # Exhaustive Search: Get intial guess of pupil and CR using the fast radial finder
@@ -111,7 +113,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
                 features['cr_radius'] = None
                 features['pupil_position'] = None
                 features['cr_position'] = None
-                print("Error: %s" % e.message)
+                logging.error("Error: %s" % e.message)
                 
                 
             features['im_array_stage1'] = im_array_stage1    

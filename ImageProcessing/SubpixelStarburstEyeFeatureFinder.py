@@ -43,11 +43,11 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.pupil_ray_sample_spacing = kwargs.get("pupil_ray_sample_spacing", 1)
     
         self.cr_threshold = kwargs.get("cr_threshold", 1.0)
-        self.pupil_threshold = kwargs.get("pupil_threshold", 1.0)
+        self.pupil_threshold = kwargs.get("pupil_threshold", 2.5)
         
         self.ray_sampling_method = kwargs.get("ray_sampling_method", "interp")
             
-        self.fitting_algorithm = kwargs.get("fitting_algorithm", "circle_least_squares_ransac")
+        self.fitting_algorithm = kwargs.get("fitting_algorithm", "circle_least_squares")
             
         pupil_rays = None
         cr_rays = None
@@ -173,12 +173,30 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             
             cr_position, cr_radius, cr_err = self._fit_points(cr_boundaries)
             
-            if(use_weave):
-                pupil_boundaries = self._find_ray_boundaries_woven(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
-            else:
-                pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            
+            # do a two-stage starburst fit for the pupil
+
+            # stage 1, rough cut
+            #self.pupil_min_radius_ray_index
+            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, 0, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
             
             pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
+            
+            # stage 2: refine
+            minimum_pupil_guess = round(0.5 * pupil_radius / self.pupil_ray_sample_spacing)
+
+            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_position, self.pupil_rays, minimum_pupil_guess, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            
+            pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
+            
+            
+            
+#            if(False and use_weave):
+#                pupil_boundaries = self._find_ray_boundaries_woven(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+#            else:
+#                pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+#            
+#            pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
         except Exception, e:
             print "Error analyzing image: %s" % e.message
             #print cr_boundaries
@@ -253,18 +271,25 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # get the values from the image at each of the points
         vals = self._get_image_values(im, rays_x, rays_y)
         
-        vals_reshaped = vals[:, 0:cutoff_index]
-        vals_reshaped = vals_reshaped[where(~isnan(vals_reshaped))]
-        vals_reshaped.shape = [prod(vals_reshaped.shape)]
-        mean_val = mean(vals_reshaped)
-        std_val = std(vals_reshaped)
         
+        if(cutoff_index != 0):
+            
+            vals_reshaped = vals[:, 0:cutoff_index]
+            vals_reshaped = vals_reshaped[where(~isnan(vals_reshaped))]
+            vals_reshaped.shape = [prod(vals_reshaped.shape)]
+            mean_val = mean(vals_reshaped)
+            std_val = std(vals_reshaped)
+            
+            normalized_threshold = threshold * std_val + mean_val
+        else:
+            normalized_threshold = threshold * std(vals[:]) + mean(vals[:])
+
         
         vals_slope = hstack((2 * ones([vals.shape[0],1]), diff(vals,1)))
         vals_slope[where(isnan(vals_slope))] = 0
         
-        normalized_threshold = threshold * std_val + mean_val
 
+        
         
         # figure()
         #         vals_display = vals
@@ -278,10 +303,10 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         #         hold(True)
         #         
         
-        
         # scan inward-to-outward to find the first threshold crossing
         for r in range(0, vals.shape[0]):
             crossed = False
+            
             for v in range(cutoff_index, vals.shape[1]):
                 if(isnan(v)):
                     #print "end of ray"
@@ -296,7 +321,22 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
                     boundary_points.append(array([rays_x[r,v-1], rays_y[r,v-1]]))
                     break
         
-        return boundary_points
+        
+        
+        if 'exclusion_center' in kwargs:
+            final_boundary_points = []
+            exclusion_center = kwargs['exclusion_center']
+            exclusion_radius = kwargs['exclusion_radius']
+            
+            for bp in boundary_points:
+                if(exclusion_center == None or linalg.norm(exclusion_center - bp) > exclusion_radius):
+                    final_boundary_points.append(bp)
+            return final_boundary_points
+            
+        else:
+            return boundary_points
+        
+        
 
     ##@clockit
     def _find_ray_boundaries_woven(self, im, seed_point, zero_referenced_rays, cutoff_index, threshold, **kwargs):
@@ -310,6 +350,8 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
                                     still within the feature.  Used to normalize threshold.
             threshold -- the threshold to cross, expressed in standard deviations across the ray samples
         """
+
+        assert(False)
 
         if "exclusion_center" in kwargs:
             exclusion_center = kwargs["exclusion_center"]
@@ -655,7 +697,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
     ###@clockit
     def _fit_circle_to_points_lstsq_ransac(self, points):
-        max_iter = 3
+        max_iter = 20
         min_consensus = 8
         good_fit_consensus = round(len(points)/2)
         pointwise_error_threshold = 0.05
