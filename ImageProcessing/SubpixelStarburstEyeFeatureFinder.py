@@ -178,14 +178,14 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
             # stage 1, rough cut
             #self.pupil_min_radius_ray_index
-            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, 0, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, 0, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 2 * cr_radius)
             
             pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
             
             # stage 2: refine
             minimum_pupil_guess = round(0.5 * pupil_radius / self.pupil_ray_sample_spacing)
 
-            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_position, self.pupil_rays, minimum_pupil_guess, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
+            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_position, self.pupil_rays, minimum_pupil_guess, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 2 * cr_radius)
             
             pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
             
