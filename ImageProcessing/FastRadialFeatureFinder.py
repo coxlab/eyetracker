@@ -44,8 +44,8 @@ class FastRadialFeatureFinder (EyeFeatureFinder):
         self.parameters_updated = 1
         
         self.alpha = 10.
-        self.min_radius_fraction = 0.0226 #1./2000.
-        self.max_radius_fraction = 0.16 #1./8.
+        self.min_radius_fraction = 0.0126 #1./2000.
+        self.max_radius_fraction = 0.12 #1./8.
         self.min_fraction = 1./1000.
         self.max_fraction = 0.35
         self.radius_steps = 6

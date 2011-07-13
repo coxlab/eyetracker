@@ -30,7 +30,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.cr_ray_length = kwargs.get("cr_ray_length", 10)
         self.pupil_ray_length = kwargs.get("pupil_ray_length", 25)
         self.cr_min_radius = kwargs.get("cr_min_radius", 2)
-        self.pupil_min_radius = kwargs.get("pupil_min_radius", 2) #14
+        self.pupil_min_radius = kwargs.get("pupil_min_radius", 3) #14
 
         # how many rays to shoot in the CR
         self.cr_n_rays = kwargs.get("cr_n_rays", 20)
@@ -178,7 +178,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
             # stage 1, rough cut
             #self.pupil_min_radius_ray_index
-            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, 0, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 2 * cr_radius)
+            pupil_boundaries = self._find_ray_boundaries(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 2 * cr_radius)
             
             pupil_position, pupil_radius, pupil_err = self._fit_points(pupil_boundaries)
             
