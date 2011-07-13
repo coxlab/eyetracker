@@ -21,8 +21,9 @@ class MightexLEDController (IPSerialBridge):
     def __init__(self, address, port):
         IPSerialBridge.__init__(self, address, port)
         self.internal_status = []
-        for i in range(0, n_channels):
-            self.soft_status[i] = self.status(i)
+        for i in range(0, self.n_channels):
+            self.internal_status.append(0)#self.status(i)
+
     
     def __del__(self):
         print("Shutting down LEDS")
@@ -34,13 +35,13 @@ class MightexLEDController (IPSerialBridge):
     
     def current(self, channel):
         
-        result_string = self.send("CURRENT %d" % channel)
+        result_string = self.send("?CURRENT %d" % channel)
         return double(result_string)
     
     def status(self, channel):
-        
-        result_string = self.send("MODE? %d" % channel)
-        return int(result_string)
+        result_string = self.send("?MODE %d" % channel)
+        #print result_string
+        return self.internal_status[channel]#int(result_string)
     
     def turn_on(self, channel, current = None):
         
@@ -54,13 +55,15 @@ class MightexLEDController (IPSerialBridge):
             # set the current (turning on the led)
             self.send("CURRENT %d %d" % (channel, current))
     
-        self.soft_status[channel] = self.status(channel)
+        self.internal_status[channel] = 1#self.status(channel)
+        self.status(channel)
     
     def turn_off(self, channel):
     
         # set channel to "disable" mode
         self.send("MODE %d 0" % channel)
-        self.soft_status[channel] = self.status(channel)
+        self.internal_status[channel] = 0#self.status(channel)
+        self.status(channel)
 
     def soft_status(self, channel):
         return self.internal_status[channel]
