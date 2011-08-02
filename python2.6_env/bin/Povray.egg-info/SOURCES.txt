@@ -1,4 +1,0 @@
-Povray.egg-info/PKG-INFO
-Povray.egg-info/SOURCES.txt
-Povray.egg-info/dependency_links.txt
-Povray.egg-info/top_level.txt
