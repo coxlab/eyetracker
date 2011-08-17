@@ -5,7 +5,7 @@
 #  Copyright (c) 2008 __MyCompanyName__. All rights reserved.
 #
 
-from glumpy import *
+import glumpy
 from ctypes import *
 import logging
 
@@ -420,7 +420,8 @@ class EyeTrackerController:
         self.start_time = time.time()
         self.last_time = self.start_time
         
-        self.announceCameraParameters()
+        # TODO
+        #self.announceCameraParameters()
         
         # calibrator
         logging.info("Creating Calibrator Object")
@@ -570,7 +571,7 @@ class EyeTrackerController:
                     
                     if self.calibrator is not None:
                     
-                        if not self._.pupil_only:
+                        if not self.pupil_only:
                             (gaze_elevation,gaze_azimuth,calibration_status) = self.calibrator.transform(pupil_position, 
                                                           cr_position)
                         else:
@@ -810,8 +811,8 @@ class EyeTrackerController:
     def collect_gaze_set(self):
         for h in range(-15,16,5): # take this to 16, so that it actually gets to 15
             for v in range(-15,16,5):
-                self.measurement_controller._.azimuth_set = h
-                self.measurement_controller._.elevation_set = v
+                self.measurement_controller.azimuth_set = h
+                self.measurement_controller.elevation_set = v
                 self.report_gaze()
                 
                 time.sleep(0.25)
@@ -1002,38 +1003,38 @@ class EyeTrackerController:
     
     def set_manual_calibration_(self):
         print "a"
-        if self._.pixels_per_mm_current is None:
+        if self.pixels_per_mm_current is None:
             if self.calibrator.pixels_per_mm is None:
                 self.calibrator.pixels_per_mm = 0.0
-            self._.pixels_per_mm_current = self.calibrator.pixels_per_mm
+            self.pixels_per_mm_current = self.calibrator.pixels_per_mm
         else:
-            self.calibrator.pixels_per_mm = self._.pixels_per_mm_current
+            self.calibrator.pixels_per_mm = self.pixels_per_mm_current
     
         
         print "b"        
-        self.calibrator.d = self._.d_current
+        self.calibrator.d = self.d_current
         
         print "c"
 
-        self.calibrator.Rp = self._.rp_current * self._.pixels_per_mm_current
+        self.calibrator.Rp = self.rp_current * self.pixels_per_mm_current
         
     
     
     def read_pos(self):
-        self._.x_current = self.stages.current_position(self.stages.x_axis)
-        self._.y_current = self.stages.current_position(self.stages.y_axis)
-        self._.r_current = self.stages.current_position(self.stages.r_axis)
+        self.x_current = self.stages.current_position(self.stages.x_axis)
+        self.y_current = self.stages.current_position(self.stages.y_axis)
+        self.r_current = self.stages.current_position(self.stages.r_axis)
         
 
         
-        self._.focus_current = self.zoom_and_focus.current_focus()
-        self._.zoom_current = self.zoom_and_focus.current_zoom()
+        self.focus_current = self.zoom_and_focus.current_focus()
+        self.zoom_current = self.zoom_and_focus.current_zoom()
 #        if(self.calibrator.calibrated):
-        self._.d_current = self.calibrator.d
-        self._.pixels_per_mm_current = self.calibrator.pixels_per_mm
+        self.d_current = self.calibrator.d
+        self.pixels_per_mm_current = self.calibrator.pixels_per_mm
         if self.calibrator.Rp is not None and self.calibrator.pixels_per_mm is not None:
-            self._.rp_current = self.calibrator.Rp / self.calibrator.pixels_per_mm
-        self._.pupil_cr_diff = self.calibrator.pupil_cr_diff
+            self.rp_current = self.calibrator.Rp / self.calibrator.pixels_per_mm
+        self.pupil_cr_diff = self.calibrator.pupil_cr_diff
         
         return
 
