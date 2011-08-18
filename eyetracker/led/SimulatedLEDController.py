@@ -28,6 +28,12 @@ class SimulatedLEDController:
     def status(self, channel):
         return self.internal_status[channel]
     
+    def set_status(self, channel, val):
+        if val:
+            self.turn_on(channel)
+        else:
+            self.turn_off(channel)
+    
     def turn_on(self, channel, current = None):
         self.internal_status[channel] = 1
         

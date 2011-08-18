@@ -27,6 +27,7 @@ from eyetracker.camera import *
 from eyetracker.led import *
 from eyetracker.motion import *
 from eyetracker.calibrator import *
+from eyetracker.display import *
 
 from eyetracker.settings import global_settings
 
@@ -53,57 +54,57 @@ if global_settings.get("enable_mw_conduit", True):
 
 
 
-class FeatureFinderAdaptor:
-        
-    def addFeatureFinder(self,ff):
-        if(not self.__dict__.has_key('ffs')):
-            self.ffs = []
-            
-        self.ffs.append(ff)
-        self.announceAll()
-        
-    def announceAll(self):
-        for key in self.ffs[0].getKeys():
-            self.willChangeValueForKey_(key)
-            self.didChangeValueForKey_(key)
-            pass
-    
-    def valueForKey_(self,key):
-        
-        if(not self.__dict__.has_key('ffs') or self.ffs == None):
-            # not out of the Nib yet
-            return
-            
-        val = self.ffs[0].getValue(key)
-        if(val == None):
-            return objc.nil
-        else:
-            return val
-        
-        
-    def setValue_forKey_(self, value, key):
-        if(not self.__dict__.has_key('ffs') or self.ffs == None):
-            # not out of the Nib yet
-            return
-        
-        for ff in self.ffs:
-            ff.setValue(key, value)
-            ff.update_parameters()
-        self.announceAll()
-    
-            
-        return
-
-    
-    def reset_(self):
-        for ff in self.ffs:
-            ff.reset()
-
-    
-    def pippo_(self):
-        for ff in self.ffs:
-            self.ff.reset()
-
+# class FeatureFinderAdaptor:
+#         
+#     def addFeatureFinder(self,ff):
+#         if(not self.__dict__.has_key('ffs')):
+#             self.ffs = []
+#             
+#         self.ffs.append(ff)
+#         self.announceAll()
+#         
+#     def announceAll(self):
+#         for key in self.ffs[0].getKeys():
+#             self.willChangeValueForKey_(key)
+#             self.didChangeValueForKey_(key)
+#             pass
+#     
+#     def valueForKey_(self,key):
+#         
+#         if(not self.__dict__.has_key('ffs') or self.ffs == None):
+#             # not out of the Nib yet
+#             return
+#             
+#         val = self.ffs[0].getValue(key)
+#         if(val == None):
+#             return objc.nil
+#         else:
+#             return val
+#         
+#         
+#     def setValue_forKey_(self, value, key):
+#         if(not self.__dict__.has_key('ffs') or self.ffs == None):
+#             # not out of the Nib yet
+#             return
+#         
+#         for ff in self.ffs:
+#             ff.setValue(key, value)
+#             ff.update_parameters()
+#         self.announceAll()
+#     
+#             
+#         return
+# 
+#     
+#     def reset_(self):
+#         for ff in self.ffs:
+#             ff.reset()
+# 
+#     
+#     def pippo_(self):
+#         for ff in self.ffs:
+#             self.ff.reset()
+# 
 
 
 def calibration_step(f):
@@ -114,10 +115,6 @@ def calibration_step(f):
 
 
 class EyeTrackerController:
-
-    # These are class variables because of vagaries in how PyObjC interacts 
-    # with python object instantiated from Nibs
-    # Consequently, there can only be one of these
     
     def __init__(self):
         
@@ -147,7 +144,7 @@ class EyeTrackerController:
         self.IsetCh2 = c_float()
         self.IsetCh3 = c_float()
         self.IsetCh4 = c_float()
-        
+                
         self.pupil_position_x = c_float()
         self.pupil_position_y = c_float()
         self.pupil_radius = c_float()
@@ -183,8 +180,8 @@ class EyeTrackerController:
         self.calibrator = None
         self.mw_conduit = None
     
-        # self.camera_canvas = objc.IBOutlet()
-    
+        # self.tracker_view = objc.IBOutlet()
+        self.tracker_view = TrackerView()
         self.canvas_update_timer = None
     
         self.frame_count = 0
@@ -463,72 +460,7 @@ class EyeTrackerController:
             logging.info("Finished testing conduit")
         else:
             logging.warning("No conduit")
-        
-    def setup_gui(self):
-        print "setup gui"
-        atb.init()
-        self.window = glumpy.Window(900,600)
-        self.manual_control_bar = atb.Bar(name="Manual", 
-                                       label="Manual Controls", 
-                                       help="Controls for adjusting hardware", 
-                                       position=(10,10), size=(200,340))
-        self.manual_control_bar.add_var("Position/x_set", self.x_set)
-        self.manual_control_bar.add_var("Position/y_set", self.y_set)
-        
-        #self.manual_control_bar.add_separator("")
-        # self.manual_control_bar.add_button("Quit", quit, key="ESCAPE", 
-        #                                            help="Quit application")
-
-        # Event Handlers    
-        
-        def draw_background():
-            viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-            gl.glDisable (gl.GL_LIGHTING)
-            gl.glDisable (gl.GL_DEPTH_TEST)
-            gl.glPolygonMode (gl.GL_FRONT_AND_BACK, gl.GL_FILL)
-            gl.glBegin(gl.GL_QUADS)
-            gl.glColor(1.0,1.0,1.0)
-            gl.glVertex(0,0,-1)
-            gl.glVertex(viewport[2],0,-1)
-            gl.glColor(0.0,0.0,1.0)
-            gl.glVertex(viewport[2],viewport[3],0)
-            gl.glVertex(0,viewport[3],0)
-            gl.glEnd()
-        
-        def on_init():
-            gl.glEnable (gl.GL_LIGHT0)
-            gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE,  (1.0, 1.0, 1.0, 1.0))
-            gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT,  (0.1, 0.1, 0.1, 1.0))
-            gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR, (0.0, 0.0, 0.0, 1.0))
-            gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION, (0.0, 1.0, 2.0, 1.0))
-            gl.glEnable (gl.GL_BLEND)
-            gl.glEnable (gl.GL_COLOR_MATERIAL)
-            gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_AMBIENT_AND_DIFFUSE)
-            gl.glBlendFunc (gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
             
-        def on_draw():
-            self.manual_control_bar.update()
-            self.window.clear()
-            draw_background()
-            
-            
-        def on_key_press(symbol, modifiers):
-            print "Quitting"
-            if symbol == glumpy.key.ESCAPE:
-                self.continuously_acquiring= False
-                self.acq_thread.join()
-                sys.exit()
-
-        self.window.push_handlers(atb.glumpy.Handlers(self.window))                
-        self.window.push_handlers(on_init, on_draw, on_key_press)
-        
-
-        self.window.draw()
-        
-    def gui_mainloop(self):
-        print "mainloop"
-        self.window.mainloop()
-    
     
     def start_continuous_acquisition(self):
         logging.info("Starting continuous acquisition")
@@ -582,15 +514,15 @@ class EyeTrackerController:
                 new_features = self.camera_device.get_processed_image(self.features)
                 
                 if(new_features.__class__ == dict and 
-                    features.__class__ == dict and 
-                    "frame_number" in new_features and 
-                    "frame_number" in features and 
-                    new_features["frame_number"] != features["frame_number"]):
-                    
+                      features.__class__ == dict and 
+                      "frame_number" in new_features and 
+                      "frame_number" in features and 
+                      new_features["frame_number"] != features["frame_number"]):
                     frame_number += 1
                     
                 features = new_features
                 check_interval = 100
+                
                 if(frame_number % check_interval == 0):
                     toc = time.time() - tic
                     frame_rate = check_interval / toc
@@ -641,7 +573,6 @@ class EyeTrackerController:
                                                       float(pupil_radius), 
                                                       float(timestamp)));
                             
-                            pass
                     else:
                         if(self.mw_conduit != None):
                             pass
@@ -661,8 +592,6 @@ class EyeTrackerController:
                         self.frame_rate = frame_rate
                         
             except Exception, e:
-                print e.message
-                raise e
                 print self.camera_device
                 formatted = formatted_exception()
                 print formatted[0], ": "
@@ -683,7 +612,7 @@ class EyeTrackerController:
         logging.info("Stopped continuous acquiring")
         return
     
-    def update_camera_canvas(self):
+    def update_tracker_view(self):
         if(self.camera_device == None):
             return
         
@@ -691,7 +620,6 @@ class EyeTrackerController:
             features = self.ui_queue.get_nowait()
             
         except Empty, e:
-            #self.camera_canvas.setNeedsDisplay_(True)
             return
         
         if("frame_time" in features):
@@ -705,38 +633,37 @@ class EyeTrackerController:
                 transform_im -=  min(ravel(transform_im))
                 transform_im = transform_im * 255 /  max(ravel(transform_im))
                 ravelled = ravel(transform_im);
-                self.camera_canvas.im_array = transform_im.astype(uint8)
+                self.tracker_view.im_array = transform_im.astype(uint8)
         else:
-            self.camera_canvas.im_array = features['im_array']
-        
+            self.tracker_view.im_array = features['im_array']
         
         
         if 'pupil_position_stage1' in features:
-            self.camera_canvas.stage1_pupil_position = features['pupil_position_stage1']
+            self.tracker_view.stage1_pupil_position = features['pupil_position_stage1']
 
         if 'cr_position_stage1' in features:
-            self.camera_canvas.stage1_cr_position = features['cr_position_stage1']
+            self.tracker_view.stage1_cr_position = features['cr_position_stage1']
         
         if 'cr_radius' in features:
-            self.camera_canvas.cr_radius = features['cr_radius']
+            self.tracker_view.cr_radius = features['cr_radius']
 
         if 'pupil_radius' in features:
-            self.camera_canvas.pupil_radius = features['pupil_radius']
+            self.tracker_view.pupil_radius = features['pupil_radius']
 
         if 'pupil_position' in features:
-            self.camera_canvas.pupil_position = features['pupil_position']
+            self.tracker_view.pupil_position = features['pupil_position']
         
         if 'cr_position' in features:
-            self.camera_canvas.cr_position = features['cr_position']
+            self.tracker_view.cr_position = features['cr_position']
         
 
-        self.camera_canvas.starburst = features.get('starburst', None)
-        self.camera_canvas.is_calibrating = features.get('is_calibrating', False)
+        self.tracker_view.starburst = features.get('starburst', None)
+        self.tracker_view.is_calibrating = features.get('is_calibrating', False)
         
-        self.camera_canvas.restrict_top = features.get('restrict_top', None)
-        self.camera_canvas.restrict_bottom = features.get('restrict_bottom', None)
-        self.camera_canvas.restrict_left = features.get('restrict_left', None)
-        self.camera_canvas.restrict_right = features.get('restrict_right', None)
+        self.tracker_view.restrict_top = features.get('restrict_top', None)
+        self.tracker_view.restrict_bottom = features.get('restrict_bottom', None)
+        self.tracker_view.restrict_left = features.get('restrict_left', None)
+        self.tracker_view.restrict_right = features.get('restrict_right', None)
             
         # setNeedsDisplay            
         
@@ -759,11 +686,88 @@ class EyeTrackerController:
             #self.frame_rate = self.n_frames / (time.time() - self.last_time)
             self.last_time = time.time()
             self.n_frames = 0
-            self.radial_symmetry_feature_finder_adaptor.announceAll()
-            self.starburst_feature_finder_adaptor.announceAll()
+            #self.radial_symmetry_feature_finder_adaptor.announceAll()
+            #self.starburst_feature_finder_adaptor.announceAll()
             if("sobel_avg" in features):
                 self.sobel_avg = features["sobel_avg"]
             
+
+    def setup_gui(self):
+        print "setup gui"
+        atb.init()
+        self.window = glumpy.Window(900,600)
+        self.manual_control_bar = atb.Bar(name="Manual", 
+                                       label="Manual Controls", 
+                                       help="Controls for adjusting hardware", 
+                                       position=(10,10), size=(150,200))
+        self.manual_control_bar.add_var("PositionSet/x", self.x_set)
+        self.manual_control_bar.add_var("PositionSet/y", self.y_set)
+        self.manual_control_bar.add_var("PositionSet/r", self.r_set)
+        
+        self.manual_control_bar.add_var("LEDs/Ch1_mA", self.IsetCh1)
+        self.manual_control_bar.add_var("LEDs/Ch1_status",
+                                    vtype = atb.TW_TYPE_BOOL8,
+                                    getter=lambda: self.leds.status(0),
+                                    setter=lambda x: self.leds.set_status(0,x))
+                                        
+        self.manual_control_bar.add_var("LEDs/Ch2_mA", self.IsetCh2)
+        self.manual_control_bar.add_var("LEDs/Ch2_status",
+                            vtype = atb.TW_TYPE_BOOL8,
+                            getter=lambda: self.leds.status(1),
+                            setter=lambda x: self.leds.set_status(1,x))
+                            
+        self.manual_control_bar.add_var("LEDs/Ch3_mA", self.IsetCh3)
+        self.manual_control_bar.add_var("LEDs/Ch3_status",
+                                    vtype = atb.TW_TYPE_BOOL8,
+                                    getter=lambda: self.leds.status(2),
+                                    setter=lambda x: self.leds.set_status(2,x))
+                                    
+        self.manual_control_bar.add_var("LEDs/Ch4_mA", self.IsetCh4)
+        self.manual_control_bar.add_var("LEDs/Ch4_status",
+                                    vtype = atb.TW_TYPE_BOOL8,
+                                    getter=lambda: self.leds.status(3),
+                                    setter=lambda x: self.leds.set_status(3,x))
+        
+        
+        self.radial_ff_bar = atb.Bar(name="RadialFF", 
+                                       label="Radial Symmetry Feature Finder", 
+                                       help="Parameters for initial (symmetry-based) image processing", 
+                                       position=(10,210), size=(150,340))
+        
+        self.radial_ff_bar.add_var("Blah/Bleep", self.IsetCh4)
+        
+        #self.manual_control_bar.add_separator("")
+        # self.manual_control_bar.add_button("Quit", quit, key="ESCAPE", 
+        #                                            help="Quit application")
+
+        # Event Handlers    
+        def on_init():
+            self.tracker_view.prepare_opengl()
+            
+        def on_draw():
+            self.manual_control_bar.update()
+            self.window.clear()
+            self.tracker_view.draw((self.window.width, self.window.height))
+            
+        def on_idle(dt):
+            if dt < 0.02:
+                return
+            self.update_tracker_view()
+            self.window.draw()
+            
+        def on_key_press(symbol, modifiers):
+            if symbol == glumpy.key.ESCAPE:
+                self.continuously_acquiring= False
+                self.acq_thread.join()
+                sys.exit()
+
+        self.window.push_handlers(atb.glumpy.Handlers(self.window))                
+        self.window.push_handlers(on_init, on_draw, on_key_press, on_idle)
+        self.window.draw()
+        
+    def gui_mainloop(self):
+        print "mainloop"
+        self.window.mainloop()
 
     
     def set_binning(self, value):

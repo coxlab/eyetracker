@@ -43,6 +43,13 @@ class MightexLEDController (IPSerialBridge):
         #print result_string
         return self.internal_status[channel]#int(result_string)
     
+    def set_status(self, channel, val):
+        if val:
+            self.turn_on(channel)
+        else:
+            self.turn_off(channel)
+            
+        
     def turn_on(self, channel, current = None):
         
         # Set channel into "normal" mode
