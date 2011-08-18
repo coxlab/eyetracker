@@ -6,8 +6,12 @@
 #
 
 import glumpy
+import glumpy.atb as atb
 from ctypes import *
 import logging
+import sys
+
+import OpenGL.GL as gl, OpenGL.GLUT as glut
 
 import time
 import httplib
@@ -30,7 +34,7 @@ from Queue import Queue, Empty
 
 
 # boost.python wrapper for a MonkeyWorks interprocess conduit
-mw_enabled = True
+mw_enabled = False
 
 if global_settings.get("enable_mw_conduit", True):
     
@@ -46,8 +50,6 @@ if global_settings.get("enable_mw_conduit", True):
         mw_enabled = True
     except Exception, e:
         print("Unable to load MW conduit: %s" % e)
-else:
-    mw_enabled = False
 
 
 
@@ -110,6 +112,7 @@ def calibration_step(f):
 
     return wrapper
 
+
 class EyeTrackerController:
 
     # These are class variables because of vagaries in how PyObjC interacts 
@@ -117,13 +120,14 @@ class EyeTrackerController:
     # Consequently, there can only be one of these
     
     def __init__(self):
-        self.x_set = c_float()
-        self.y_set = c_float()
-        self.r_set = c_float()
-    
+        
+        self.x_set = c_float(0.5)
+        self.y_set = c_float(0.5)
+        self.r_set = c_float(0.5)
+        
         self.zoom_step = c_float()
         self.focus_step = c_float()
-    
+        
         self.x_current = c_float()
         self.y_current = c_float()
         self.r_current = c_float()
@@ -297,28 +301,25 @@ class EyeTrackerController:
         self.zoom_and_focus = FocusAndZoomController(esp300_2)
 
     
-        self.x_set = 0.5
-        self.y_set = 0.5
-        self.r_set = 0.5
-        self.x_current = self.stages.current_position(self.stages.x_axis)
-        self.y_current = self.stages.current_position(self.stages.y_axis)
-        self.r_current = self.stages.current_position(self.stages.r_axis)
+        self.x_current.value = self.stages.current_position(self.stages.x_axis)
+        self.y_current.value = self.stages.current_position(self.stages.y_axis)
+        self.r_current.value = self.stages.current_position(self.stages.r_axis)
         
         self.sobel_avg = 0
         
-        self.r_cntr_set = 0
-        self.d_cntr_set = 0
+        self.r_cntr_set.value = 0
+        self.d_cntr_set.value = 0
         
-        self.zoom_step = 20.
-        self.focus_step = 20.
+        self.zoom_step.value = 20.
+        self.focus_step.value = 20.
         
-        self.IsetCh1 = 0
-        self.IsetCh2 = 0
-        self.IsetCh3 = 0
-        self.IsetCh4 = 0
+        self.IsetCh1.value = 0
+        self.IsetCh2.value = 0
+        self.IsetCh3.value = 0
+        self.IsetCh4.value = 0
         
         # Manual aligment of pupil and CR
-        self.r_2align_pup_cr = 0
+        self.r_2align_pup_cr.value = 0
         
 
         # -------------------------------------------------------------
@@ -464,18 +465,71 @@ class EyeTrackerController:
             logging.warning("No conduit")
         
     def setup_gui(self):
-        self.window = glumpy.window(800, 600)
+        print "setup gui"
+        atb.init()
+        self.window = glumpy.Window(900,600)
         self.manual_control_bar = atb.Bar(name="Manual", 
                                        label="Manual Controls", 
                                        help="Controls for adjusting hardware", 
-                                       position=(10,10), size=(200,320))
-        self.manual_control_bar.add_var("")
-    
-    def gui_mainloop(self):
+                                       position=(10,10), size=(200,340))
+        self.manual_control_bar.add_var("Position/x_set", self.x_set)
+        self.manual_control_bar.add_var("Position/y_set", self.y_set)
         
+        #self.manual_control_bar.add_separator("")
+        # self.manual_control_bar.add_button("Quit", quit, key="ESCAPE", 
+        #                                            help="Quit application")
+
+        # Event Handlers    
+        
+        def draw_background():
+            viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
+            gl.glDisable (gl.GL_LIGHTING)
+            gl.glDisable (gl.GL_DEPTH_TEST)
+            gl.glPolygonMode (gl.GL_FRONT_AND_BACK, gl.GL_FILL)
+            gl.glBegin(gl.GL_QUADS)
+            gl.glColor(1.0,1.0,1.0)
+            gl.glVertex(0,0,-1)
+            gl.glVertex(viewport[2],0,-1)
+            gl.glColor(0.0,0.0,1.0)
+            gl.glVertex(viewport[2],viewport[3],0)
+            gl.glVertex(0,viewport[3],0)
+            gl.glEnd()
+        
+        def on_init():
+            gl.glEnable (gl.GL_LIGHT0)
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE,  (1.0, 1.0, 1.0, 1.0))
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT,  (0.1, 0.1, 0.1, 1.0))
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR, (0.0, 0.0, 0.0, 1.0))
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION, (0.0, 1.0, 2.0, 1.0))
+            gl.glEnable (gl.GL_BLEND)
+            gl.glEnable (gl.GL_COLOR_MATERIAL)
+            gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_AMBIENT_AND_DIFFUSE)
+            gl.glBlendFunc (gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+            
+        def on_draw():
+            self.manual_control_bar.update()
+            self.window.clear()
+            draw_background()
+            
+            
+        def on_key_press(symbol, modifiers):
+            print "Quitting"
+            if symbol == glumpy.key.ESCAPE:
+                self.continuously_acquiring= False
+                self.acq_thread.join()
+                sys.exit()
+
+        self.window.push_handlers(atb.glumpy.Handlers(self.window))                
+        self.window.push_handlers(on_init, on_draw, on_key_press)
+        
+
+        self.window.draw()
+        
+    def gui_mainloop(self):
+        print "mainloop"
         self.window.mainloop()
     
-            
+    
     def start_continuous_acquisition(self):
         logging.info("Starting continuous acquisition")
         self.continuously_acquiring = 1
@@ -1132,4 +1186,10 @@ class EyeTrackerController:
 if __name__ == "__main__":
     
     et = EyeTrackerController()
+    
+    print "ready"
     et.gui_mainloop()
+    
+    # gui_thread = threading.Thread(target = et.gui_mainloop)
+    #     gui_thread.start()
+    
