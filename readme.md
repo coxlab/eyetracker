@@ -18,9 +18,9 @@ Assuming you have a complete, working Python install, installing the program sho
     
     python setup.py install
     
-Alternatively, you could skip downloading the code and try (assuming you have pip installed, which you should):
+Alternatively, you could skip downloading the code and try (assuming you have pip installed, which you should; might also need to use `sudo`):
 
-    pip install -e git+https://github.com/coxlab/eyetracker#egg=coxlab_eyetracker
+    pip install -e git+https://github.com/coxlab/eyetracker@glumpy#egg=coxlab_eyetracker
 
 The tracker can then be run from a shell with the command
 
