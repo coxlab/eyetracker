@@ -1,0 +1,48 @@
+# Global ARCHitecture settings for the Sample code
+#
+# this file should be adapted to your platform
+
+# Target CPU
+CPU     = x64
+
+# Target OS
+OS      = OSX
+OS_DIR  = OSX
+
+# OS-X version
+OSXV	= -mmacosx-version-min=10.4
+# architecture flags
+#ARCH	= -m32
+#ARCH	= -arch ppc
+
+# Optimisation level
+OPT     = -O3 $(ARCH) $(OSXV)
+
+# compiler version
+CVER    = 4.2
+# compiler
+CC      = g++-$(CVER)
+# linker
+LD      = ld
+AR      = ar
+SP      = strip
+
+# some flags
+DFLAGS	= -D_$(CPU) -D_$(OS)
+FLAGS   = -fno-strict-aliasing -fexceptions -I/usr/include $(DFLAGS)
+
+## few locations
+INC_DIR	  = ../../inc-pc
+BIN_DIR   = ../../bin-pc/$(CPU)
+LIB_DIR   = ../../lib-pc/$(CPU)
+OBJ_DIR	  = ./obj/$(CPU)
+EXTRA_LIB = -lpthread -lz -framework CoreFoundation
+
+## libs (shared/static)
+PVLIB   = -L$(BIN_DIR) -lPvAPI
+SOLIB	= $(EXTRA_LIB) -Bdynamic -lm -lc
+SALIB	= -Bstatic $(LIB_DIR)/$(CVER)/libPvAPI.a
+IMLIB   = -Bstatic $(LIB_DIR)/$(CVER)/libImagelib.a
+
+## final compilation flags
+CFLAGS	= $(OPT) $(FLAGS) -Wall -I$(INC_DIR) -D_REENTRANT $(EXTRA)

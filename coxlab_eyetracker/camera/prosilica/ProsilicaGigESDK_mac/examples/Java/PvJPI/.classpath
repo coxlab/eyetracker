@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
+	<classpathentry kind="con" path="C:/Prosilica/host/sdk/trunk/Example/Java/PvJPI/bin"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
