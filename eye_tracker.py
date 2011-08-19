@@ -55,14 +55,16 @@ if global_settings.get("enable_mw_conduit", True):
 # A decorator for calibration steps (stop continuous execution, resume on ret.)
 def calibration_step(f):
     def wrapper(self):
-        self.execute_calibration_step(f(self))
+        self.execute_calibration_step(f)
     return wrapper
 
 
 # A catch-all class for controlling the eyetracking hardware
-class EyeTrackerController:
+class EyeTrackerController (object):
     
     def __init__(self):
+        
+        self.test_binning = 3
         
         self.x_set = 0.5
         self.y_set = 0.5
@@ -271,8 +273,8 @@ class EyeTrackerController:
                 logging.info("Connecting to Camera...")
                 self.camera_device = ProsilicaCameraDevice(self.feature_finder)
                 
-                self.set_binning(4)
-                self.set_gain(1)
+                self.binning = 4
+                self.gain = 1
         except Exception, e:
             print "Unexpected error:", e.message
             self.use_file_for_cam = 1
@@ -384,6 +386,7 @@ class EyeTrackerController:
         print "Stopping continuous acquisition"
         self.continuously_acquiring = 0
         self.acq_thread.join()
+        print "Stopped"
 
     
     # a method to actually run the camera
@@ -510,82 +513,94 @@ class EyeTrackerController:
         logging.info("Stopped continuous acquiring")
         return
     
+
+    @property
+    def binning(self):
+        return self.test_binning
+    
+    @binning.setter
+    def binning(self, value):
+        self.test_binning = value
     
     
-    def set_binning(self, value):
-        self.camera_device.camera.setAttribute("BinningX", int(value))
-        self.camera_device.camera.setAttribute("BinningY", int(value))
+    def get_camera_attribute(self, a):
+        if(self.camera_device != None and \
+           getattr(self.camera_device, 'camera', None) is not None and \
+           self.camera_device.camera != None):
+            return self.camera_device.camera.getUint32Attribute(a)
+        else:
+            return 0
+    
+    def set_camera_attribute(self, a, val):
+        if getattr(self.camera_device, 'camera', None) is None:
+            return
+        
+        self.camera_device.camera.setAttribute(a, int(value))
+        self.camera_device.camera.setAttribute(a, int(value))
+        
+    
+    @property
+    def binning(self):
+        return self.get_camera_attribute("BinningX")
+    @binning.setter
+    def binning(self, value):
+        self.set_camera_attribute("BinningX", int(value))
+        self.set_camera_attribute("BinningY", int(value))
         
         time.sleep(0.1)
     
-    def get_binning(self):
-        if(self.camera_device != None and self.camera_device.camera != None):
-            return self.camera_device.camera.getUint32Attribute("BinningX")
-        else:
-            return objc.nil
 
-    def set_gain(self, value):
+    @property
+    def gain(self):
+        return self.get_camera_attribute("GainValue")
+    @gain.setter
+    def gain(self, value):
         self.gain_factor = value
-        self.camera_device.camera.setAttribute("GainValue", int(value))
+        self.set_camera_attribute("GainValue", int(value))
     
-    def get_gain(self):
-        if(self.camera_device != None and self.camera_device.camera != None):
-            return self.camera_device.camera.getUint32Attribute("GainValue")
-        else:
-            return objc.nil
-            
-    def set_roi_width_(self, value):
-        self.camera_device.camera.setAttribute("Width", int(value))
+    @property
+    def roi_width(self):
+        return self.get_camera_attribute("Width")
+    @roi_width.setter
+    def roi_width(self, value):
+        self.set_camera_attribute("Width", int(value))
         
-    def get_roi_width(self):
-        if(self.camera_device != None and self.camera_device.camera != None):
-            return self.camera_device.camera.getUint32Attribute("Width")
-        else:
-            return objc.nil
+    @property
+    def roi_height(self):
+        return self.get_camera_attribute("Height")
+    @roi_width.setter
+    def roi_height(self, value):
+        self.set_camera_attribute("Height", int(value))
             
-    def set_roi_height(self, value):
-        self.camera_device.camera.setAttribute("Height", int(value))
-        
-    def get_roi_height(self):
-        if(self.camera_device != None and self.camera_device.camera != None):
-            return self.camera_device.camera.getUint32Attribute("Height")    
-        else:
-            return objc.nil
-            
-    def set_roi_offsetX(self, value):
-        self.camera_device.camera.setAttribute("RegionX", int(value))
-        
-    def get_roi_offsetX(self):
-        if(self.camera_device != None and self.camera_device.camera != None):
-            return self.camera_device.camera.getUint32Attribute("RegionX")
-        else:
-            return objc.nil
 
-    def set_roi_offsetY(self, value):
-        self.camera_device.camera.setAttribute("RegionY", int(value))
-        
-    def get_roi_offsetY(self):
-        if(self.camera_device != None and self.camera_device.camera != None):
-            return self.camera_device.camera.getUint32Attribute("RegionY")
-        else:
-            return objc.nil
+    @property
+    def roi_offset_x(self):
+        return self.get_camera_attribute("RegionX")
+    @roi_offset_x.setter
+    def roi_offset_x(self, value):
+        self.set_camera_attribute("RegionX", int(value))
+
+    @property
+    def roi_offset_y(self):
+        return self.get_camera_attribute("RegionY")
+    @roi_offset_y.setter
+    def roi_offset_y(self, value):
+        self.set_camera_attribute("RegionY", int(value))
+
             
     def display_noise_image(self):
         noise = random.rand(640,480)
         
-    # Note of DZ based on conversation with DDC:
-    # When a new IBAction is defined, wathever function/method is called within the action must be passed as an argument to 
-    # "execute_calibration_step", in order to stop the continuous acquisition, deal with the threads, etc
-    def execute_calibration_step(self, function):
-        self.stop_continuous_acquisition()
         
-        t = lambda: self.execute_and_resume_acquisition(function)
+    def execute_calibration_step(self, f):
+        self.stop_continuous_acquisition()
+        t = lambda: self.execute_and_resume_acquisition(f)
         calibrate_thread = threading.Thread(target = t)
         calibrate_thread.start()
     
-    def execute_and_resume_acquisition(self, function):
+    def execute_and_resume_acquisition(self, f):
         
-        function()
+        f(self)
         print "Finished calibration step"
         time.sleep(0.5)
         self.start_continuous_acquisition()
@@ -628,6 +643,7 @@ class EyeTrackerController:
     
     @calibration_step
     def calibrate_center_horizontal(self):
+        print "blustering on"
         self.calibrator.center_horizontal()
     
     @calibration_step
@@ -762,40 +778,40 @@ class EyeTrackerController:
     def zoom_minus(self):
         self.zoom_and_focus.zoom_relative(-float(self.zoom_step))
 
-    def off_ch1(self):
-        self.leds.turn_off(self.leds.channel1)
-        return
-
-    def off_ch2(self):
-        self.leds.turn_off(self.leds.channel2)
-        return
-
-    def off_ch3(self):
-        self.leds.turn_off(self.leds.channel3)
-        return
-
-    def off_ch4(self):
-        self.leds.turn_off(self.leds.channel4)
-        return
-
-    def on_ch1(self):
-        self.leds.turn_on(self.leds.channel1, float(self.IsetCh1))
-        return
-
-    
-    def on_ch2(self):
-        self.leds.turn_on(self.leds.channel2, float(self.IsetCh2))
-        return
-
-    
-    def on_ch3(self):
-        self.leds.turn_on(self.leds.channel3, float(self.IsetCh3))
-        return
-
-    
-    def on_ch4(self):
-        self.leds.turn_on(self.leds.channel4, float(self.IsetCh4))
-        return
+    # def off_ch1(self):
+    #     self.leds.turn_off(self.leds.channel1)
+    #     return
+    # 
+    # def off_ch2(self):
+    #     self.leds.turn_off(self.leds.channel2)
+    #     return
+    # 
+    # def off_ch3(self):
+    #     self.leds.turn_off(self.leds.channel3)
+    #     return
+    # 
+    # def off_ch4(self):
+    #     self.leds.turn_off(self.leds.channel4)
+    #     return
+    # 
+    # def on_ch1(self):
+    #     self.leds.turn_on(self.leds.channel1, float(self.IsetCh1))
+    #     return
+    # 
+    # 
+    # def on_ch2(self):
+    #     self.leds.turn_on(self.leds.channel2, float(self.IsetCh2))
+    #     return
+    # 
+    # 
+    # def on_ch3(self):
+    #     self.leds.turn_on(self.leds.channel3, float(self.IsetCh3))
+    #     return
+    # 
+    # 
+    # def on_ch4(self):
+    #     self.leds.turn_on(self.leds.channel4, float(self.IsetCh4))
+    #     return
 
     
     def set_manual_calibration_(self):

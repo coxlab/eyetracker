@@ -8,16 +8,18 @@ from Queue import Queue, Empty
 # Utility functions for use with atb
 def binding_getter(o, key):
     def get_wrapper():
-        val = o.__dict__[key]
+        val = getattr(o,key)
+        if val is None:
+            val = 0
         return val
     return get_wrapper
 
 def binding_setter(o, key):
     def ff_wrapper(val):
-        o.__dict__.__setitem__(key, val)
+        setattr(o, key, val)
         o.update_parameters()
     def regular_wrapper(val):
-        o.__dict__.__setitem__(key, val)
+        setattr(o, key, val)
     
     if hasattr(o, 'update_parameters') and \
        callable(getattr(o, 'update_parameters')):
@@ -60,56 +62,105 @@ class EyeTrackerGUI:
         
         
         # ---------------------------------------------------------------------
-        #   MANUAL CONTROLS
+        #   STAGE CONTROLS
         # ---------------------------------------------------------------------
         
-        self.manual_control_bar = atb.Bar(name="Manual", 
-                                       label="Manual Controls", 
-                                       help="Controls for adjusting hardware", 
-                                       position=(10,10), size=(200,300))
+        self.stages_bar= atb.Bar(name="stages", 
+                                 label="Stage Controls", 
+                                 iconified='true',
+                                 help="Controls for adjusting stages", 
+                                 position=(10,10), size=(200,300))
                                        
-        self.manual_control_bar.add_var("PositionSet/x", 
-                                        target=c, attr='x_set')
-        self.manual_control_bar.add_var("PositionSet/y", 
-                                        target=c, attr='y_set')
-        self.manual_control_bar.add_var("PositionSet/r", 
-                                        target=c, attr='r_set')
+        self.stages_bar.add_var("X/x_set",
+                                label="set value",
+                                target=c, attr='x_set')
+        self.stages_bar.add_button("go_rel_x", lambda: c.go_rel_x(),
+                                   group="X",
+                                   label="move relative")
+        self.stages_bar.add_button("go_abs_x", lambda: c.go_x(),
+                                   group="X",
+                                   label="move absolute")
+
+        self.stages_bar.add_var("Y/y_set", 
+                                label="set value",
+                                target=c, attr='y_set')
+        self.stages_bar.add_button("go_rel_y", lambda: c.go_rel_y(),
+                                   group="Y",
+                                   label="move relative")
+        self.stages_bar.add_button("go_abs_y", lambda: c.go_y(),
+                                   group="Y",
+                                   label="move absolute")
+                                
+        self.stages_bar.add_var("R/r_set",
+                                label="set value",
+                                target=c, attr='r_set')
+        self.stages_bar.add_button("go_rel_r", lambda: c.go_rel_r(),
+                                   group="R",
+                                   label="move relative")
+        self.stages_bar.add_button("go_abs_r", lambda: c.go_r(),
+                                   group="R",
+                                   label="move absolute")
         
-        self.manual_control_bar.add_var("LEDs/Ch1_mA", 
-                                        target=c, attr='IsetCh1',
-                                        label = "I Ch1 (mA)",
-                                        min = 0, max = 250)
+        self.stages_bar.add_button("up", lambda: c.up(),
+                                   group="Jog",
+                                   label="up")
+        self.stages_bar.add_button("down", lambda: c.down(),
+                                   group="Jog",
+                                   label="down")
+        self.stages_bar.add_button("left", lambda: c.left(),
+                                   group="Jog",
+                                   label="left")
+                                  
+        self.stages_bar.add_button("right", lambda: c.right(),
+                                   group="Jog",
+                                   label="right")
+
+        # ---------------------------------------------------------------------
+        #   LED CONTROLS
+        # ---------------------------------------------------------------------
+
+        
+        self.led_bar= atb.Bar(name="leds", 
+                              label="LED Controls", 
+                              iconified='true',
+                              help="Controls for adjusting illumination", 
+                              position=(20,20), size=(200,180))
+        
+        self.led_bar.add_var("Channel1/Ch1_mA", 
+                             target=c, attr='IsetCh1',
+                             label = "I Ch1 (mA)",
+                             min = 0, max = 250)
                                         
-        self.manual_control_bar.add_var("LEDs/Ch1_status",
+        self.led_bar.add_var("Channel1/Ch1_status",
                             label = "Ch1 status",
                             vtype = atb.TW_TYPE_BOOL8,
                             getter=lambda: c.leds.status(0),
                             setter=lambda x: c.leds.set_status(0,x))
                                         
-        self.manual_control_bar.add_var("LEDs/Ch2_mA", 
+        self.led_bar.add_var("Channel2/Ch2_mA", 
                                         target=c, attr='IsetCh2',
                                         label = "I Ch2 (mA)",
                                         min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch2_status",
+        self.led_bar.add_var("Channel2/Ch2_status",
                             vtype = atb.TW_TYPE_BOOL8,
                             getter=lambda: c.leds.status(1),
                             setter=lambda x: c.leds.set_status(1,x))
                             
-        self.manual_control_bar.add_var("LEDs/Ch3_mA", 
+        self.led_bar.add_var("Channel3/Ch3_mA", 
                                         target=c, attr='IsetCh3',
                                         label = "I Ch3 (mA)",
                                         min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch3_status",
+        self.led_bar.add_var("Channel3/Ch3_status",
                                     label = "Ch3 status",
                                     vtype = atb.TW_TYPE_BOOL8,
                                     getter=lambda: c.leds.status(2),
                                     setter=lambda x: c.leds.set_status(2,x))
                                     
-        self.manual_control_bar.add_var("LEDs/Ch4_mA", 
+        self.led_bar.add_var("Channel4/Ch4_mA", 
                                         target=c, attr='IsetCh4',
                                         label = "I Ch4 (mA)",
                                         min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch4_status",
+        self.led_bar.add_var("Channel4/Ch4_status",
                                     label = "Ch4 status",
                                     vtype = atb.TW_TYPE_BOOL8,
                                     getter=lambda: c.leds.status(3),
@@ -124,7 +175,7 @@ class EyeTrackerGUI:
                label="Radial Symmetry", 
                help="Parameters for initial (symmetry-based) image processing",
                iconified='true', 
-               position=(10,210), size=(250,180))
+               position=(30,30), size=(250,180))
         
         self.radial_ff_bar.add_var("target_kpixels", 
                         label = "Target kPixels",
@@ -168,8 +219,9 @@ class EyeTrackerGUI:
         
         self.sb_ff_bar = atb.Bar(name="StarburstFF",
               label="Starburst",
+              iconified='true',
               help="Parameters for the refinement phase ('starburst') image processing",
-              position=(10, 250), size=(200,250))
+              position=(40,40), size=(200,250))
         
         sb_ff = c.starburst_ff
          
@@ -184,7 +236,13 @@ class EyeTrackerGUI:
                         vtype = atb.TW_TYPE_UINT32,
                         min = 1, max = 100, step = 1,
                         target=sb_ff, attr='pupil_min_radius')
-                                
+        
+        self.sb_ff_bar.add_var("Pupil/pupil_threshold", 
+                        label = "edge detect threshold",
+                        vtype = atb.TW_TYPE_FLOAT,
+                        min = 0.1, max = 5.0, step = 0.1,
+                        target=sb_ff, attr='pupil_threshold')                        
+        
         self.sb_ff_bar.add_var("CR/n_cr_rays", 
                         label = "n rays",
                         vtype = atb.TW_TYPE_UINT32,
@@ -196,6 +254,29 @@ class EyeTrackerGUI:
                         vtype = atb.TW_TYPE_UINT32,
                         min = 1, max = 100, step = 1,
                         target=sb_ff, attr='cr_min_radius')
+        
+        self.sb_ff_bar.add_var("CR/cr_threshold", 
+                        label = "edge detect threshold",
+                        vtype = atb.TW_TYPE_FLOAT,
+                        min = 0.1, max = 5.0, step = 0.1,
+                        target=sb_ff, attr='cr_threshold')
+        
+        
+        fit_algos = {0 : 'circle_least_squares',
+                     1 : 'circle_least_squares_ransac',
+                     2 : 'ellipse_least_squares'}
+        
+        fit_algos_rev = dict([(val,key) for (key, val) in fit_algos.items()])             
+        
+        FittingAlgorithm = atb.enum("FittingAlgorithm", 
+                         {'circle lst sq': 0, 
+                          'circle ransac': 1, 
+                          'ellipse lst sq': 2 } )
+        self.sb_ff_bar.add_var("Fitting/circle_fit", 
+                        label = "circle fit method",
+                        vtype = FittingAlgorithm,
+                        getter = lambda: fit_algos_rev[sb_ff.fitting_algorithm],
+                        setter = lambda x: sb_ff.__dict__.__setitem__('fitting_algorithm', fit_algos[x]))
                         
                         
         self.sb_ff_bar.add_var("Display/show_rays", self.display_starburst)
@@ -205,8 +286,9 @@ class EyeTrackerGUI:
         # ---------------------------------------------------------------------        
         self.cal_bar = atb.Bar(name="Calibration",
               label="Calibration",
+              iconified='true',
               help="Auto-calibration steps",
-              position=(self.window.width-210, 250), size=(200,250))
+              position=(50,50), size=(200,200))
         
         self.cal_bar.add_button("calibrate", lambda: c.calibrate(),
                                 label="Calibrate (full)")
@@ -228,18 +310,76 @@ class EyeTrackerGUI:
                                 lambda: c.calibrate_find_pupil_radius(),
                                 label="Find Pupil Radius")
         
+        self.cal_bar.add_separator("Info")
+        self.cal_bar.add_var("d", 
+                        label = "Distance to CR curv. center",
+                        readonly = True,
+                        vtype = atb.TW_TYPE_FLOAT,
+                        target=c.calibrator, attr='d')
+        self.cal_bar.add_var("Rp", 
+                        label = "Pupil rotation radius (Rp)",
+                        readonly = True,
+                        vtype = atb.TW_TYPE_FLOAT,
+                        target=c.calibrator, attr='Rp')
+        
+        
+        # --------------------------------------------------------------------
+        #   CAMERA
+        # --------------------------------------------------------------------        
+
+        self.cam_bar = atb.Bar(name="Camera",
+              label="Camera",
+              iconified='true',
+              help="Camera acquisition parameters",
+              position=(60,60), size=(200,180))
+        
+        
+        self.cam_bar.add_var("binning", 
+                        label = "binning",
+                        vtype = atb.TW_TYPE_UINT32,
+                        min = 1, max = 16, step = 1,
+                        target=c, attr='binning')
+        
+        self.cam_bar.add_var("gain", 
+                        label = "gain",
+                        vtype = atb.TW_TYPE_UINT32,
+                        min = 1, max = 16, step = 1,
+                        target=c, attr='gain')
+        
+        self.cam_bar.add_var("ROI/roi_width", 
+                        label = "width",
+                        vtype = atb.TW_TYPE_UINT32,
+                        min = 1, max = 800, step = 1,
+                        target=c, attr='roi_width')
+        
+        self.cam_bar.add_var("ROI/roi_height", 
+                        label = "height",
+                        vtype = atb.TW_TYPE_UINT32,
+                        min = 1, max = 800, step = 1,
+                        target=c, attr='roi_height')
+
+        self.cam_bar.add_var("ROI/roi_offset_x", 
+                        label = "offset x",
+                        vtype = atb.TW_TYPE_UINT32,
+                        min = 1, max = 800, step = 1,
+                        target=c, attr='roi_offset_x')
+        
+        self.cam_bar.add_var("ROI/roi_offset_y", 
+                        label = "offset y",
+                        vtype = atb.TW_TYPE_UINT32,
+                        min = 1, max = 800, step = 1,
+                        target=c, attr='roi_offset_y')
         # Event Handlers    
         def on_init():
             self.tracker_view.prepare_opengl()
             
         def on_draw():
-            self.manual_control_bar.update()
             self.window.clear()
             self.tracker_view.draw((self.window.width, self.window.height))
             
         def on_idle(dt):
-            if dt < 0.02:
-                return
+            #if dt < 0.02:
+            #    return
             self.update_tracker_view()
             self.window.draw()
             
