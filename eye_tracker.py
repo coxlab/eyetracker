@@ -11,7 +11,6 @@ from ctypes import *
 import logging
 import sys
 
-import OpenGL.GL as gl, OpenGL.GLUT as glut
 
 import time
 import httplib
@@ -27,7 +26,7 @@ from eyetracker.camera import *
 from eyetracker.led import *
 from eyetracker.motion import *
 from eyetracker.calibrator import *
-from eyetracker.display import *
+from eyetracker.gui import EyeTrackerGUI
 
 from eyetracker.settings import global_settings
 
@@ -53,204 +52,99 @@ if global_settings.get("enable_mw_conduit", True):
         print("Unable to load MW conduit: %s" % e)
 
 
-
-# class FeatureFinderAdaptor:
-#         
-#     def addFeatureFinder(self,ff):
-#         if(not self.__dict__.has_key('ffs')):
-#             self.ffs = []
-#             
-#         self.ffs.append(ff)
-#         self.announceAll()
-#         
-#     def announceAll(self):
-#         for key in self.ffs[0].getKeys():
-#             self.willChangeValueForKey_(key)
-#             self.didChangeValueForKey_(key)
-#             pass
-#     
-#     def valueForKey_(self,key):
-#         
-#         if(not self.__dict__.has_key('ffs') or self.ffs == None):
-#             # not out of the Nib yet
-#             return
-#             
-#         val = self.ffs[0].getValue(key)
-#         if(val == None):
-#             return objc.nil
-#         else:
-#             return val
-#         
-#         
-#     def setValue_forKey_(self, value, key):
-#         if(not self.__dict__.has_key('ffs') or self.ffs == None):
-#             # not out of the Nib yet
-#             return
-#         
-#         for ff in self.ffs:
-#             ff.setValue(key, value)
-#             ff.update_parameters()
-#         self.announceAll()
-#     
-#             
-#         return
-# 
-#     
-#     def reset_(self):
-#         for ff in self.ffs:
-#             ff.reset()
-# 
-#     
-#     def pippo_(self):
-#         for ff in self.ffs:
-#             self.ff.reset()
-# 
-
-
+# A decorator for calibration steps (stop continuous execution, resume on ret.)
 def calibration_step(f):
     def wrapper(self):
         self.execute_calibration_step(f(self))
-
     return wrapper
 
 
+# A catch-all class for controlling the eyetracking hardware
 class EyeTrackerController:
     
     def __init__(self):
         
-        self.x_set = c_float(0.5)
-        self.y_set = c_float(0.5)
-        self.r_set = c_float(0.5)
+        self.x_set = 0.5
+        self.y_set = 0.5
+        self.r_set = 0.5
         
-        self.zoom_step = c_float(20.0)
-        self.focus_step = c_float(20.0)
+        self.zoom_step = 20.0
+        self.focus_step = 20.0
         
-        self.x_current = c_float()
-        self.y_current = c_float()
-        self.r_current = c_float()
-        self.d_current = c_float()
-        self.rp_current = c_float()
-        self.pixels_per_mm_current = c_float()
-        self.zoom_current = c_float()
-        self.focus_current = c_float()
+        self.x_current = 0.0
+        self.y_current = 0.0
+        self.r_current = 0.0
+        self.d_current = 0.0
+        self.rp_current = 0.0
+        self.pixels_per_mm_current = 0.0
+        self.zoom_current = 0.0
+        self.focus_current = 0.0
         
-        self.d_cntr_set = c_float()
-        self.r_cntr_set = c_float()
+        self.d_cntr_set = 0.0
+        self.r_cntr_set = 0.0
         
-        self.r_2align_pup_cr = c_float()
-        self.pupil_cr_diff = c_float()
-
-        self.IsetCh1 = c_float()
-        self.IsetCh2 = c_float()
-        self.IsetCh3 = c_float()
-        self.IsetCh4 = c_float()
+        self.r_2align_pup_cr = None
+        self.pupil_cr_diff = None
+        
+        self.IsetCh1 = 0.0
+        self.IsetCh2 = 0.0
+        self.IsetCh3 = 0.0
+        self.IsetCh4 = 0.0
                 
-        self.pupil_position_x = c_float()
-        self.pupil_position_y = c_float()
-        self.pupil_radius = c_float()
-        self.cr_position_x = c_float()
-        self.cr_position_y = c_float()
-
-        self.pupil_only = c_float()
-    
-        self.gaze_azimuth = c_float()
-        self.gaze_elevation = c_float()
-    
-        self.show_feature_map = c_bool(False)
-    
-        self.display_starburst = c_bool(False)
-    
-        self.frame_rate = c_float()
-    
-        self.sobel_avg = c_float()
-    
-        self.simulated_eye_x = c_float(0.0)
-        self.simulated_eye_y = c_float(0.0)
-        self.simulated_pupil_radius = c_float(0.2)
+        self.pupil_position_x = 0.0
+        self.pupil_position_y = 0.0
+        self.pupil_radius = 0.0
+        self.cr_position_x = 0.0
+        self.cr_position_y = 0.0
         
-        self.binning_factor = c_int(1)
-        self.gain_factor = c_float(1.0)
-
+        self.pupil_only = False
+        
+        self.gaze_azimuth = 0.0
+        self.gaze_elevation = 0.0
+        
+        self.sobel_avg = 0.0
+        
+        self.simulated_eye_x = 0.0
+        self.simulated_eye_y = 0.0
+        self.simulated_pupil_radius = 0.2
+        
+        self.binning_factor = 1
+        self.gain_factor = 1.0
+        
         # Added by DZ to deal with rigs without power zoom and focus
-        self.no_powerzoom = c_bool(False)
+        self.no_powerzoom = False
         
-        self.pupil_only = c_bool(False)
-
-    
+        self.pupil_only = False
+        
+        
         self.feature_finder = None
-    
+        
         self.camera_device = None
         self.calibrator = None
         self.mw_conduit = None
-    
-        # self.tracker_view = objc.IBOutlet()
-        self.tracker_view = TrackerView()
+        
         self.canvas_update_timer = None
-    
-        self.frame_count = 0
-        self.n_frames = 0
-        self.start_time = None
-        self.last_time = 0
-    
-        self.frame_rate_accum = 0    
-    
+        
+        
         self.ui_queue = Queue(2)
-    
+        
         self.camera_locked = 0
         self.continuously_acquiring = 0
         
         self.use_simulated = global_settings.get("use_simulated", False)
         self.use_file_for_cam = global_settings.get("use_file_for_camera", False)
         
-    
-        self.last_update_time = time.time()
-        
-        self.setup_tracker()
-        self.setup_gui()
-        
-    
-    
-    def shutdown(self):
-        
-        if(self.stages is not None):
-            self.stages.disconnect()
-        if(self.zoom_and_focus is not None):
-            self.zoom_and_focus.disconnect()
-        if(self.leds is not None):
-            logging.info("Turning off LEDs")
-            for i in xrange(4):
-                self.leds.turn_off(i)
-            self.leds = None
-            #self.leds.shutdown()
-        
-        self.continuously_acquiring = False
-        self.camera_update_timer.invalidate()
-        
-        time.sleep(1)
-        
-        self.calibrator = None
-        #self.camera = None
-        self.camera_device = None
-        
-        return True
-
-    def simple_alert(self, title, message):
-        logging.info(message) 
-       
-
-    # This is where all of the initialization takes place
-    def setup_tracker(self):
         
         # -------------------------------------------------------------
         # Stages
         # -------------------------------------------------------------
-
+        
         logging.info("Initializing Motion Control Subsystem (Stages)...")
         if self.use_simulated:
             esp300 = SimulatedStageController()
         else:
             esp300 = ESP300StageController("169.254.0.9", 8001)
-
+            
             try:
                 esp300.connect()
             except Exception as e:
@@ -273,8 +167,8 @@ class EyeTrackerController:
                     
                 
         self.stages = EyeTrackerStageController(esp300)
-
-
+        
+        
         logging.info("Initializing Motion Control Subsystem (Focus and Zoom)")
         if self.no_powerzoom:
             esp300_2 = SimulatedStageController()
@@ -286,29 +180,29 @@ class EyeTrackerController:
                 esp300_2.connect()
         
         self.zoom_and_focus = FocusAndZoomController(esp300_2)
-
-    
-        self.x_current.value = self.stages.current_position(self.stages.x_axis)
-        self.y_current.value = self.stages.current_position(self.stages.y_axis)
-        self.r_current.value = self.stages.current_position(self.stages.r_axis)
+        
+        
+        self.x_current = self.stages.current_position(self.stages.x_axis)
+        self.y_current = self.stages.current_position(self.stages.y_axis)
+        self.r_current = self.stages.current_position(self.stages.r_axis)
         
         self.sobel_avg = 0
         
-        self.r_cntr_set.value = 0
-        self.d_cntr_set.value = 0
+        self.r_cntr_set = 0
+        self.d_cntr_set = 0
         
-        self.zoom_step.value = 20.
-        self.focus_step.value = 20.
+        self.zoom_step = 20.
+        self.focus_step = 20.
         
-        self.IsetCh1.value = 0
-        self.IsetCh2.value = 0
-        self.IsetCh3.value = 0
-        self.IsetCh4.value = 0
+        self.IsetCh1 = 0
+        self.IsetCh2 = 0
+        self.IsetCh3 = 0
+        self.IsetCh4 = 0
         
         # Manual aligment of pupil and CR
-        self.r_2align_pup_cr.value = 0
+        self.r_2align_pup_cr = 0
         
-
+        
         # -------------------------------------------------------------
         # LED Controller
         # -------------------------------------------------------------
@@ -320,25 +214,25 @@ class EyeTrackerController:
             self.leds = MightexLEDController("169.254.0.9", 8006)
             self.leds.connect()
         
-
+        
         # -------------------------------------------------------------
         # Camera and Image Processing
         # -------------------------------------------------------------
-
+        
         logging.info("Initializing Image Processing")       
         
         self.features = None
         self.frame_rates = []
         
-       
+        
         # set up real featutre finders (these won't be used if we use a 
         # fake camera instead)
-
+        
         nworkers = 0
         
         self.radial_ff = None
         self.starburst_ff = None
-
+        
         if(nworkers != 0):
             
             self.feature_finder = PipelinedFeatureFinder(nworkers)
@@ -346,7 +240,7 @@ class EyeTrackerController:
             
             
             for worker in workers:
-
+                
                 fr_ff = worker.FastRadialFeatureFinder() # in worker process
                 sb_ff = worker.StarBurstEyeFeatureFinder() # in worker process
                         
@@ -377,8 +271,8 @@ class EyeTrackerController:
                 logging.info("Connecting to Camera...")
                 self.camera_device = ProsilicaCameraDevice(self.feature_finder)
                 
-                self.setBinning_(4)
-                self.setGain_(1)
+                self.set_binning(4)
+                self.set_gain(1)
         except Exception, e:
             print "Unexpected error:", e.message
             self.use_file_for_cam = 1
@@ -448,6 +342,34 @@ class EyeTrackerController:
         else:
             logging.warning("No conduit")
             
+    def shutdown(self):
+        
+        if(self.stages is not None):
+            self.stages.disconnect()
+        if(self.zoom_and_focus is not None):
+            self.zoom_and_focus.disconnect()
+        if(self.leds is not None):
+            logging.info("Turning off LEDs")
+            for i in xrange(4):
+                self.leds.turn_off(i)
+            self.leds = None
+            #self.leds.shutdown()
+        
+        self.continuously_acquiring = False
+        self.camera_update_timer.invalidate()
+        
+        time.sleep(1)
+        
+        self.calibrator = None
+        #self.camera = None
+        self.camera_device = None
+        
+        return True
+
+    def simple_alert(self, title, message):
+        logging.info(message) 
+       
+    
     
     def start_continuous_acquisition(self):
         logging.info("Starting continuous acquisition")
@@ -461,14 +383,14 @@ class EyeTrackerController:
     def stop_continuous_acquisition(self):
         print "Stopping continuous acquisition"
         self.continuously_acquiring = 0
-        time.sleep(0.5)
+        self.acq_thread.join()
 
     
     # a method to actually run the camera
     # it will push images into a Queue object (in a non-blocking fashion)
     # so that the UI can have at them
     def continuously_acquire_images(self):
-    
+        
         logging.info("Started continuously acquiring")
         
         frame_rate = -1.0
@@ -588,230 +510,9 @@ class EyeTrackerController:
         logging.info("Stopped continuous acquiring")
         return
     
-    def update_tracker_view(self):
-        if(self.camera_device == None):
-            return
-        
-        try:
-            features = self.ui_queue.get_nowait()
-            
-        except Empty, e:
-            return
-        
-        if("frame_time" in features):
-            toc = features["frame_time"]
-        else:
-            toc = 1
-                
-        if(self.show_feature_map):
-            transform_im = features['transform']
-            if transform_im is not None:        
-                transform_im -=  min(ravel(transform_im))
-                transform_im = transform_im * 255 /  max(ravel(transform_im))
-                ravelled = ravel(transform_im);
-                self.tracker_view.im_array = transform_im.astype(uint8)
-        else:
-            self.tracker_view.im_array = features['im_array']
-        
-        
-        if 'pupil_position_stage1' in features:
-            self.tracker_view.stage1_pupil_position = features['pupil_position_stage1']
-
-        if 'cr_position_stage1' in features:
-            self.tracker_view.stage1_cr_position = features['cr_position_stage1']
-        
-        if 'cr_radius' in features:
-            self.tracker_view.cr_radius = features['cr_radius']
-
-        if 'pupil_radius' in features:
-            self.tracker_view.pupil_radius = features['pupil_radius']
-
-        if 'pupil_position' in features:
-            self.tracker_view.pupil_position = features['pupil_position']
-        
-        if 'cr_position' in features:
-            self.tracker_view.cr_position = features['cr_position']
-        
-
-        if self.display_starburst:
-            self.tracker_view.starburst = features.get('starburst', None)
-        else:
-            self.tracker_view.starburst = None
-            
-        self.tracker_view.is_calibrating = features.get('is_calibrating', False)
-        
-        self.tracker_view.restrict_top = features.get('restrict_top', None)
-        self.tracker_view.restrict_bottom = features.get('restrict_bottom', None)
-        self.tracker_view.restrict_left = features.get('restrict_left', None)
-        self.tracker_view.restrict_right = features.get('restrict_right', None)
-            
-        # setNeedsDisplay            
-        
-        self.n_frames += 1
-        self.frame_count += 1
-        
-        time_between_updates = 0.4
-        
-        self.frame_rate_accum += (1. / toc)
-        
-        self.frame_rates.append(1. / toc)
-        
-        time_since_last_update =  time.time() - self.last_update_time
-        if(time_since_last_update > time_between_updates):
-            self.last_update_time = time.time()
-            #print "N Frames: ", self.frame_count
-            frame_rate = mean(array(self.frame_rates))
-            self.frame_rates = []
-            self.frame_rate_accum = 0
-            #self.frame_rate = self.n_frames / (time.time() - self.last_time)
-            self.last_time = time.time()
-            self.n_frames = 0
-            #self.radial_symmetry_feature_finder_adaptor.announceAll()
-            #self.starburst_feature_finder_adaptor.announceAll()
-            if("sobel_avg" in features):
-                self.sobel_avg = features["sobel_avg"]
-            
-
-    def setup_gui(self):
-        print "setup gui"
-        atb.init()
-        self.window = glumpy.Window(900,600)
-        self.manual_control_bar = atb.Bar(name="Manual", 
-                                       label="Manual Controls", 
-                                       help="Controls for adjusting hardware", 
-                                       position=(10,10), size=(200,200))
-                                       
-        self.manual_control_bar.add_var("PositionSet/x", self.x_set)
-        self.manual_control_bar.add_var("PositionSet/y", self.y_set)
-        self.manual_control_bar.add_var("PositionSet/r", self.r_set)
-        
-        self.manual_control_bar.add_var("LEDs/Ch1_mA", self.IsetCh1,
-                                        label = "I Ch1 (mA)",
-                                        min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch1_status",
-                                    label = "Ch1 status",
-                                    vtype = atb.TW_TYPE_BOOL8,
-                                    getter=lambda: self.leds.status(0),
-                                    setter=lambda x: self.leds.set_status(0,x))
-                                        
-        self.manual_control_bar.add_var("LEDs/Ch2_mA", self.IsetCh2,
-                                        label = "I Ch2 (mA)",
-                                        min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch2_status",
-                            vtype = atb.TW_TYPE_BOOL8,
-                            getter=lambda: self.leds.status(1),
-                            setter=lambda x: self.leds.set_status(1,x))
-                            
-        self.manual_control_bar.add_var("LEDs/Ch3_mA", self.IsetCh3,
-                                        label = "I Ch3 (mA)",
-                                        min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch3_status",
-                                    label = "Ch3 status",
-                                    vtype = atb.TW_TYPE_BOOL8,
-                                    getter=lambda: self.leds.status(2),
-                                    setter=lambda x: self.leds.set_status(2,x))
-                                    
-        self.manual_control_bar.add_var("LEDs/Ch4_mA", self.IsetCh4,
-                                        label = "I Ch4 (mA)",
-                                        min = 0, max = 250)
-        self.manual_control_bar.add_var("LEDs/Ch4_status",
-                                    label = "Ch4 status",
-                                    vtype = atb.TW_TYPE_BOOL8,
-                                    getter=lambda: self.leds.status(3),
-                                    setter=lambda x: self.leds.set_status(3,x))
-        
-        
-        self.radial_ff_bar = atb.Bar(name="RadialFF",
-               label="Radial Symmetry", 
-               help="Parameters for initial (symmetry-based) image processing",
-               iconified='true', 
-               position=(10,210), size=(200,340))
-        
-        self.sb_ff_bar = atb.Bar(name="StarburstFF",
-              label="Starburst",
-              help="Parameters for the refinement phase ('starburst') image processing",
-              position=(10, 250), size=(200,340))
-              
-             
-                                       
-        def ff_getter(ff, key):
-            def wrapper():
-                val = ff.__dict__[key]
-                return val
-            return wrapper
-        def ff_setter(ff, key):
-            def wrapper(val):
-                ff.__dict__.__setitem__(key, val)
-                ff.update_parameters()
-            return wrapper
-         
-        self.sb_ff_bar.add_var("Pupil/n_pupil_rays", 
-                        label = "n rays",
-                        vtype = atb.TW_TYPE_UINT32,
-                        min = 1, max = 100, step = 1,
-                        getter=ff_getter(self.starburst_ff, 'pupil_n_rays'),
-                        setter=ff_setter(self.starburst_ff, 'pupil_n_rays'))
-        
-        self.sb_ff_bar.add_var("Pupil/pupil_min_radius", 
-                        label = "min radius",
-                        vtype = atb.TW_TYPE_UINT32,
-                        min = 1, max = 100, step = 1,
-                        getter=ff_getter(self.starburst_ff, 'pupil_min_radius'),
-                        setter=ff_setter(self.starburst_ff, 'pupil_min_radius'))
-                                
-        self.sb_ff_bar.add_var("CR/n_cr_rays", 
-                        label = "n rays",
-                        vtype = atb.TW_TYPE_UINT32,
-                        min = 1, max = 100, step = 1,
-                        getter=ff_getter(self.starburst_ff, 'cr_n_rays'),
-                        setter=ff_setter(self.starburst_ff, 'cr_n_rays'))
-
-        self.sb_ff_bar.add_var("CR/cr_min_radius", 
-                        label = "min radius",
-                        vtype = atb.TW_TYPE_UINT32,
-                        min = 1, max = 100, step = 1,
-                        getter=ff_getter(self.starburst_ff, 'cr_min_radius'),
-                        setter=ff_setter(self.starburst_ff, 'cr_min_radius'))
-                        
-                        
-        self.sb_ff_bar.add_var("Display/show_rays",self.display_starburst)
-        #self.manual_control_bar.add_separator("")
-        # self.manual_control_bar.add_button("Quit", quit, key="ESCAPE", 
-        #                                            help="Quit application")
-
-        # Event Handlers    
-        def on_init():
-            self.tracker_view.prepare_opengl()
-            
-        def on_draw():
-            self.manual_control_bar.update()
-            self.window.clear()
-            self.tracker_view.draw((self.window.width, self.window.height))
-            
-        def on_idle(dt):
-            if dt < 0.02:
-                return
-            self.update_tracker_view()
-            self.window.draw()
-            
-        def on_key_press(symbol, modifiers):
-            if symbol == glumpy.key.ESCAPE:
-                self.continuously_acquiring= False
-                self.acq_thread.join()
-                sys.exit()
-
-        self.window.push_handlers(atb.glumpy.Handlers(self.window))                
-        self.window.push_handlers(on_init, on_draw, on_key_press, on_idle)
-        self.window.draw()
-        
-    def gui_mainloop(self):
-        print "mainloop"
-        self.window.mainloop()
-
+    
     
     def set_binning(self, value):
-        self.willChangeValueForKey_("binning")
-        #self.binning_factor = value
         self.camera_device.camera.setAttribute("BinningX", int(value))
         self.camera_device.camera.setAttribute("BinningY", int(value))
         
@@ -824,7 +525,6 @@ class EyeTrackerController:
             return objc.nil
 
     def set_gain(self, value):
-        self.willChangeValueForKey_("gain")
         self.gain_factor = value
         self.camera_device.camera.setAttribute("GainValue", int(value))
     
@@ -915,11 +615,11 @@ class EyeTrackerController:
                 time.sleep(0.25)
     
     @calibration_step
-    def autofocus_(self):
+    def autofocus(self):
         self.calibrator.autofocus()
     
     @calibration_step
-    def calibrate_(self):
+    def calibrate(self):
         self.calibrator.calibrate()
     
     @calibration_step
@@ -927,7 +627,7 @@ class EyeTrackerController:
         self.calibrator.find_center_camera_frame()
     
     @calibration_step
-    def calibrate_center_horiztonal(self):
+    def calibrate_center_horizontal(self):
         self.calibrator.center_horizontal()
     
     @calibration_step
@@ -935,7 +635,7 @@ class EyeTrackerController:
         self.calibrator.calibrate_zoom()
     
     @calibration_step
-    def calibrateCenterVertical_(self):
+    def calibrate_center_vertical(self):
         self.calibrator.center_vertical()
         
     @calibration_step
@@ -1116,7 +816,6 @@ class EyeTrackerController:
         self.calibrator.Rp = self.rp_current * self.pixels_per_mm_current
         
     
-    
     def read_pos(self):
         self.x_current = self.stages.current_position(self.stages.x_axis)
         self.y_current = self.stages.current_position(self.stages.y_axis)
@@ -1229,9 +928,10 @@ class EyeTrackerController:
 if __name__ == "__main__":
     
     et = EyeTrackerController()
+    gui = EyeTrackerGUI(et)
     
     print "ready"
-    et.gui_mainloop()
+    gui.mainloop()
     
     # gui_thread = threading.Thread(target = et.gui_mainloop)
     #     gui_thread.start()
