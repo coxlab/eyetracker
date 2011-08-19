@@ -6,7 +6,7 @@
 #  Copyright (c) 2008 __MyCompanyName__. All rights reserved.
 #
 
-import eyetracker.util.Povray as pov
+import coxlab_eyetracker.util.Povray as pov
 from numpy import *
 import os
 import PIL.Image

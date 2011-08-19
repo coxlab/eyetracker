@@ -7,7 +7,7 @@
     #include "PvApi.h"
 //    #include "PvRegIo.h"
     #include "Prosilica.h"
-	#include "arrayobject.h"
+	#include "numpy/arrayobject.h"
 %}
 
 %include "typemaps.i"

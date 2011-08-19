@@ -3082,7 +3082,7 @@ namespace swig {
     #include "PvApi.h"
 //    #include "PvRegIo.h"
     #include "Prosilica.h"
-	#include "arrayobject.h"
+	#include "numpy/arrayobject.h"
 
 
 #define SWIG_FILE_WITH_INIT
