@@ -14,7 +14,7 @@ Please see [http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf](http:/
 
 The software has so far only been tested and used on Mac OS X, though it should work, in principle, on any platform.  Please contact us if you have success in running it on other platforms.
 
-The GUI portion of the project depends on [glumpy](http://glumpy.sourceforge.net), which in turn depends on the [AntTweakBar](http://antisphere.com) library.  A fork of AntTweakBar suitable for use with this project can be found [here](http://www.github.com/davidcox/AntTweakBar), along with instructions on how to build and install it.
+The GUI portion of the project depends on [glumpy](http://code.google.com/p/glumpy/), which in turn depends on the [AntTweakBar](http://antisphere.com/Wiki/tools:anttweakbar) library.  A fork of AntTweakBar suitable for use with this project can be found [here](http://www.github.com/davidcox/AntTweakBar), along with instructions on how to build and install it.
 
 Once this library is installed, assuming you have a complete, working Python on your system, installing the program should be as easy as downloading the code and running
     
