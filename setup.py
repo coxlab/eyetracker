@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" distribute- and pip-enabled setup.py for GenSON """
+""" distribute- and pip-enabled setup.py for coxlab_eyetracker """
 
 from distribute_setup import use_setuptools
 use_setuptools()
