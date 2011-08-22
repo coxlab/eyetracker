@@ -6,6 +6,7 @@
 #  Copyright (c) 2008 Harvard University. All rights reserved.
 #
 
+import glumpy
 from OpenGL.GL import *
 from numpy import *
 
@@ -67,6 +68,7 @@ class TrackerView:
         glLoadIdentity()
         glOrtho(-1.0, 1.0, -1.0, 1.0, 0.0,1.0)
     
+        glColor4f(1.0,1.0,1.0,1.0)
         glClear(GL_COLOR_BUFFER_BIT)
 		
         if(self.im_array == None):
@@ -74,9 +76,7 @@ class TrackerView:
             #glFlush()
             return
             
-        self.render_image()
-        # print "imdims: %f x %f" % self.im_array.shape
-        # print "min: %f, max: %f" % (self.im_array.min(), self.im_array.max())
+        self.render_image(frame)
         
         if(self.stage1_pupil_position != None):
             self.render_stage1_pupil_location()
@@ -102,8 +102,15 @@ class TrackerView:
         
         #glFlush()
 
-    def render_image(self):
+    def render_image(self, frame):
         
+        I = glumpy.Image(self.im_array, interpolation='bilinear',
+                         cmap=glumpy.colormap.Grey)
+        I.blit(-1,-1,2,2)
+        
+        return
+        
+        # old way...
         self.texture = glGenTextures(1)
     
         glColor4f(1.,1.,1.,1.)
