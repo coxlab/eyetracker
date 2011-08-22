@@ -14,7 +14,9 @@ Please see [http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf](http:/
 
 The software has so far only been tested and used on Mac OS X, though it should work, in principle, on any platform.  Please contact us if you have success in running it on other platforms.
 
-Assuming you have a complete, working Python install, installing the program should be as easy as downloading the code and running
+The GUI portion of the project depends on [glumpy](http://code.google.com/p/glumpy/), which in turn depends on the [AntTweakBar](http://antisphere.com/Wiki/tools:anttweakbar) library.  A fork of AntTweakBar suitable for use with this project can be found [here](http://www.github.com/davidcox/AntTweakBar), along with instructions on how to build and install it.
+
+Once this library is installed, assuming you have a complete, working Python on your system, installing the program should be as easy as downloading the code and running
     
     python setup.py install
     
@@ -26,6 +28,5 @@ The tracker can then be run from a shell with the command
 
     coxlab_eyetracker
 
-Depending on the state of your Python install, you might run into a few problems.  First, you'll need the `distribute` module.  You can install this by running the `distribute_install.py` script included in this distribution.
+Depending on the state of your Python install, you might run into a few problems.  If you don't already have it, you'll need the `distribute` module.  You can install this by running the `distribute_install.py` script included in this distribution.  You'll also need scipy and numpy and a host of other "standard" Python modules.  Since these can sometimes be tricky to install for new users, we highly recommend downloading the Enthought Python Distribution, which is a complete, batteries-included, free-for-academics Python distribution.  We've run the tracker against the latest 64-bit EPD and found everything works well.  
 
-You'll also need scipy and numpy and a host of other Python modules.  Since these can be tricky to install for new users, we recommend downloading the Enthought Python Distribution, which is a complete, batteries-included, free-for-academics Python distribution.  
