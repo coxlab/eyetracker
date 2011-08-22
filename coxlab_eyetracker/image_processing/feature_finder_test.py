@@ -3,7 +3,7 @@
 import PIL.Image
 from numpy import *
 from scipy import *
-from matplotlib import *
+#from matplotlib import *
 from stopwatch import *
 
 from EdgeDetection import *

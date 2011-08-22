@@ -10,7 +10,7 @@ import httplib
 
 from numpy import *
 from scipy import *
-from matplotlib.pylab import *
+#from matplotlib.pylab import *
 
 from coxlab_eyetracker.util import *
 

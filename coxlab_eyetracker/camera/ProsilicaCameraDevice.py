@@ -16,7 +16,7 @@
 
 import prosilica as p
 from numpy import *
-import matplotlib.pylab as pylab
+#import matplotlib.pylab as pylab
 
 import os
 import time
