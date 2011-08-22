@@ -22,7 +22,7 @@ Once this library is installed, assuming you have a complete, working Python on 
     
 Alternatively, you could skip downloading the code and try (assuming you have pip installed, which you should; might also need to use `sudo`):
 
-    pip install -e git+https://github.com/coxlab/eyetracker@glumpy#egg=coxlab_eyetracker
+    pip install -e git+https://github.com/coxlab/eyetracker#egg=coxlab_eyetracker
 
 The tracker can then be run from a shell with the command
 
