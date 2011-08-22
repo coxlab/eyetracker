@@ -1,4 +1,4 @@
 stopwatch>=0.3.1
 numpy>=1.6.0
 scipy>=0.9.0
--e git+https://code.google.com/p/glumpy@23a5bf86909a#egg=glumpy
+-e git+https://code.google.com/p/glumpy@23a5bf86909a#egg=glumpy>=0.1.3
