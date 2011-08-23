@@ -1,8 +1,9 @@
 # makefile for eyetracker prosilica camera module
 
 # EDIT HERE if you want to build against a different python distribution
-PYTHON = python
+#PYTHON = python
 #PYTHON = /Library/Frameworks/EPD64.framework/Versions/Current/bin/python
+#PYTHON = ~/.pythonbrew/pythons/Python-2.7.2/bin/python
 
 # Target CPU
 CPU	 = x64

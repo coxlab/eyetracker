@@ -35,7 +35,7 @@ def parse_dependency_links(file_name):
     return dependency_links
 
 
-prosilica_module_dir = 'coxlab_eyetracker/camera/prosilica'
+prosilica_module_dir = './coxlab_eyetracker/camera/prosilica'
 prosilica_sdk_dir = os.path.join(prosilica_module_dir, 'ProsilicaGigESDK_mac')
 prosilica_sdk_lib = os.path.join(prosilica_sdk_dir, 'lib-pc/x64/4.2/')
 prosilica_sdk_inc = os.path.join(prosilica_sdk_dir, 'inc-pc/')
@@ -51,14 +51,13 @@ if sys.platform == 'darwin':
 else:
     extra_link_args = []
 
-prosilica_module = Extension('_prosilica_cpp',
+prosilica_module = Extension('coxlab_eyetracker.camera.prosilica._prosilica_cpp',
                             define_macros = [('_x64', '1'),
                                               ('_OSX', '1')],
                             include_dirs = ['/usr/local/include',
                                             prosilica_sdk_inc] + \
                                             numpy_inc_dirs,
-                            libraries = prosilica_static_libs + \
-                                        ['m', 'c'],
+                            libraries = ['m', 'c', 'PvAPI', 'Imagelib'],
                             extra_link_args = extra_link_args,
                             library_dirs = ['/usr/local/lib',
                                             prosilica_sdk_lib],
