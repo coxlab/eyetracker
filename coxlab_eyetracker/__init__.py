@@ -262,16 +262,17 @@ class EyeTrackerController (object):
              
             self.feature_finder = comp_ff
         
-        try:
+        if True:
+        #try:
             if(not self.use_file_for_cam and not self.use_simulated):
                 logging.info("Connecting to Camera...")
                 self.camera_device = ProsilicaCameraDevice(self.feature_finder)
                 
                 self.binning = 4
                 self.gain = 1
-        except Exception, e:
-            print "Unexpected error:", e.message
-            self.use_file_for_cam = 1
+        # except Exception, e:
+        #             print "Unexpected error:", e.message
+        #             self.use_file_for_cam = 1
         
         if self.use_file_for_cam:
             self.camera_device = FakeCameraDevice(self.feature_finder, 
@@ -525,7 +526,7 @@ class EyeTrackerController (object):
         else:
             return 0
     
-    def set_camera_attribute(self, a, val):
+    def set_camera_attribute(self, a, value):
         if getattr(self.camera_device, 'camera', None) is None:
             return
         
