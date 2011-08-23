@@ -30,8 +30,9 @@ The tracker can then be run from a shell with the command
 
 Depending on the state of your Python install, you might run into a few problems.  If you don't already have it, you might need the `distribute` module.  You can install this by running the `distribute_install.py` script included in this distribution.  You'll also need scipy and numpy and a host of other "standard" Python modules.  Since these can sometimes be tricky to install for new users, we highly recommend downloading the Enthought Python Distribution, which is a complete, batteries-included, free-for-academics Python distribution.  We've run the tracker against the latest 64-bit EPD and found everything works well.
 
-Pip can also be finicky for reasons I do not understand, so if the glumpy dependency install fails, you can try that directly:
+Pip can also be finicky for reasons I do not understand, so if the glumpy dependency install fails, you can try this:
 
+    pip install -e "git+https://github.com/davidcox/freetype-py#egg=freetype"
     pip install -e "git+https://code.google.com/p/glumpy#egg=glumpy>=0.1.2"
 
 Why this is necessary sometimes is not clear to me.  If you know, please let me know.
