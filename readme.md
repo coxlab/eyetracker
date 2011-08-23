@@ -16,13 +16,15 @@ The software has so far only been tested and used on Mac OS X, though it should 
 
 The GUI portion of the project depends on [glumpy](http://code.google.com/p/glumpy/), which in turn depends on the [AntTweakBar](http://antisphere.com/Wiki/tools:anttweakbar) library.  A fork of AntTweakBar suitable for use with this project can be found [here](http://www.github.com/davidcox/AntTweakBar), along with instructions on how to build and install it.
 
-Once this library is installed, assuming you have a complete, working Python on your system, installing the program should be as easy as downloading the code and running
+Once this library is installed, assuming you have a complete, working Python on your system, installing the program should be as easy as downloading the code and running:
     
-    python setup.py install
+    python setup.py develop
     
-Alternatively, you could skip downloading the code and try (assuming you have pip installed, which you should; might also need to use `sudo`):
+This will install code, linking to wherever you've checked out the code, enabling you to pull new updates or make your own changes without having to reinstall.  If you want to install the code "normally", 
 
-    pip install -e "git+https://github.com/coxlab/eyetracker#egg=coxlab_eyetracker"
+    python setup.py install
+
+Will do the trick.
 
 The tracker can then be run from a shell with the command
 
@@ -30,10 +32,12 @@ The tracker can then be run from a shell with the command
 
 Depending on the state of your Python install, you might run into a few problems.  If you don't already have it, you might need the `distribute` module.  You can install this by running the `distribute_install.py` script included in this distribution.  You'll also need scipy and numpy and a host of other "standard" Python modules.  Since these can sometimes be tricky to install for new users, we highly recommend downloading the Enthought Python Distribution, which is a complete, batteries-included, free-for-academics Python distribution.  We've run the tracker against the latest 64-bit EPD and found everything works well.
 
-Pip can also be finicky for reasons I do not understand, so if the glumpy dependency install fails, you can try this:
+If you run into dependency related problems, you might need to manually install these:
 
-    pip install -e "git+https://github.com/davidcox/freetype-py#egg=freetype"
-    pip install -e "git+https://code.google.com/p/glumpy#egg=glumpy>=0.1.2"
+    pip install "git+https://github.com/davidcox/freetype-py#egg=freetype"
+    pip install "git+https://code.google.com/p/glumpy#egg=glumpy"
 
-Why this is necessary sometimes is not clear to me.  If you know, please let me know.
+We're working on making the installation of these dependencies automatic, but this can be tricky since some of these dependencies are new and somewhat in flux.
+
+Let us know if you run into any trouble.
 
