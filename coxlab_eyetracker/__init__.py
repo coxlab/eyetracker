@@ -602,6 +602,23 @@ class EyeTrackerController (object):
         self.read_position()
 
 
+    
+    @property
+    def calibration_file(self):
+        if not getattr(self, '_calibration_file', None):
+            self._calibration_file = None
+        return self._calibration_file
+        
+    @calibration_file.setter
+    def calibration_file(self, new_file):
+        self._calibration_file = new_file
+        self.calibrator.load_parameters(new_file)
+
+    def save_calibration(self, filename):
+        self.calibrator.save_parameters(filename)
+
+    
+
     @calibration_step
     def report_gaze(self, az=None, el=None):
         # TODO: fix for consistency

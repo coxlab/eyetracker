@@ -13,6 +13,7 @@ import scipy.optimize
 from scipy import stats
 import time
 from Queue import Queue, Full
+import cPickle as pkl
 
 class StahlLikeCalibrator:
 
@@ -73,14 +74,37 @@ class StahlLikeCalibrator:
         self.quiet = 1    
         
         self.CompLensDistor = CompensateLensDistorsion()
-        
     
-    def _get_is_calibrated(self):
+
+        
+    @property
+    def calibrated(self):
         return (self.d != None and self.Rp != None and self.y_equator != None and self.y_topCR_ref != None)
         
-    # define a property instance attribute (outside any method)
-    calibrated = property(_get_is_calibrated)
     
+    def save_parameters(self, filename):
+        
+        d = {'d':           self.d,
+             'Rp':          self.Rp,
+             'y_equator':   self.y_equator,
+             'y_topCR_ref': self.y_topCR_ref }
+
+        with open(filename, 'w') as f:
+            pkl.dump(d, f)
+
+    def load_parameters(self, filename):
+        print("Loading: %s" % filename)
+        d = None
+        with open(filename, 'r') as f:
+            d = pkl.load(f)
+        
+        if d is not None:
+            self.d = d['d']
+            self.Rp = d['Rp']
+            self.y_equator = d['y_equator']
+            self.y_topCR_ref = d['y_topCR_ref']
+        else:
+            logging.error('Could not load calibration settings: %s' % filename)
     
     def report_set_gaze_values(self):
         

@@ -4,6 +4,12 @@ import glumpy.atb as atb
 from ctypes import *
 import OpenGL.GL as gl, OpenGL.GLUT as glut
 from Queue import Queue, Empty
+import os
+import sys
+import re
+from coxlab_eyetracker.settings import global_settings
+from collections import OrderedDict
+
 
 # Utility functions for use with atb
 def binding_getter(o, key):
@@ -56,6 +62,8 @@ class EyeTrackerGUI:
         self.start_time = None
         self.last_time = 0
         self.last_update_time = time.time()
+        
+        self.calibration_file = ''
         
         atb.init()
         self.window = glumpy.Window(900,600)
@@ -288,7 +296,7 @@ class EyeTrackerGUI:
               label="Calibration",
               iconified='true',
               help="Auto-calibration steps",
-              position=(50,50), size=(200,200))
+              position=(50,50), size=(250,300))
         
         self.cal_bar.add_button("calibrate", lambda: c.calibrate(),
                                 label="Calibrate (full)")
@@ -313,14 +321,43 @@ class EyeTrackerGUI:
         self.cal_bar.add_separator("Info")
         self.cal_bar.add_var("d", 
                         label = "Distance to CR curv. center",
-                        readonly = True,
+                        #readonly = True,
                         vtype = atb.TW_TYPE_FLOAT,
                         target=c.calibrator, attr='d')
         self.cal_bar.add_var("Rp", 
                         label = "Pupil rotation radius (Rp)",
-                        readonly = True,
+                        #readonly = True,
                         vtype = atb.TW_TYPE_FLOAT,
                         target=c.calibrator, attr='Rp')
+        
+        # Calibration Files
+        try:
+            self.refresh_calibration_file_list()
+
+            self.cal_bar.add_separator("Calibration Files")
+        
+            self.cal_bar.add_var("current_calibration_file",
+                                  vtype=self.cal_enum,
+                                  label="Calibration File",
+                                  getter = lambda: self.get_calibration_file_atb(),
+                                  setter = lambda x: self.set_calibration_file_atb(x) )
+                                  #setter = lambda x: sb_ff.__dict__.__setitem__('fitting_algorithm', fit_algos[x]))
+                                  #getter=lambda: self.get_calibration_file_atb,
+                                  #setter=lambda x: self.set_calibration_file_atb(x))
+        
+            self.cal_bar.add_separator("Calibration Save")
+            self.cal_file_save_name = ctypes.c_char_p('')
+        
+            self.cal_bar.add_var('calibration_file_save_name',
+                                          vtype=atb.TW_TYPE_CDSTRING,
+                                          target=self, attr='cal_file_save_name')
+            self.cal_bar.add_button("save_calibration",
+                                             lambda: self.save_calibration_file_atb( \
+                                                            self.cal_file_save_name))
+        except:
+            logging.warning("""Unable to use calibration-file saving 
+                               infrastructure.  A patched version of glumpy
+                               is required to enable this feature.""")
         
         
         # --------------------------------------------------------------------
@@ -395,6 +432,57 @@ class EyeTrackerGUI:
         
     def mainloop(self):
         self.window.mainloop()
+    
+    
+    def get_calibration_file_atb(self):
+        #return 0
+        #return ctypes.c_int(0)
+        return self.cal_enum_dict.get(self.calibration_file, 0)
+        #return self.cal_enum_dict.get(self.controller.calibration_file,0)
+        
+    def set_calibration_file_atb(self, x):
+        self.calibration_file = self.cal_lookup_dict[x]
+        base_path = os.path.expanduser(global_settings['calibration_path'])
+        cal_path = os.path.join(base_path, "%s.pkl" % self.calibration_file)
+        self.controller.calibrator.load_parameters(cal_path)
+        
+        #self.controller.calibration_file = self.cal_lookup_dict[x]
+    
+    
+    def refresh_calibration_file_list(self):
+        
+        # read in saved calibration files
+        cal_path = os.path.expanduser(global_settings['calibration_path'])        
+        if not os.path.exists(cal_path):
+            os.makedirs(cal_path)
+
+        cal_files = os.listdir(cal_path)
+        cal_files = filter(lambda x: re.match(r'.*\.pkl',x), cal_files)
+
+        cal_names = [x.split(".")[0] for x in cal_files]
+        cal_names.insert(0, 'None')
+                        
+        # add back in the rest of the path
+        cal_files = [os.path.join(cal_path, x) for x in cal_files]
+        cal_files.insert(0, '<none>')
+
+        
+        cal_ids = range(0, len(cal_names))
+        self.cal_enum_dict = OrderedDict( zip(cal_names, cal_ids) )
+        self.cal_lookup_dict = OrderedDict( zip(cal_ids, cal_names))
+        
+        print self.cal_enum_dict
+        print self.cal_lookup_dict
+        
+        self.cal_enum = atb.enum('CalibrationFile', self.cal_enum_dict)    
+    
+    def save_calibration_file_atb(self, cal_name):
+        base_path = os.path.expanduser(global_settings['calibration_path'])
+        cal_path = os.path.join(base_path, "%s.pkl" % cal_name)
+        self.controller.calibrator.save_parameters(cal_path)
+        #self.controller.save_calibration(cal_path)
+        self.refresh_calibration_file_list()
+    
         
     def update_tracker_view(self):
         if(self.controller.camera_device == None):
