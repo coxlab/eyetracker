@@ -75,6 +75,6 @@ setup(
 
     ext_modules = [prosilica_module],
     
-    install_requires=parse_requirements('requirements.txt'),
-    dependency_links=parse_dependency_links('requirements.txt')
+    #install_requires=parse_requirements('requirements.txt'),
+    #dependency_links=parse_dependency_links('requirements.txt')
 )

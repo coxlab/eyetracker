@@ -18,9 +18,14 @@ The GUI portion of the project depends on [glumpy](http://code.google.com/p/glum
 
 Once this library is installed, assuming you have a complete, working Python on your system, installing the program should be as easy as downloading the code and running:
     
-    python setup.py develop
+    pip install -U -r requirements.txt
+    pip install --no-deps -e .
     
 This will install code, linking to wherever you've checked out the code, enabling you to pull new updates or make your own changes without having to reinstall.  If you want to install the code "normally", 
+
+    pip install .
+
+or even
 
     python setup.py install
 
@@ -31,13 +36,6 @@ The tracker can then be run from a shell with the command
     coxlab_eyetracker
 
 Depending on the state of your Python install, you might run into a few problems.  If you don't already have it, you might need the `distribute` module.  You can install this by running the `distribute_install.py` script included in this distribution.  You'll also need scipy and numpy and a host of other "standard" Python modules.  Since these can sometimes be tricky to install for new users, we highly recommend downloading the Enthought Python Distribution, which is a complete, batteries-included, free-for-academics Python distribution.  We've run the tracker against the latest 64-bit EPD and found everything works well.
-
-If you run into dependency related problems, you might need to manually install these:
-
-    pip install "git+https://github.com/davidcox/freetype-py#egg=freetype"
-    pip install "git+https://code.google.com/p/glumpy#egg=glumpy"
-
-We're working on making the installation of these dependencies automatic, but this can be tricky since some of these dependencies are new and somewhat in flux.
 
 Let us know if you run into any trouble.
 
