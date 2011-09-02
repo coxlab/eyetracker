@@ -18,7 +18,7 @@ The GUI portion of the project depends on [glumpy](http://code.google.com/p/glum
 
 Once this library is installed, assuming you have a complete, working Python on your system, installing the program should be as easy as downloading the code and running:
     
-    pip install -U -r requirements.txt
+    pip install -r requirements.txt
     pip install --no-deps -e .
     
 This will install code, linking to wherever you've checked out the code, enabling you to pull new updates or make your own changes without having to reinstall.  If you want to install the code "normally", 
