@@ -211,6 +211,11 @@ class EyeTrackerGUI:
                         min = 1.0, max = 50.0, step = 1.0,
                         target=radial_ff, attr='alpha')
         
+        self.radial_ff_bar.add_var("show_transform",
+                        label = "Show Transform",
+                        vtype = atb.TW_TYPE_BOOL8,
+                        target=self, attr='show_feature_map')
+        
         self.radial_ff_bar.add_var("Albino/albino_mode_enable", 
                         label = "Mode Enabled",
                         vtype = atb.TW_TYPE_BOOL8,
@@ -221,6 +226,30 @@ class EyeTrackerGUI:
                         min = 0.1, max = 50., step = 1.0,
                         target=radial_ff, attr='albino_threshold')
         
+        self.radial_ff_bar.add_var("RestrictRegion/top",
+                                   label='top',
+                                   vtype=atb.TW_TYPE_UINT32,
+                                   min = 0, max=300, step=1,
+                                   target=radial_ff, attr='restrict_top')
+        self.radial_ff_bar.add_var("RestrictRegion/left",
+                                   label='left',
+                                   vtype=atb.TW_TYPE_UINT32,
+                                   min = 0, max=300, step=1,
+                                   target=radial_ff, attr='restrict_left')
+
+        self.radial_ff_bar.add_var("RestrictRegion/right",
+                                   label='right',
+                                   vtype=atb.TW_TYPE_UINT32,
+                                   min = 0, max=300, step=1,
+                                   target=radial_ff, attr='restrict_right')
+
+        self.radial_ff_bar.add_var("RestrictRegion/bottom",
+                                   label='bottom',
+                                   vtype=atb.TW_TYPE_UINT32,
+                                   min = 0, max=300, step=1,
+                                   target=radial_ff, attr='restrict_bottom')
+
+
         # ---------------------------------------------------------------------
         #   STARBURST FEATURE FINDER
         # ---------------------------------------------------------------------        
