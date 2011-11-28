@@ -7,6 +7,8 @@ Davide F. Zoccolan, Brett J. Graham, David D. Cox (2010) **A self-calibrating, c
 
 Please see [http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf](http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf) for details.
 
+The development of this system was supported by the National Science Foundation (IOS0947777).
+
 
 ## Installation instructions
 
