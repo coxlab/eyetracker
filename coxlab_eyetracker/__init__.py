@@ -443,11 +443,13 @@ class EyeTrackerController (object):
                     # get pupil radius in mm
                     if("pupil_radius" in features and 
                        features["pupil_radius"] != None and 
-                       self.calibrator is not None and 
-                       self.calibrator.pixels_per_mm is not None):
-                       
-                        pupil_radius = features["pupil_radius"] / self.calibrator.pixels_per_mm
-                    
+                       self.calibrator is not None):
+                        
+                        if self.calibrator.pixels_per_mm is not None:
+                            pupil_radius = features["pupil_radius"] / self.calibrator.pixels_per_mm
+                        else:
+                            pupil_radius = -1 * features["pupil_radius"]
+                        
                     
                     if self.calibrator is not None:
                     
