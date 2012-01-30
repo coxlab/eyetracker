@@ -597,7 +597,7 @@ class EyeTrackerController (object):
         print "Finished calibration step"
         time.sleep(0.5)
         self.start_continuous_acquisition()
-        self.read_position()
+        self.read_pos()
 
 
     
