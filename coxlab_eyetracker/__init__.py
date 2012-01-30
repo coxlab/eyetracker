@@ -35,12 +35,8 @@ if global_settings.get("enable_mw_conduit", True):
     try:
         sys.path.append("/Library/Application Support/MWorks/Scripting/Python")
         import mworks.conduit as mw_conduit
-        GAZE_H = 0
-        GAZE_V = 1
-        PUPIL_RADIUS = 2
-        TIMESTAMP = 3
-        GAZE_INFO = 4
-        PING = 5
+        GAZE_INFO = 100
+        PING = 101
         mw_enabled = True
     except Exception, e:
         print("Unable to load MW conduit: %s" % e)
