@@ -125,6 +125,39 @@ class EyeTrackerGUI:
         self.stages_bar.add_button("right", lambda: c.right(),
                                    group="Jog",
                                    label="right")
+                                   
+        # ---------------------------------------------------------------------
+        #   FOCUS AND ZOOM CONTROLS
+        # ---------------------------------------------------------------------
+        
+                                
+        self.focus_zoom_bar= atb.Bar(name="focus_and_zoom", 
+                                 label="Focus/Zoom Controls", 
+                                 iconified='true',
+                                 help="Controls for adjusting power focus and zoom", 
+                                 position=(10,10), size=(200,300))
+                                       
+        self.focus_zoom_bar.add_var("Focus/focus_step",
+                                label="focus step",
+                                target=c, attr='focus_step')
+        self.focus_zoom_bar.add_button("focus_plus", lambda: c.focus_plus(),
+                                   group="Focus",
+                                   label="focus plus")
+        self.focus_zoom_bar.add_button("focus_minus", lambda: c.focus_minus(),
+                                   group="Focus",
+                                   label="focus minus")
+
+        self.focus_zoom_bar.add_var("Zoom/zoom_step",
+                                label="zoom step",
+                                target=c, attr='zoom_step')
+        self.focus_zoom_bar.add_button("zoom_plus", lambda: c.zoom_plus(),
+                                   group="Zoom",
+                                   label="zoom plus")
+        self.focus_zoom_bar.add_button("zoom_minus", lambda: c.zoom_minus(),
+                                   group="Zoom",
+                                   label="zoom minus")
+
+
 
         # ---------------------------------------------------------------------
         #   LED CONTROLS
