@@ -123,6 +123,8 @@ class EyeTrackerController (object):
         self.camera_locked = 0
         self.continuously_acquiring = 0
         
+        self.calibrating = False
+        
         self.use_simulated = global_settings.get("use_simulated", False)
         self.use_file_for_cam = global_settings.get("use_file_for_camera", False)
         
@@ -586,6 +588,11 @@ class EyeTrackerController (object):
         
         
     def execute_calibration_step(self, f):
+        if self.calibrating:
+            logging.warning('Already calibrating. ' + 
+                            'Please wait until the curent step is finished.')
+            return
+        self.calibrating = True
         self.stop_continuous_acquisition()
         t = lambda: self.execute_and_resume_acquisition(f)
         calibrate_thread = threading.Thread(target = t)
@@ -598,6 +605,7 @@ class EyeTrackerController (object):
         time.sleep(0.5)
         self.start_continuous_acquisition()
         self.read_pos()
+        self.calibrating = False
 
 
     
