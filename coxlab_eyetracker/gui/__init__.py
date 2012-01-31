@@ -8,8 +8,11 @@ import os
 import sys
 import re
 from coxlab_eyetracker.settings import global_settings
-from collections import OrderedDict
 
+try:
+    from collections import OrderedDict
+except:
+    from ordereddict import OrderedDict
 
 # Utility functions for use with atb
 def binding_getter(o, key):
