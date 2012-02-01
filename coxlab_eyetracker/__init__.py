@@ -4,8 +4,4 @@ __all__ = ('image_processing',
            'gui',
            'led',
            'motion',
-           'mw',
            'util')
-
-from eyetracker import *
-from gui import *

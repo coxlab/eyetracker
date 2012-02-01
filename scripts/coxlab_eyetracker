@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from coxlab_eyetracker import *
+from coxlab_eyetracker.controller import EyeTrackerController
+from coxlab_eyetracker.gui import EyeTrackerGUI
 
 if __name__ == '__main__':
 
