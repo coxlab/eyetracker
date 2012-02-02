@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from VanillaBackend import *
 
+import scipy
 from scipy.weave import inline
-from scipy.weave import converters
 
 
 class WovenBackend(VanillaBackend):

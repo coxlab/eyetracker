@@ -4,4 +4,5 @@ __all__ = ('image_processing',
            'gui',
            'led',
            'motion',
-           'util')
+           'util',
+           'controller')
