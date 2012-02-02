@@ -8,12 +8,13 @@
 
 from numpy import *
 
+
 class EyeFeatureFinder:
 
     # analyze the image and return dictionary of features gleaned
-    # from it 
-    def analyze_image(self, image, guess = None, **kwargs):
+    # from it
+    def analyze_image(self, image, guess=None, **kwargs):
         return
- 
+
     def get_processed_image(self):
         return None

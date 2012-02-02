@@ -6,4 +6,3 @@ ipython>=0.10
 PIL>=1.1.7
 git+https://github.com/davidcox/freetype-py#egg=freetype-py
 git+https://github.com/davidcox/glumpy#egg=glumpy
-#git+https://code.google.com/p/glumpy#egg=glumpy>=0.1.2
