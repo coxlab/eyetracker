@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """ distribute- and pip-enabled setup.py for coxlab_eyetracker """

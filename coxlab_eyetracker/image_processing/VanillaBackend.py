@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from ImageProcessingBackend import *
 from scipy.signal import sepfir2d, convolve2d
