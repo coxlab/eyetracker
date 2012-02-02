@@ -7,6 +7,7 @@
 #  Created by David Cox on 9/3/08.
 #  Copyright (c) 2008 Harvard University. All rights reserved.
 #
+use_glumpy_for_blit = False
 
 import glumpy
 from OpenGL.GL import *
@@ -113,46 +114,47 @@ class TrackerView:
 
     def render_image(self, frame):
 
-        I = glumpy.Image(self.im_array, interpolation='bilinear',
-                         cmap=glumpy.colormap.Grey)
-        I.blit(-1, -1, 2, 2)
+        if use_glumpy_for_blit:
+            I = glumpy.Image(self.im_array, interpolation='bilinear',
+                             cmap=glumpy.colormap.Grey)
+            I.blit(-1, -1, 2, 2)
 
-        return
+            return
+        else:
+            # old way...
+            self.texture = glGenTextures(1)
 
-        # old way...
-        self.texture = glGenTextures(1)
+            glColor4f(1., 1., 1., 1.)
+            glBindTexture(GL_TEXTURE_2D, self.texture)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RGBA,
+                self.im_array.shape[1],
+                self.im_array.shape[0],
+                0,
+                GL_LUMINANCE,
+                GL_UNSIGNED_BYTE,
+                self.im_array.astype(uint8),
+                )
 
-        glColor4f(1., 1., 1., 1.)
-        glBindTexture(GL_TEXTURE_2D, self.texture)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            self.im_array.shape[1],
-            self.im_array.shape[0],
-            0,
-            GL_LUMINANCE,
-            GL_UNSIGNED_BYTE,
-            self.im_array.astype(uint8),
-            )
-
-        glBindTexture(GL_TEXTURE_2D, self.texture)
-        glBegin(GL_QUADS)
-        glTexCoord2f(0., 0.)
-        glVertex3f(-1., 1., 0.)  # Bottom Left
-        glTexCoord2f(1., 0.)
-        glVertex3f(1., 1., 0.)  # Bottom Right
-        glTexCoord2f(1., 1.)
-        glVertex3f(1., -1., 0.)  # Top Right
-        glTexCoord2f(0., 1.)
-        glVertex3f(-1., -1., 0.)  # Top Left
-        glEnd()
-        glBindTexture(GL_TEXTURE_2D, 0)
-        glDeleteTextures(self.texture)
+            glBindTexture(GL_TEXTURE_2D, self.texture)
+            glBegin(GL_QUADS)
+            glTexCoord2f(0., 0.)
+            glVertex3f(-1., 1., 0.)  # Bottom Left
+            glTexCoord2f(1., 0.)
+            glVertex3f(1., 1., 0.)  # Bottom Right
+            glTexCoord2f(1., 1.)
+            glVertex3f(1., -1., 0.)  # Top Right
+            glTexCoord2f(0., 1.)
+            glVertex3f(-1., -1., 0.)  # Top Left
+            glEnd()
+            glBindTexture(GL_TEXTURE_2D, 0)
+            glDeleteTextures(self.texture)
 
     def render_stage1_pupil_location(self):
         self.render_crosshairs(self.__image_coords_to_texture_coords(self.stage1_pupil_position),
