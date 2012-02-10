@@ -142,7 +142,8 @@ class EyeTrackerController(object):
 
             try:
                 esp300.connect()
-            except Exception:
+            except Exception as E:
+                print str(E)
                 print 'Attempting to restart serial bridge (this can take ' \
                     + 'several tens of seconds)...'
                 try:

@@ -169,57 +169,65 @@ class EyeTrackerGUI:
             )
 
         self.led_bar.add_var(
-            'Channel1/Ch1_mA',
-            target=c,
-            attr='IsetCh1',
+            'Side/Ch1_mA',
+            #target=c,
+            #attr='IsetCh1',
             label='I Ch1 (mA)',
+            vtype=atb.TW_TYPE_UINT32,
+            setter=lambda x: c.leds.set_current(1,x),
+            getter=lambda: c.leds.soft_current(1),
             min=0,
             max=250,
             )
 
-        self.led_bar.add_var('Channel1/Ch1_status', label='Ch1 status',
+        self.led_bar.add_var('Side/Ch1_status', label='Ch1 status',
                              vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(0),
-                             setter=lambda x: c.leds.set_status(0, x))
-
-        self.led_bar.add_var(
-            'Channel2/Ch2_mA',
-            target=c,
-            attr='IsetCh2',
-            label='I Ch2 (mA)',
-            min=0,
-            max=250,
-            )
-        self.led_bar.add_var('Channel2/Ch2_status', vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(1),
+                             getter=lambda: c.leds.soft_status(1),
                              setter=lambda x: c.leds.set_status(1, x))
 
         self.led_bar.add_var(
-            'Channel3/Ch3_mA',
-            target=c,
-            attr='IsetCh3',
-            label='I Ch3 (mA)',
+            'Top/Ch2_mA',
+            #target=c,
+            #attr='IsetCh2',
+            label='I Ch2 (mA)',
+            vtype=atb.TW_TYPE_UINT32,
+            setter=lambda x: c.leds.set_current(2,x),
+            getter=lambda: c.leds.soft_current(2),
             min=0,
             max=250,
             )
-        self.led_bar.add_var('Channel3/Ch3_status', label='Ch3 status',
-                             vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(2),
+        self.led_bar.add_var('Top/Ch2_status', vtype=atb.TW_TYPE_BOOL8,
+                             getter=lambda: c.leds.soft_status(2),
                              setter=lambda x: c.leds.set_status(2, x))
 
-        self.led_bar.add_var(
-            'Channel4/Ch4_mA',
-            target=c,
-            attr='IsetCh4',
-            label='I Ch4 (mA)',
-            min=0,
-            max=250,
-            )
-        self.led_bar.add_var('Channel4/Ch4_status', label='Ch4 status',
-                             vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(3),
-                             setter=lambda x: c.leds.set_status(3, x))
-
+        #self.led_bar.add_var(
+        #    'Channel3/Ch3_mA',
+        #    target=c,
+        #    attr='IsetCh3',
+        #    label='I Ch3 (mA)',
+        #    setter=lambda x: c.leds.set_current(3,x),
+        #    min=0,
+        #    max=250,
+        #    )
+        # self.led_bar.add_var('Channel3/Ch3_status', label='Ch3 status',
+        #                              vtype=atb.TW_TYPE_BOOL8,
+        #                              getter=lambda: c.leds.soft_status(3),
+        #                              setter=lambda x: c.leds.set_status(3, x))
+        # 
+        #         self.led_bar.add_var(
+        #             'Channel4/Ch4_mA',
+        #             target=c,
+        #             attr='IsetCh4',
+        #             label='I Ch4 (mA)',
+        #             setter=lambda x: c.leds.set_current(4,x),
+        #             min=0,
+        #             max=250,
+        #             )
+        #         self.led_bar.add_var('Channel4/Ch4_status', label='Ch4 status',
+        #                              vtype=atb.TW_TYPE_BOOL8,
+        #                              getter=lambda: c.leds.soft_status(4),
+        #                              setter=lambda x: c.leds.set_status(4, x))
+        
         # ---------------------------------------------------------------------
         #   RADIAL FEATURE FINDER
         # ---------------------------------------------------------------------
