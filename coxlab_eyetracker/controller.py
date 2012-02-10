@@ -519,7 +519,8 @@ class EyeTrackerController(object):
             return
 
         self.camera_device.camera.setAttribute(a, int(value))
-        self.camera_device.camera.setAttribute(a, int(value))
+        # Why is this being set twice??
+        #self.camera_device.camera.setAttribute(a, int(value))
 
     @property
     def binning(self):
@@ -553,7 +554,7 @@ class EyeTrackerController(object):
     def roi_height(self):
         return self.get_camera_attribute('Height')
 
-    @roi_width.setter
+    @roi_height.setter
     def roi_height(self, value):
         self.set_camera_attribute('Height', int(value))
 
