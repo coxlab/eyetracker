@@ -478,9 +478,9 @@ class EyeTrackerGUI:
         self.cal_bar.add_button('cal_center_d', lambda: \
                                 c.calibrate_center_depth(), label='Center Depth'
                                 )
-        self.cal_bar.add_button('align_pupil_cr', lambda: \
-                                c.calibrate_align_pupil_and_cr(),
-                                label='Align Pupil and CR')
+        #self.cal_bar.add_button('align_pupil_cr', lambda: \
+        #                        c.calibrate_align_pupil_and_cr(),
+        #                        label='Align Pupil and CR')
         self.cal_bar.add_button('cal_pupil_rad', lambda: \
                                 c.calibrate_find_pupil_radius(),
                                 label='Find Pupil Radius')

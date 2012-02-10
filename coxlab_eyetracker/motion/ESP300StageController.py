@@ -105,7 +105,7 @@ class ESP300StageController(IPSerialBridge):
         retries = 20
         while (not okayp and retries > 0):
             result_string = self.send("%dTP" % axis)
-            print "result_string in current_position in while loop:", result_string       
+            #print "result_string in current_position in while loop:", result_string       
             
             if(len(result_string) == 0):
                 time.sleep(0.01)
@@ -118,10 +118,10 @@ class ESP300StageController(IPSerialBridge):
         
         #print "Length of result_string = ", len(result_string)
         if len(result_string) > 1:
-            print "first element of result_string in current_position:", result_string          
+            #print "first element of result_string in current_position:", result_string          
             return float(result_string)
         else:
-            print "result_string in current_position:", result_string            
+            #print "result_string in current_position:", result_string            
             return float(result_string)
 
     def wait_for_completion(self, axis):
