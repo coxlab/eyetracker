@@ -88,6 +88,19 @@ class EyeTrackerGUI:
         #   STAGE CONTROLS
         # ---------------------------------------------------------------------
 
+        self.gaze_bar = atb.Bar(
+            name='gaze',
+            label='Gaze Info',
+            iconified='false',
+            help='Current Gaze',
+            position=(10, 10),
+            size=(100, 200))
+        
+        self.gaze_bar.add_var('Gaze/H', label='Horizontal Gaze', target=c,
+                            attr='gaze_azimuth', readonly = True)
+        self.gaze_bar.add_var('Gaze/V', label='Vertical Gaze', target=c,
+                            attr='gaze_elevation', readonly = True)
+
         self.stages_bar = atb.Bar(
             name='stages',
             label='Stage Controls',
@@ -489,9 +502,9 @@ class EyeTrackerGUI:
         self.cal_bar.add_var('d', label='Distance to CR curv. center',
                              vtype=atb.TW_TYPE_FLOAT, target=c.calibrator,
                              attr='d')  # readonly = True,
-        self.cal_bar.add_var('Rp', label='Pupil rotation radius (Rp)',
+        self.cal_bar.add_var('Rp', label='Pupil rotation radius (Rp)[mm]',
                              vtype=atb.TW_TYPE_FLOAT, target=c.calibrator,
-                             attr='Rp')  # readonly = True,
+                             attr='Rp_mm')  # readonly = True,
 
         # Calibration Files
         try:
@@ -617,14 +630,29 @@ class EyeTrackerGUI:
 
         def on_key_press(symbol, modifiers):
             if symbol == glumpy.key.ESCAPE:
-                c.continuously_acquiring = False
-                c.acq_thread.join()
+                c.stop_continuous_acquisition()
+                print "Controller has %i refs" % sys.getrefcount(c)
+                c.release()
+                self.controller = None
+                print "Controller has %i refs" % sys.getrefcount(c)
+                c.shutdown()
+                #print "Shutting down controller..."
+                #print "Shut down controller", c.shutdown()
+                #c.continuously_acquiring = False
+                #c.acq_thread.join()
                 sys.exit()
 
         self.window.push_handlers(atb.glumpy.Handlers(self.window))
         self.window.push_handlers(on_init, on_draw, on_key_press, on_idle)
         self.window.draw()
-
+    
+    def __del__(self):
+        print "GUI __del__ called"
+        self.controller.stop_continuous_acquisition()
+        self.controller.release()
+        self.controller.shutdown()
+        self.controller = None
+    
     def mainloop(self):
         self.window.mainloop()
 

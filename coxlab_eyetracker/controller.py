@@ -340,6 +340,21 @@ class EyeTrackerController(object):
         else:
             logging.warning('No conduit')
 
+    def release(self):
+        #print "Controller has %i refs" % sys.getrefcount(self)
+        #self.camera_device.release()
+        #print "Controller has %i refs" % sys.getrefcount(self)
+        #self.stages.release()
+        #print "Controller has %i refs" % sys.getrefcount(self)
+        #self.zoom_and_focus.release()
+        print "Controller has %i refs" % sys.getrefcount(self)
+        self.calibrator.release()
+        print "Controller has %i refs" % sys.getrefcount(self)
+        
+    def __del__(self):
+        print "controller.__del__ called"
+        sys.stdout.flush()
+    
     def shutdown(self):
 
         if self.stages is not None:
@@ -354,14 +369,18 @@ class EyeTrackerController(object):
             # self.leds.shutdown()
 
         self.continuously_acquiring = False
-        self.camera_update_timer.invalidate()
+        self.stop_continuous_acquisition()
+        
+        #self.camera_update_timer.invalidate()
 
         time.sleep(1)
 
+        self.camera_device.shutdown()
+        
         self.calibrator = None
         # self.camera = None
         self.camera_device = None
-
+        
         return True
 
     def simple_alert(self, title, message):
@@ -378,7 +397,7 @@ class EyeTrackerController(object):
     def stop_continuous_acquisition(self):
         print 'Stopping continuous acquisition'
         self.continuously_acquiring = 0
-        self.acq_thread.join()
+        print "Joining...", self.acq_thread.join()
         print 'Stopped'
 
     # a method to actually run the camera
@@ -506,7 +525,8 @@ class EyeTrackerController(object):
 
         logging.info('Stopped continuous acquiring')
         return
-
+    
+    
     def get_camera_attribute(self, a):
         if self.camera_device != None and getattr(self.camera_device, 'camera',
                 None) is not None and self.camera_device.camera != None:

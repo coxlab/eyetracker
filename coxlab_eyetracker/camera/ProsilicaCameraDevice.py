@@ -86,7 +86,15 @@ class ProsilicaCameraDevice:
         if(self.acquire_continuously): 
             self.acquisition_thread = threading.Thread(target=acquireContinuously, args=[self.camera, self.feature_finder])
             self.acquisition_thread.start()
-        
+    
+    def shutdown(self):
+        print "Deleting camera (in python)"
+        if(self.acquire_continuously):
+            print "Terminating acquisition thread in ProsilicaCameraDevice"
+            self.acquisition_thread.terminate()
+        if(self.camera != None):
+            print "ending camera capture in ProsilicaCameraDevice"
+            self.camera.endCapture()
 
     def __del__(self):
         print "Deleting camera (in python)"
