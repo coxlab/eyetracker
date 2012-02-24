@@ -738,7 +738,7 @@ class EyeTrackerGUI:
 
         if time_since_last_update > time_between_updates:
             self.last_update_time = time.time()
-            # print "N Frames: ", self.frame_count
+
             self.frame_rate = mean(array(self.frame_rates))
             self.frame_rates = []
             self.frame_rate_accum = 0
