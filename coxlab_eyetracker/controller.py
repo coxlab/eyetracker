@@ -96,6 +96,7 @@ class EyeTrackerController(object):
 
         self.gaze_azimuth = 0.0
         self.gaze_elevation = 0.0
+        self.calibration_status = 0
 
         self.sobel_avg = 0.0
 
@@ -142,7 +143,8 @@ class EyeTrackerController(object):
 
             try:
                 esp300.connect()
-            except Exception:
+            except Exception as E:
+                print str(E)
                 print 'Attempting to restart serial bridge (this can take ' \
                     + 'several tens of seconds)...'
                 try:
@@ -339,6 +341,21 @@ class EyeTrackerController(object):
         else:
             logging.warning('No conduit')
 
+    def release(self):
+        #print "Controller has %i refs" % sys.getrefcount(self)
+        #self.camera_device.release()
+        #print "Controller has %i refs" % sys.getrefcount(self)
+        #self.stages.release()
+        #print "Controller has %i refs" % sys.getrefcount(self)
+        #self.zoom_and_focus.release()
+        print "Controller has %i refs" % sys.getrefcount(self)
+        self.calibrator.release()
+        print "Controller has %i refs" % sys.getrefcount(self)
+        
+    def __del__(self):
+        print "controller.__del__ called"
+        sys.stdout.flush()
+    
     def shutdown(self):
 
         if self.stages is not None:
@@ -353,14 +370,18 @@ class EyeTrackerController(object):
             # self.leds.shutdown()
 
         self.continuously_acquiring = False
-        self.camera_update_timer.invalidate()
+        self.stop_continuous_acquisition()
+        
+        #self.camera_update_timer.invalidate()
 
         time.sleep(1)
 
+        self.camera_device.shutdown()
+        
         self.calibrator = None
         # self.camera = None
         self.camera_device = None
-
+        
         return True
 
     def simple_alert(self, title, message):
@@ -377,7 +398,7 @@ class EyeTrackerController(object):
     def stop_continuous_acquisition(self):
         print 'Stopping continuous acquisition'
         self.continuously_acquiring = 0
-        self.acq_thread.join()
+        print "Joining...", self.acq_thread.join()
         print 'Stopped'
 
     # a method to actually run the camera
@@ -393,6 +414,7 @@ class EyeTrackerController(object):
         features = None
         gaze_azimuth = 0.0
         gaze_elevation = 0.0
+        calibration_status = 0
 
         self.last_ui_put_time = time.time()
         while self.continuously_acquiring:
@@ -485,6 +507,7 @@ class EyeTrackerController(object):
                         self.cr_position_y = cr_position[0]
                         self.gaze_azimuth = gaze_azimuth
                         self.gaze_elevation = gaze_elevation
+                        self.calibration_status = calibration_status
                         self.frame_rate = frame_rate
             except Exception:
 
@@ -505,7 +528,8 @@ class EyeTrackerController(object):
 
         logging.info('Stopped continuous acquiring')
         return
-
+    
+    
     def get_camera_attribute(self, a):
         if self.camera_device != None and getattr(self.camera_device, 'camera',
                 None) is not None and self.camera_device.camera != None:
@@ -518,7 +542,8 @@ class EyeTrackerController(object):
             return
 
         self.camera_device.camera.setAttribute(a, int(value))
-        self.camera_device.camera.setAttribute(a, int(value))
+        # Why is this being set twice??
+        #self.camera_device.camera.setAttribute(a, int(value))
 
     @property
     def binning(self):
@@ -552,7 +577,7 @@ class EyeTrackerController(object):
     def roi_height(self):
         return self.get_camera_attribute('Height')
 
-    @roi_width.setter
+    @roi_height.setter
     def roi_height(self, value):
         self.set_camera_attribute('Height', int(value))
 

@@ -7,6 +7,7 @@
 #
 
 import errno
+import logging
 import time
 import socket
 import select
@@ -23,15 +24,39 @@ class IPSerialBridge:
         self.disconnect()
 
     def connect(self):
+        print "connecting", self.address, self.port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # next two lines are to speed up the communication, by removing the default 50 ms delay
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.socket.settimeout(1)#timeout)
         self.socket.connect((self.address, self.port))
         self.socket.setblocking(0)
 
     def disconnect(self):
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
-
-    def read(self):
+    
+    def parse_response(self, response):
+        # Overload this
+        return response
+    
+    def read_ready(self, timeout=0.1):
+        r, _, _  = select.select([self.socket], [], [], timeout)
+        return bool(len(r))
+    
+    def new_read(self):
+        #print "reading", self.port
+        # test if socket ready for reading
+        response = ""
+        while self.read_ready():
+            try:
+                response += self.socket.recv(16)
+            except Exception as E:
+                logging.error("Socket read attempt returned: %s" % str(E))
+                time.sleep(0.1)
+        return self.parse_response(response)
+    
+    def old_read(self):
         still_reading = 1
         response = ""
         while(still_reading):
@@ -52,7 +77,9 @@ class IPSerialBridge:
 
         return response
 
-    def send(self, message, noresponse=0):
+    read = new_read
+    
+    def old_send(self, message, noresponse=0):
 
         # check the socket to see if there is junk in there already on the receive side
         # if so, this is here in error, and should be flushed
@@ -85,6 +112,21 @@ class IPSerialBridge:
                 return ""
 
         return self.read()
+    
+    def new_send(self, message, noresponse = 0):
+        #print "writing", self.port, message
+        while self.read_ready():
+            ret = self.read()
+            logging.error("Sending message %s before reading %s" % (message, ret))
+        
+        # check if write ready?
+        self.socket.send(message + "\n\r")
+        
+        if noresponse: return
+        
+        return self.read()
+    
+    send = new_send
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ class SimulatedLEDController:
     
     def current(self, channel):
         return self.internal_current[channel]
+    soft_current = current
     
     def status(self, channel):
         return self.internal_status[channel]
@@ -33,6 +34,9 @@ class SimulatedLEDController:
             self.turn_on(channel)
         else:
             self.turn_off(channel)
+    
+    def set_current(self, channel, current):
+        self.internal_current[channel] = current
     
     def turn_on(self, channel, current = None):
         self.internal_status[channel] = 1

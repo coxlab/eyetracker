@@ -20,7 +20,7 @@ class StahlLikeCalibrator:
     uncalibrated = 0
     pupil_only_uncalibrated = 1
     pupil_only = 2
-    calibrated = 3
+    full_calibration = 3
     
     no_led = -1
     both_leds = -2
@@ -32,7 +32,9 @@ class StahlLikeCalibrator:
         self.leds = leds
         self.focus_and_zoom = focus_and_zoom
     
-        self.default_Rp = kwargs.get("default_Rp", 3.2)
+        self.default_pixels_per_mm = kwargs.get('default_pixels_per_mm', 15.85)
+        #self.default_Rp = kwargs.get("default_Rp", 6. * self.default_pixels_per_mm)
+        self.default_Rp = kwargs.get("default_Rp", 3.2 * self.default_pixels_per_mm)
 
         self.ui_queue = kwargs.get("ui_queue", None)
         self.x_image_axis = kwargs.get("x_image_axis", 1)
@@ -45,7 +47,7 @@ class StahlLikeCalibrator:
         self.top_led = kwargs.get("top_led", leds.channel2)
         self.side_led = kwargs.get("side_led", leds.channel1)
         self.visible_led = kwargs.get("visible_led", leds.channel3)
-        self.d_guess = kwargs.get("d_guess", 260)
+        self.d_guess = kwargs.get("d_guess", 380)
                 
         self.d = self.d_guess
             
@@ -65,6 +67,7 @@ class StahlLikeCalibrator:
         self.offset = None
         #self.d = None      # distance to center of corneal curvature
         self.Rp = None      # radius to pupil, from center of corneal curvature
+        self.Rp_mm = None
         self.y_equator = None
         self.y_topCR_ref = None
         self.pixels_per_mm = None
@@ -75,6 +78,11 @@ class StahlLikeCalibrator:
         
         self.CompLensDistor = CompensateLensDistorsion()
     
+    def release(self):
+        self.camera = None
+        self.stages = None
+        self.leds = None
+        self.focus_and_zoom = None
 
         
     @property
@@ -87,7 +95,8 @@ class StahlLikeCalibrator:
         d = {'d':           self.d,
              'Rp':          self.Rp,
              'y_equator':   self.y_equator,
-             'y_topCR_ref': self.y_topCR_ref }
+             'y_topCR_ref': self.y_topCR_ref,
+             'pixels_per_mm': self.pixels_per_mm }
 
         with open(filename, 'w') as f:
             pkl.dump(d, f)
@@ -103,6 +112,8 @@ class StahlLikeCalibrator:
             self.Rp = d['Rp']
             self.y_equator = d['y_equator']
             self.y_topCR_ref = d['y_topCR_ref']
+            self.pixels_per_mm = d['pixels_per_mm']
+            self.Rp_mm = self.Rp / self.pixels_per_mm
         else:
             logging.error('Could not load calibration settings: %s' % filename)
     
@@ -301,7 +312,7 @@ class StahlLikeCalibrator:
         self.find_pupil_radius()
         
         print "d = ", self.d
-        print "Rp = ", self.Rp
+        print "Rp[mm] = ", self.Rp_mm
         
         
         
@@ -334,7 +345,11 @@ class StahlLikeCalibrator:
         elif cr_coordinates is None and self.calibrated:
             calibration_status = self.pupil_only
         elif self.calibrated:
-            calibration_status = self.calibrated        
+            calibration_status = self.full_calibration
+        
+        if (self.top_led not in self.default_cr_positions.keys()) or \
+            (self.side_led not in self.default_cr_positions.keys()):
+            calibration_status = self.uncalibrated
         
         if calibration_status is self.uncalibrated:
             return pupil_coordinates[0], pupil_coordinates[1], calibration_status
@@ -830,9 +845,9 @@ class StahlLikeCalibrator:
         
         # Now compute the Rp, based on the displacements
         self.Rp = self._compute_Rp(x_displacements, radians(rs), y_displacement)
-        	    
+        self.Rp_mm = self.Rp/self.pixels_per_mm
         
-                
+        
         print("=====================================")
         print("Rp = ", self.Rp)
         print("=====================================")

@@ -88,6 +88,21 @@ class EyeTrackerGUI:
         #   STAGE CONTROLS
         # ---------------------------------------------------------------------
 
+        self.gaze_bar = atb.Bar(
+            name='gaze',
+            label='Gaze Info',
+            iconified='false',
+            help='Current Gaze',
+            position=(10, 10),
+            size=(100, 200))
+        
+        self.gaze_bar.add_var('Gaze/Status', label='Calibration Status',
+                            target=c, attr='calibration_status', readonly=True)
+        self.gaze_bar.add_var('Gaze/H', label='Horizontal Gaze', target=c,
+                            attr='gaze_azimuth', readonly=True)
+        self.gaze_bar.add_var('Gaze/V', label='Vertical Gaze', target=c,
+                            attr='gaze_elevation', readonly=True)
+
         self.stages_bar = atb.Bar(
             name='stages',
             label='Stage Controls',
@@ -169,57 +184,65 @@ class EyeTrackerGUI:
             )
 
         self.led_bar.add_var(
-            'Channel1/Ch1_mA',
-            target=c,
-            attr='IsetCh1',
+            'Side/Ch1_mA',
+            #target=c,
+            #attr='IsetCh1',
             label='I Ch1 (mA)',
+            vtype=atb.TW_TYPE_UINT32,
+            setter=lambda x: c.leds.set_current(1,x),
+            getter=lambda: c.leds.soft_current(1),
             min=0,
             max=250,
             )
 
-        self.led_bar.add_var('Channel1/Ch1_status', label='Ch1 status',
+        self.led_bar.add_var('Side/Ch1_status', label='Ch1 status',
                              vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(0),
-                             setter=lambda x: c.leds.set_status(0, x))
-
-        self.led_bar.add_var(
-            'Channel2/Ch2_mA',
-            target=c,
-            attr='IsetCh2',
-            label='I Ch2 (mA)',
-            min=0,
-            max=250,
-            )
-        self.led_bar.add_var('Channel2/Ch2_status', vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(1),
+                             getter=lambda: c.leds.soft_status(1),
                              setter=lambda x: c.leds.set_status(1, x))
 
         self.led_bar.add_var(
-            'Channel3/Ch3_mA',
-            target=c,
-            attr='IsetCh3',
-            label='I Ch3 (mA)',
+            'Top/Ch2_mA',
+            #target=c,
+            #attr='IsetCh2',
+            label='I Ch2 (mA)',
+            vtype=atb.TW_TYPE_UINT32,
+            setter=lambda x: c.leds.set_current(2,x),
+            getter=lambda: c.leds.soft_current(2),
             min=0,
             max=250,
             )
-        self.led_bar.add_var('Channel3/Ch3_status', label='Ch3 status',
-                             vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(2),
+        self.led_bar.add_var('Top/Ch2_status', vtype=atb.TW_TYPE_BOOL8,
+                             getter=lambda: c.leds.soft_status(2),
                              setter=lambda x: c.leds.set_status(2, x))
 
-        self.led_bar.add_var(
-            'Channel4/Ch4_mA',
-            target=c,
-            attr='IsetCh4',
-            label='I Ch4 (mA)',
-            min=0,
-            max=250,
-            )
-        self.led_bar.add_var('Channel4/Ch4_status', label='Ch4 status',
-                             vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.status(3),
-                             setter=lambda x: c.leds.set_status(3, x))
-
+        #self.led_bar.add_var(
+        #    'Channel3/Ch3_mA',
+        #    target=c,
+        #    attr='IsetCh3',
+        #    label='I Ch3 (mA)',
+        #    setter=lambda x: c.leds.set_current(3,x),
+        #    min=0,
+        #    max=250,
+        #    )
+        # self.led_bar.add_var('Channel3/Ch3_status', label='Ch3 status',
+        #                              vtype=atb.TW_TYPE_BOOL8,
+        #                              getter=lambda: c.leds.soft_status(3),
+        #                              setter=lambda x: c.leds.set_status(3, x))
+        # 
+        #         self.led_bar.add_var(
+        #             'Channel4/Ch4_mA',
+        #             target=c,
+        #             attr='IsetCh4',
+        #             label='I Ch4 (mA)',
+        #             setter=lambda x: c.leds.set_current(4,x),
+        #             min=0,
+        #             max=250,
+        #             )
+        #         self.led_bar.add_var('Channel4/Ch4_status', label='Ch4 status',
+        #                              vtype=atb.TW_TYPE_BOOL8,
+        #                              getter=lambda: c.leds.soft_status(4),
+        #                              setter=lambda x: c.leds.set_status(4, x))
+        
         # ---------------------------------------------------------------------
         #   RADIAL FEATURE FINDER
         # ---------------------------------------------------------------------
@@ -470,9 +493,9 @@ class EyeTrackerGUI:
         self.cal_bar.add_button('cal_center_d', lambda: \
                                 c.calibrate_center_depth(), label='Center Depth'
                                 )
-        self.cal_bar.add_button('align_pupil_cr', lambda: \
-                                c.calibrate_align_pupil_and_cr(),
-                                label='Align Pupil and CR')
+        #self.cal_bar.add_button('align_pupil_cr', lambda: \
+        #                        c.calibrate_align_pupil_and_cr(),
+        #                        label='Align Pupil and CR')
         self.cal_bar.add_button('cal_pupil_rad', lambda: \
                                 c.calibrate_find_pupil_radius(),
                                 label='Find Pupil Radius')
@@ -481,9 +504,9 @@ class EyeTrackerGUI:
         self.cal_bar.add_var('d', label='Distance to CR curv. center',
                              vtype=atb.TW_TYPE_FLOAT, target=c.calibrator,
                              attr='d')  # readonly = True,
-        self.cal_bar.add_var('Rp', label='Pupil rotation radius (Rp)',
+        self.cal_bar.add_var('Rp', label='Pupil rotation radius (Rp)[mm]',
                              vtype=atb.TW_TYPE_FLOAT, target=c.calibrator,
-                             attr='Rp')  # readonly = True,
+                             attr='Rp_mm')  # readonly = True,
 
         # Calibration Files
         try:
@@ -575,7 +598,7 @@ class EyeTrackerGUI:
             'ROI/roi_offset_x',
             label='offset x',
             vtype=atb.TW_TYPE_UINT32,
-            min=1,
+            min=0,
             max=800,
             step=1,
             target=c,
@@ -586,7 +609,7 @@ class EyeTrackerGUI:
             'ROI/roi_offset_y',
             label='offset y',
             vtype=atb.TW_TYPE_UINT32,
-            min=1,
+            min=0,
             max=800,
             step=1,
             target=c,
@@ -609,14 +632,29 @@ class EyeTrackerGUI:
 
         def on_key_press(symbol, modifiers):
             if symbol == glumpy.key.ESCAPE:
-                c.continuously_acquiring = False
-                c.acq_thread.join()
+                c.stop_continuous_acquisition()
+                print "Controller has %i refs" % sys.getrefcount(c)
+                c.release()
+                self.controller = None
+                print "Controller has %i refs" % sys.getrefcount(c)
+                c.shutdown()
+                #print "Shutting down controller..."
+                #print "Shut down controller", c.shutdown()
+                #c.continuously_acquiring = False
+                #c.acq_thread.join()
                 sys.exit()
 
         self.window.push_handlers(atb.glumpy.Handlers(self.window))
         self.window.push_handlers(on_init, on_draw, on_key_press, on_idle)
         self.window.draw()
-
+    
+    def __del__(self):
+        print "GUI __del__ called"
+        self.controller.stop_continuous_acquisition()
+        self.controller.release()
+        self.controller.shutdown()
+        self.controller = None
+    
     def mainloop(self):
         self.window.mainloop()
 

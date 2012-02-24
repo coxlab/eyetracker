@@ -6,6 +6,8 @@
 #  Copyright (c) 2008 Harvard University. All rights reserved.
 #
 
+import time
+
 from coxlab_eyetracker.util import IPSerialBridge
 import numpy
 
@@ -17,6 +19,8 @@ class ESP300StageController(IPSerialBridge):
 
     def __init__(self, address, port):
         IPSerialBridge.__init__(self, address, port)
+        self.read = self.old_read
+        self.send = self.old_send
     
     
     def setup(self):
@@ -117,7 +121,7 @@ class ESP300StageController(IPSerialBridge):
             #print "first element of result_string in current_position:", result_string          
             return float(result_string)
         else:
-            print "result_string in current_position:", result_string            
+            #print "result_string in current_position:", result_string            
             return float(result_string)
 
     def wait_for_completion(self, axis):
