@@ -96,10 +96,12 @@ class EyeTrackerGUI:
             position=(10, 10),
             size=(100, 200))
         
+        self.gaze_bar.add_var('Gaze/Status', label='Calibration Status',
+                            target=c, attr='calibration_status', readonly=True)
         self.gaze_bar.add_var('Gaze/H', label='Horizontal Gaze', target=c,
-                            attr='gaze_azimuth', readonly = True)
+                            attr='gaze_azimuth', readonly=True)
         self.gaze_bar.add_var('Gaze/V', label='Vertical Gaze', target=c,
-                            attr='gaze_elevation', readonly = True)
+                            attr='gaze_elevation', readonly=True)
 
         self.stages_bar = atb.Bar(
             name='stages',

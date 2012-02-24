@@ -20,7 +20,7 @@ class StahlLikeCalibrator:
     uncalibrated = 0
     pupil_only_uncalibrated = 1
     pupil_only = 2
-    calibrated = 3
+    full_calibration = 3
     
     no_led = -1
     both_leds = -2
@@ -345,7 +345,11 @@ class StahlLikeCalibrator:
         elif cr_coordinates is None and self.calibrated:
             calibration_status = self.pupil_only
         elif self.calibrated:
-            calibration_status = self.calibrated        
+            calibration_status = self.full_calibration
+        
+        if (self.top_led not in self.default_cr_positions.keys()) or \
+            (self.side_led not in self.default_cr_positions.keys()):
+            calibration_status = self.uncalibrated
         
         if calibration_status is self.uncalibrated:
             return pupil_coordinates[0], pupil_coordinates[1], calibration_status

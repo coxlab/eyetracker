@@ -96,6 +96,7 @@ class EyeTrackerController(object):
 
         self.gaze_azimuth = 0.0
         self.gaze_elevation = 0.0
+        self.calibration_status = 0
 
         self.sobel_avg = 0.0
 
@@ -413,6 +414,7 @@ class EyeTrackerController(object):
         features = None
         gaze_azimuth = 0.0
         gaze_elevation = 0.0
+        calibration_status = 0
 
         self.last_ui_put_time = time.time()
         while self.continuously_acquiring:
@@ -505,6 +507,7 @@ class EyeTrackerController(object):
                         self.cr_position_y = cr_position[0]
                         self.gaze_azimuth = gaze_azimuth
                         self.gaze_elevation = gaze_elevation
+                        self.calibration_status = calibration_status
                         self.frame_rate = frame_rate
             except Exception:
 
