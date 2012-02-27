@@ -35,7 +35,7 @@ if global_settings.get('enable_mw_conduit', True):
         sys.path.append('/Library/Application Support/MWorks/Scripting/Python')
         import mworks.conduit as mw_conduit
         GAZE_INFO = 100
-        PING = 101
+        TRACKER_INFO = 101
         mw_enabled = True
     except Exception, e:
         print 'Unable to load MW conduit: %s' % e
@@ -336,7 +336,6 @@ class EyeTrackerController(object):
 
             logging.info('Sending dummy data (-1000,-1000,-1000)')
             self.mw_conduit.send_data(GAZE_INFO, (-1000, -1000, -1000))
-            self.mw_conduit.send_data(PING, 0)
             logging.info('Finished testing conduit')
         else:
             logging.warning('No conduit')
@@ -351,11 +350,11 @@ class EyeTrackerController(object):
         print "Controller has %i refs" % sys.getrefcount(self)
         self.calibrator.release()
         print "Controller has %i refs" % sys.getrefcount(self)
-        
+
     def __del__(self):
         print "controller.__del__ called"
         sys.stdout.flush()
-    
+
     def shutdown(self):
 
         if self.stages is not None:
@@ -371,23 +370,41 @@ class EyeTrackerController(object):
 
         self.continuously_acquiring = False
         self.stop_continuous_acquisition()
-        
+
         #self.camera_update_timer.invalidate()
 
         time.sleep(1)
 
         self.camera_device.shutdown()
-        
+
         self.calibrator = None
         # self.camera = None
         self.camera_device = None
-        
+
         return True
 
     def simple_alert(self, title, message):
         logging.info(message)
 
+    def dump_info_to_conduit(self):
+        print("Dumping info to conduit")
+        try:
+            if not mw_enabled:
+                return
+
+            info = {'stages': self.stages.info,
+                    'calibration': self.calibrator.info}
+
+            self.mw_conduit.send_data(TRACKER_INFO, info)
+        except Exception as e:
+            # these are all "nice-to-haves" at this point
+            # so don't risk crashing, just yet
+            print("Failed to dump info: %s" % e)
+            return
+
     def start_continuous_acquisition(self):
+        self.dump_info_to_conduit()
+
         logging.info('Starting continuous acquisition')
         self.continuously_acquiring = 1
 
@@ -487,9 +504,16 @@ class EyeTrackerController(object):
 
                             # TODO: add calibration status
                             self.mw_conduit.send_data(GAZE_INFO,
-                                    (float(gaze_azimuth),
-                                    float(gaze_elevation), float(pupil_radius),
-                                    float(timestamp)))
+                                (float(gaze_azimuth),
+                                 float(gaze_elevation),
+                                 float(pupil_radius),
+                                 float(timestamp),
+                                 float(calibration_status),
+                                 float(pupil_position[1]),
+                                 float(pupil_position[0]),
+                                 float(cr_position[1]),
+                                 float(cr_position[0])
+                                 ))
                     else:
 
                         if self.mw_conduit != None:
@@ -528,8 +552,8 @@ class EyeTrackerController(object):
 
         logging.info('Stopped continuous acquiring')
         return
-    
-    
+
+
     def get_camera_attribute(self, a):
         if self.camera_device != None and getattr(self.camera_device, 'camera',
                 None) is not None and self.camera_device.camera != None:
@@ -675,7 +699,6 @@ class EyeTrackerController(object):
 
     @calibration_step
     def calibrate_center_horizontal(self):
-        print 'blustering on'
         self.calibrator.center_horizontal()
 
     @calibration_step
