@@ -86,7 +86,8 @@ class StahlLikeCalibrator:
                 'y_equator': self.y_equator,
                 'y_topCR_ref': self.y_topCR_ref,
                 'pixels_per_mm': self.pixels_per_mm,
-                'n_calibration_samples': self.n_calibration_samples}
+                'n_calibration_samples': self.n_calibration_samples,
+                'default_cr_positions': self.default_cr_positions}
 
     def release(self):
         self.camera = None
@@ -94,11 +95,12 @@ class StahlLikeCalibrator:
         self.leds = None
         self.focus_and_zoom = None
 
-
     @property
     def calibrated(self):
-        return (self.d != None and self.Rp != None and self.y_equator != None and self.y_topCR_ref != None)
-
+        return (self.d != None and self.Rp != None and self.y_equator != None \
+                and self.y_topCR_ref != None and \
+                self.side_led in self.default_cr_positions.keys() and \
+                self.top_led in self.default_cr_positions.keys())
 
     def save_parameters(self, filename):
 
@@ -106,7 +108,7 @@ class StahlLikeCalibrator:
              'Rp':          self.Rp,
              'y_equator':   self.y_equator,
              'y_topCR_ref': self.y_topCR_ref,
-             'pixels_per_mm': self.pixels_per_mm }
+             'pixels_per_mm': self.pixels_per_mm}
 
         with open(filename, 'w') as f:
             pkl.dump(d, f)
