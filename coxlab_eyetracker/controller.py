@@ -512,7 +512,9 @@ class EyeTrackerController(object):
                                  float(pupil_position[1]),
                                  float(pupil_position[0]),
                                  float(cr_position[1]),
-                                 float(cr_position[0])
+                                 float(cr_position[0]),
+                                 float(self.leds.soft_status(self.calibrator.top_led)),
+                                 float(self.leds.soft_status(self.calibrator.side_led))
                                  ))
                     else:
 
