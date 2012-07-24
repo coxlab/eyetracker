@@ -11,6 +11,8 @@ import sys
 import re
 from coxlab_eyetracker.settings import global_settings
 
+import logging
+
 try:
     from collections import OrderedDict
 except:

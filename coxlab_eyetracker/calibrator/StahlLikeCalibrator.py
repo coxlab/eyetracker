@@ -80,6 +80,32 @@ class StahlLikeCalibrator:
 
     @property
     def info(self):
+        info = {'distance': self.d,
+                'Rp': self.Rp,
+                'Rp_mm': self.Rp_mm,
+                'y_equator': self.y_equator,
+                'y_topCR_ref': self.y_topCR_ref,
+                'pixels_per_mm': self.pixels_per_mm,
+                'n_calibration_samples': self.n_calibration_samples,
+                }
+        #return info
+
+        if self.top_led in self.default_cr_positions.keys():
+            info['default_cr_top'] = self.default_cr_positions[self.top_led]
+
+        if self.side_led in self.default_cr_positions.keys():
+            info['default_cr_side'] = self.default_cr_positions[self.side_led]
+
+        print "Tracker Info", info
+
+        # remove all None values
+        r = {}
+        for k, v in info.iteritems():
+            if v is not None:
+                r[k] = v
+
+        print "Cleaned Info", r
+        return r
         return {'distance': self.d,
                 'Rp': self.Rp,
                 'Rp_mm': self.Rp_mm,
@@ -87,7 +113,8 @@ class StahlLikeCalibrator:
                 'y_topCR_ref': self.y_topCR_ref,
                 'pixels_per_mm': self.pixels_per_mm,
                 'n_calibration_samples': self.n_calibration_samples,
-                'default_cr_positions': self.default_cr_positions}
+                }
+                #'default_cr_positions': self.default_cr_positions}
 
     def release(self):
         self.camera = None
