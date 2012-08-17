@@ -146,15 +146,17 @@ class StahlLikeCalibrator:
         with open(filename, 'r') as f:
             d = pkl.load(f)
 
-        if d is not None:
+        try:
             self.d = d['d']
             self.Rp = d['Rp']
             self.y_equator = d['y_equator']
             self.y_topCR_ref = d['y_topCR_ref']
             self.pixels_per_mm = d['pixels_per_mm']
             self.Rp_mm = self.Rp / self.pixels_per_mm
-        else:
+        except:
             logging.error('Could not load calibration settings: %s' % filename)
+
+        # TODO: check to see if the pixels_per_mm matches up
 
     def report_set_gaze_values(self):
 
@@ -167,28 +169,28 @@ class StahlLikeCalibrator:
         flag_swip_cols = 0
         if flag_swip_cols:
             cr_array = features["cr_position_array"]
-            tmp = cr_array[:,1].copy()
-            cr_array[:,1] = cr_array[:,0]
-            cr_array[:,0] = tmp
+            tmp = cr_array[:, 1].copy()
+            cr_array[:, 1] = cr_array[:, 0]
+            cr_array[:, 0] = tmp
             pupil_array = features["pupil_position_array"]
-            tmp = pupil_array[:,1].copy()
-            pupil_array[:,1] = pupil_array[:,0]
-            pupil_array[:,0] = tmp
+            tmp = pupil_array[:, 1].copy()
+            pupil_array[:, 1] = pupil_array[:, 0]
+            pupil_array[:, 0] = tmp
             #print "set of pupil measurements (pix) =\n", pupil_array
         else:
             cr_array = features["cr_position_array"]
             pupil_array = features["pupil_position_array"]
 
         # Convert pixel arrays to degree
-        elevation, azimuth = self.transform( pupil_array, cr_array)
+        elevation, azimuth = self.transform(pupil_array, cr_array)
 
         print "#########  Set of pupil measurements (deg): ##########\n"
         print "Azimuth =\n", azimuth
         print "Elevation =\n", elevation
 
         print "#########  Set of top CR measurements (pix): ##########\n"
-        print "x =\n", cr_array[:,0]
-        print "y =\n", cr_array[:,1]
+        print "x =\n", cr_array[:, 0]
+        print "y =\n", cr_array[:, 1]
 
         return mean(azimuth), mean(elevation), std(azimuth), std(elevation)
 
