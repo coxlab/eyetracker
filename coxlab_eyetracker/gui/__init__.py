@@ -97,7 +97,7 @@ class EyeTrackerGUI:
             help='Current Gaze',
             position=(10, 10),
             size=(100, 200))
-        
+
         self.gaze_bar.add_var('Gaze/Status', label='Calibration Status',
                             target=c, attr='calibration_status', readonly=True)
         self.gaze_bar.add_var('Gaze/H', label='Horizontal Gaze', target=c,
@@ -230,7 +230,7 @@ class EyeTrackerGUI:
         #                              vtype=atb.TW_TYPE_BOOL8,
         #                              getter=lambda: c.leds.soft_status(3),
         #                              setter=lambda x: c.leds.set_status(3, x))
-        # 
+        #
         #         self.led_bar.add_var(
         #             'Channel4/Ch4_mA',
         #             target=c,
@@ -244,7 +244,7 @@ class EyeTrackerGUI:
         #                              vtype=atb.TW_TYPE_BOOL8,
         #                              getter=lambda: c.leds.soft_status(4),
         #                              setter=lambda x: c.leds.set_status(4, x))
-        
+
         # ---------------------------------------------------------------------
         #   RADIAL FEATURE FINDER
         # ---------------------------------------------------------------------
@@ -534,10 +534,11 @@ class EyeTrackerGUI:
                                  attr='cal_file_save_name')
             self.cal_bar.add_button('save_calibration', lambda: \
                                     self.save_calibration_file_atb(self.cal_file_save_name))
-        except:
+        except Exception as e:
             logging.warning("""Unable to use calibration-file saving
                                infrastructure.  A patched version of glumpy
                                is required to enable this feature.""")
+            logging.warning("Error was: %s" % (e.__repr__()))
 
         # --------------------------------------------------------------------
         #   CAMERA
@@ -649,14 +650,14 @@ class EyeTrackerGUI:
         self.window.push_handlers(atb.glumpy.Handlers(self.window))
         self.window.push_handlers(on_init, on_draw, on_key_press, on_idle)
         self.window.draw()
-    
+
     def __del__(self):
         print "GUI __del__ called"
         self.controller.stop_continuous_acquisition()
         self.controller.release()
         self.controller.shutdown()
         self.controller = None
-    
+
     def mainloop(self):
         self.window.mainloop()
 
@@ -678,7 +679,12 @@ class EyeTrackerGUI:
     def refresh_calibration_file_list(self):
 
         # read in saved calibration files
-        cal_path = os.path.expanduser(global_settings['calibration_path'])
+        try:
+            cal_path = os.path.expanduser(global_settings['calibration_path'])
+        except KeyError:
+            logging.warning('A calibration_path was not found in the config file')
+            logging.warning('Loaded global settings: %s' % global_settings)
+
         if not os.path.exists(cal_path):
             os.makedirs(cal_path)
 

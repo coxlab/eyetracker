@@ -18,10 +18,11 @@ from coxlab_eyetracker.camera import *
 from coxlab_eyetracker.led import *
 from coxlab_eyetracker.motion import *
 from coxlab_eyetracker.calibrator import *
-
+from settings import global_settings
 
 # load settings
-global_settings = load_config_file('~/.eyetracker/config.ini')
+loaded_config = load_config_file('~/.eyetracker/config.ini')
+global_settings.update(loaded_config)
 
 print global_settings
 
