@@ -669,10 +669,11 @@ class EyeTrackerGUI:
         # return self.cal_enum_dict.get(self.controller.calibration_file,0)
 
     def set_calibration_file_atb(self, x):
-        self.calibration_file = self.cal_lookup_dict[x]
+        calibration_file = self.cal_lookup_dict[x]
         base_path = os.path.expanduser(global_settings['calibration_path'])
-        cal_path = os.path.join(base_path, '%s.pkl' % self.calibration_file)
-        self.controller.calibrator.load_parameters(cal_path)
+        cal_path = os.path.join(base_path, '%s.pkl' % calibration_file)
+        self.controller.calibration_file = cal_path
+        self.calibration_file = calibration_file
 
         # self.controller.calibration_file = self.cal_lookup_dict[x]
 

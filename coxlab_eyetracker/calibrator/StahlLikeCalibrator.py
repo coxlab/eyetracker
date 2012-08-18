@@ -15,6 +15,9 @@ import time
 from Queue import Queue, Full
 import cPickle as pkl
 
+import logging
+
+
 class StahlLikeCalibrator:
 
     uncalibrated = 0
@@ -140,11 +143,7 @@ class StahlLikeCalibrator:
         with open(filename, 'w') as f:
             pkl.dump(d, f)
 
-    def load_parameters(self, filename):
-        print("Loading: %s" % filename)
-        d = None
-        with open(filename, 'r') as f:
-            d = pkl.load(f)
+    def load_parameters(self, d):
 
         try:
             self.d = d['d']
@@ -154,9 +153,11 @@ class StahlLikeCalibrator:
             self.pixels_per_mm = d['pixels_per_mm']
             self.Rp_mm = self.Rp / self.pixels_per_mm
         except:
-            logging.error('Could not load calibration settings: %s' % filename)
+            logging.error('Could not load calibration settings: %s' % d)
+            return False
 
-        # TODO: check to see if the pixels_per_mm matches up
+        return True
+
 
     def report_set_gaze_values(self):
 
