@@ -191,7 +191,7 @@ class EyeTrackerGUI:
             #attr='IsetCh1',
             label='I Ch1 (mA)',
             vtype=atb.TW_TYPE_UINT32,
-            setter=lambda x: c.leds.set_current(1,x),
+            setter=lambda x: c.leds.set_current(1, x),
             getter=lambda: c.leds.soft_current(1),
             min=0,
             max=250,
@@ -208,7 +208,7 @@ class EyeTrackerGUI:
             #attr='IsetCh2',
             label='I Ch2 (mA)',
             vtype=atb.TW_TYPE_UINT32,
-            setter=lambda x: c.leds.set_current(2,x),
+            setter=lambda x: c.leds.set_current(2, x),
             getter=lambda: c.leds.soft_current(2),
             min=0,
             max=250,
@@ -480,6 +480,7 @@ class EyeTrackerGUI:
             help='Auto-calibration steps',
             position=(50, 50),
             size=(250, 300),
+            refresh=0.5
             )
 
         self.cal_bar.add_button('calibrate', lambda: c.calibrate(),
@@ -664,7 +665,12 @@ class EyeTrackerGUI:
     def get_calibration_file_atb(self):
         # return 0
         # return ctypes.c_int(0)
-        return self.cal_enum_dict.get(self.calibration_file, 0)
+        if self.controller.calibration_file is None:
+            calibration_filename = None
+        else:
+            calibration_filename = os.path.split(self.controller.calibration_file)[-1]
+            calibration_filename = os.path.splitext(calibration_filename)[0]
+        return self.cal_enum_dict.get(calibration_filename, 0)
 
         # return self.cal_enum_dict.get(self.controller.calibration_file,0)
 
@@ -673,7 +679,7 @@ class EyeTrackerGUI:
         base_path = os.path.expanduser(global_settings['calibration_path'])
         cal_path = os.path.join(base_path, '%s.pkl' % calibration_file)
         self.controller.calibration_file = cal_path
-        self.calibration_file = calibration_file
+        #self.calibration_file = calibration_file
 
         # self.controller.calibration_file = self.cal_lookup_dict[x]
 
