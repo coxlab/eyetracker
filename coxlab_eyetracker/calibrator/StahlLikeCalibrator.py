@@ -6,6 +6,8 @@
 #  Copyright (c) 2008 Harvard University. All rights reserved.
 #
 
+import logging
+
 from math import *
 from numpy import *
 from scipy import *
@@ -96,7 +98,7 @@ class StahlLikeCalibrator:
         if self.side_led in self.default_cr_positions.keys():
             info['default_cr_side'] = self.default_cr_positions[self.side_led]
 
-        print "Tracker Info", info
+        #print "Tracker Info", info
 
         # remove all None values
         r = {}
@@ -104,7 +106,7 @@ class StahlLikeCalibrator:
             if v is not None:
                 r[k] = v
 
-        print "Cleaned Info", r
+        #print "Cleaned Info", r
         return r
         return {'distance': self.d,
                 'Rp': self.Rp,
@@ -129,30 +131,139 @@ class StahlLikeCalibrator:
                 self.side_led in self.default_cr_positions.keys() and \
                 self.top_led in self.default_cr_positions.keys())
 
-    def save_parameters(self, filename):
+    def save_parameters(self, filename, controller):
+        # -------- From self.info ---------------
+        calibrator_info = {'distance': self.d,
+                'Rp': self.Rp,
+                'Rp_mm': self.Rp_mm,
+                'y_equator': self.y_equator,
+                'y_topCR_ref': self.y_topCR_ref,
+                'pixels_per_mm': self.pixels_per_mm,
+                'n_calibration_samples': self.n_calibration_samples,
+                }
+        #return info
 
-        d = {'d':           self.d,
-             'Rp':          self.Rp,
-             'y_equator':   self.y_equator,
-             'y_topCR_ref': self.y_topCR_ref,
-             'pixels_per_mm': self.pixels_per_mm}
+        if self.top_led in self.default_cr_positions.keys():
+            calibrator_info['default_cr_top'] = self.default_cr_positions[self.top_led]
+
+        if self.side_led in self.default_cr_positions.keys():
+            calibrator_info['default_cr_side'] = self.default_cr_positions[self.side_led]
+        
+        # --------- End from self.info -------
+        # also need stages.info (and focus & zoom)
+        stages_info = controller.stages.info
+        #return {'x_current': controller.stages.current_position(self.x_axis),
+        #        'y_current': controller.stages.current_position(self.y_axis),
+        #        'r_current': controller.stages.current_position(self.r_axis)}
+        fz_info = controller.zoom_and_focus.info
+        d = dict( \
+            calibrator=calibrator_info,
+            stages=stages_info,
+            focus_zoom=fz_info)
+        #d = {'d':           self.d,
+        #     'Rp':          self.Rp,
+        #     'y_equator':   self.y_equator,
+        #     'y_topCR_ref': self.y_topCR_ref,
+        #     'pixels_per_mm': self.pixels_per_mm}
 
         with open(filename, 'w') as f:
             pkl.dump(d, f)
 
-    def load_parameters(self, filename):
+    def check_parameters(self, p):
+        for k in ('stages', 'focus_zoom', 'calibrator'):
+            if (k not in p):
+                logging.error("calibrator missing: %s" % k)
+                return False
+        # check stages
+        for k in ('x_current', 'y_current', 'r_current'):
+            if (k not in p['stages']):
+                logging.error("calibrator missing: stages.%s" % k)
+                return False
+        for k in ('focus_current', 'zoom_current'):
+            if (k not in p['focus_zoom']):
+                logging.error("calibrator missing: focus_zoom.%s" % k)
+                return False
+        for k in ('distance', 'Rp', 'Rp_mm', 'y_equator', 'y_topCR_ref', \
+                'pixels_per_mm', 'default_cr_top', 'default_cr_side'):
+            if (k not in p['calibrator']):
+                logging.error("calibrator missing: calibrator.%s" % k)
+                return False
+        return True
+
+    def set_parameters(self, parameters, controller):
+        # check info
+        print "Checking parameters"
+        if not self.check_parameters(parameters):
+            return False
+        # stages_info = x_current, y_current, z_current
+        # fz_info = focus_current, zoom_current
+        # calibrator = ...
+        print "Moving stages"
+        for a in ('x', 'y', 'r'):
+            pos = parameters['stages']['%s_current' % a]
+            ax = getattr(controller.stages, '%s_axis' % a)
+            controller.stages.move_absolute(ax, pos)
+            cpos = controller.stages.current_position(ax)
+            if cpos - pos > 0.001:
+                logging.error("Failed to move %s_axis to %g: pos=%g" \
+                    % (a, pos, cpos))
+                return False
+        for a in ('focus', 'zoom'):
+            pos = parameters['focus_zoom']['%s_current' % a]
+            ax = getattr(controller.zoom_and_focus, '%s_axis' % a)
+            controller.zoom_and_focus.move_absolute(ax, pos)
+            cpos = controller.zoom_and_focus.current_position(ax)
+            if cpos - pos > 0.001:
+                logging.error("Failed to move %s_axis to %g: pos=%g" \
+                    % (a, pos, cpos))
+                return False
+        print "Setting parameters"
+        c = parameters['calibrator']
+        self.d = c['distance']
+        self.Rp = c['Rp']
+        self.pixels_per_mm = c['pixels_per_mm']
+        self.Rp_mm = self.Rp / self.pixels_per_mm
+        self.y_equator = c['y_equator']
+        self.y_topCR_ref = c['y_topCR_ref']
+        self.default_cr_positions[self.top_led] = c['default_cr_top']
+        self.default_cr_positions[self.side_led] = c['default_cr_side']
+        if self.Rp_mm != c['Rp_mm']:
+            logging.error("Calculated Rp_mm[%g] != loaded [%g]" % (self.Rp_mm, c['Rp_mm']))
+            return False
+        # print "Returning: %s" % (self.d != None and self.Rp != None and self.y_equator != None \
+        #             and self.y_topCR_ref != None and \
+        #             self.side_led in self.default_cr_positions.keys() and \
+        #             self.top_led in self.default_cr_positions.keys())
+        # print self.d
+        # print self.Rp
+        # print self.y_equator
+        # print self.y_topCR_ref
+        # print self.side_led
+        # print self.top_led
+        # print self.default_cr_positions
+        return True
+
+    def load_parameters(self, filename, controller):
         print("Loading: %s" % filename)
         d = None
         with open(filename, 'r') as f:
             d = pkl.load(f)
 
         if d is not None:
-            self.d = d['d']
-            self.Rp = d['Rp']
-            self.y_equator = d['y_equator']
-            self.y_topCR_ref = d['y_topCR_ref']
-            self.pixels_per_mm = d['pixels_per_mm']
-            self.Rp_mm = self.Rp / self.pixels_per_mm
+            if not self.set_parameters(d, controller):
+                logging.error("Failed to set calibration parameters in: %s" \
+                    % filename)
+            # turn on top led
+            try:
+                self.leds.turn_on(self.top_led)
+            except Exception as E:
+                logging.error("Failed to turn on top led: %s" % E)
+            #self.d = d['d']
+            #self.Rp = d['Rp']
+            #self.y_equator = d['y_equator']
+            #self.y_topCR_ref = d['y_topCR_ref']
+            #self.pixels_per_mm = d['pixels_per_mm']
+            #self.Rp_mm = self.Rp / self.pixels_per_mm
         else:
             logging.error('Could not load calibration settings: %s' % filename)
 

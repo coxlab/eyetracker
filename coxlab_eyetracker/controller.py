@@ -219,7 +219,7 @@ class EyeTrackerController(object):
         # set up real featutre finders (these won't be used if we use a
         # fake camera instead)
 
-        nworkers = 0
+        nworkers = 3
 
         self.radial_ff = None
         self.starburst_ff = None
@@ -297,6 +297,8 @@ class EyeTrackerController(object):
         self.ui_interval = 1. / 15
         self.start_time = time.time()
         self.last_time = self.start_time
+        
+        self.conduit_fps = 0.
 
         # calibrator
         logging.info('Creating Calibrator Object')
@@ -434,6 +436,11 @@ class EyeTrackerController(object):
         calibration_status = 0
 
         self.last_ui_put_time = time.time()
+        self.last_conduit_time = time.time()
+        
+        check_interval = 100
+        info_interval = 100
+        
         while self.continuously_acquiring:
             self.camera_locked = 1
 
@@ -450,7 +457,7 @@ class EyeTrackerController(object):
                     frame_number += 1
 
                 features = new_features
-                check_interval = 100
+
 
                 if frame_number % check_interval == 0:
                     toc = time.time() - tic
@@ -501,7 +508,9 @@ class EyeTrackerController(object):
                                 self.calibrator.transform(pupil_position, None)
 
                         if self.mw_conduit != None:
-
+                            #print self.leds.soft_status
+                            #print "Side:", self.calibrator.side_led, self.leds.soft_status(self.calibrator.side_led)
+                            #print "Top :", self.calibrator.top_led, self.leds.soft_status(self.calibrator.top_led)
                             # TODO: add calibration status
                             self.mw_conduit.send_data(GAZE_INFO,
                                 (float(gaze_azimuth),
@@ -516,6 +525,10 @@ class EyeTrackerController(object):
                                  float(self.leds.soft_status(self.calibrator.top_led)),
                                  float(self.leds.soft_status(self.calibrator.side_led))
                                  ))
+                            dt = time.time() - self.last_conduit_time
+                            if dt:
+                                self.conduit_fps = 0.01 / dt + 0.99 * self.conduit_fps
+                            self.last_conduit_time = time.time()
                     else:
 
                         if self.mw_conduit != None:
@@ -524,7 +537,7 @@ class EyeTrackerController(object):
                     # set values for the bindings GUI
                     if frame_number % check_interval == 0:
 
-                        print gaze_azimuth
+                        #print gaze_azimuth
 
                         self.pupil_position_x = pupil_position[1]
                         self.pupil_position_y = pupil_position[0]
@@ -535,6 +548,11 @@ class EyeTrackerController(object):
                         self.gaze_elevation = gaze_elevation
                         self.calibration_status = calibration_status
                         self.frame_rate = frame_rate
+                    
+                    # FIXME I cannot do this here as it will fubar the serial communication with the ESP
+                    #if frame_number % info_interval == 0:
+                    #    if mw_conduit != None:
+                    #        self.dump_info_to_conduit()
             except Exception:
 
                 print self.camera_device
@@ -570,6 +588,14 @@ class EyeTrackerController(object):
         self.camera_device.camera.setAttribute(a, int(value))
         # Why is this being set twice??
         #self.camera_device.camera.setAttribute(a, int(value))
+
+    @property
+    def exposure(self):
+        return self.get_camera_attribute('ExposureValue')
+    
+    @exposure.setter
+    def exposure(self, value):
+        self.set_camera_attribute('ExposureValue', int(value))
 
     @property
     def binning(self):
@@ -653,9 +679,11 @@ class EyeTrackerController(object):
     def calibration_file(self, new_file):
         self._calibration_file = new_file
         self.calibrator.load_parameters(new_file)
+        self.dump_info_to_conduit()
 
     def save_calibration(self, filename):
-        self.calibrator.save_parameters(filename)
+        self.calibrator.save_parameters(filename, self)
+        self.dump_info_to_conduit()
 
     @calibration_step
     def report_gaze(self, az=None, el=None):
@@ -924,7 +952,7 @@ class EyeTrackerController(object):
         except:
             return
 
-        self.stages.move_relative(self.stages.y_axis, y_set)
+        self.stages.move_relative(self.stages.y_axis, -y_set)
 
     def down(self):
         try:
@@ -932,7 +960,7 @@ class EyeTrackerController(object):
         except:
             return
 
-        self.stages.move_relative(self.stages.y_axis, -y_set)
+        self.stages.move_relative(self.stages.y_axis, y_set)
 
     def left(self):
         try:

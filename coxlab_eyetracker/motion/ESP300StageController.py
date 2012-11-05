@@ -6,6 +6,7 @@
 #  Copyright (c) 2008 Harvard University. All rights reserved.
 #
 
+import logging
 import time
 
 from coxlab_eyetracker.util import IPSerialBridge
@@ -104,7 +105,7 @@ class ESP300StageController(IPSerialBridge):
         okayp = 0
         retries = 20
         while (not okayp and retries > 0):
-            result_string = self.send("%dTP" % axis)
+            result_string = self.send("%dTP" % axis).rstrip()
             #print "result_string in current_position in while loop:", result_string       
             
             if(len(result_string) == 0):
@@ -117,12 +118,17 @@ class ESP300StageController(IPSerialBridge):
             return numpy.inf
         
         #print "Length of result_string = ", len(result_string)
-        if len(result_string) > 1:
-            #print "first element of result_string in current_position:", result_string          
-            return float(result_string)
-        else:
-            #print "result_string in current_position:", result_string            
-            return float(result_string)
+        #logging.error("current_position(%s): %s" % (axis, result_string))
+        try:
+            if len(result_string) > 1:
+                #print "first element of result_string in current_position:", result_string          
+                return float(result_string)
+            else:
+                #print "result_string in current_position:", result_string            
+                return float(result_string)
+        except Exception as E:
+            logging.error("current_position error: %s" % E)
+            return numpy.inf
 
     def wait_for_completion(self, axis):
         t_wait = 150 #150 #100

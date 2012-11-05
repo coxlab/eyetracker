@@ -24,10 +24,20 @@ class FocusAndZoomController:
     # ==========================
     # Delegated control methods
     # ==========================
+    @property
+    def info(self):
+        return {'focus_current': self.controller.current_position(self.focus_axis),
+                'zoom_current': self.controller.current_position(self.zoom_axis)}
     
     def home(self, axis):
         self.controller.home(axis)
     
+    def move_absolute(self, axis, pos):
+        return self.controller.move_absolute(axis, pos)
+
+    def current_position(self, axis):
+        return self.controller.current_position(axis)
+
     def current_zoom(self):
         return self.controller.current_position(self.zoom_axis)
     

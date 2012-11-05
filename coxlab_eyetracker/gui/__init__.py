@@ -104,6 +104,8 @@ class EyeTrackerGUI:
                             attr='gaze_azimuth', readonly=True)
         self.gaze_bar.add_var('Gaze/V', label='Vertical Gaze', target=c,
                             attr='gaze_elevation', readonly=True)
+        self.gaze_bar.add_var('FPS', label='FPS', target=c,
+                            attr='conduit_fps', readonly=True)
 
         self.stages_bar = atb.Bar(
             name='stages',
@@ -194,7 +196,7 @@ class EyeTrackerGUI:
             setter=lambda x: c.leds.set_current(1,x),
             getter=lambda: c.leds.soft_current(1),
             min=0,
-            max=250,
+            max=1000,
             )
 
         self.led_bar.add_var('Side/Ch1_status', label='Ch1 status',
@@ -211,7 +213,7 @@ class EyeTrackerGUI:
             setter=lambda x: c.leds.set_current(2,x),
             getter=lambda: c.leds.soft_current(2),
             min=0,
-            max=250,
+            max=1000,
             )
         self.led_bar.add_var('Top/Ch2_status', vtype=atb.TW_TYPE_BOOL8,
                              getter=lambda: c.leds.soft_status(2),
@@ -534,7 +536,8 @@ class EyeTrackerGUI:
                                  attr='cal_file_save_name')
             self.cal_bar.add_button('save_calibration', lambda: \
                                     self.save_calibration_file_atb(self.cal_file_save_name))
-        except:
+        except Exception as E:
+            logging.warning("Error setting calibration file list: %s" % E)
             logging.warning("""Unable to use calibration-file saving
                                infrastructure.  A patched version of glumpy
                                is required to enable this feature.""")
@@ -572,6 +575,17 @@ class EyeTrackerGUI:
             step=1,
             target=c,
             attr='gain',
+            )
+
+        self.cam_bar.add_var(
+            'exposure',
+            label='exposure',
+            vtype=atb.TW_TYPE_UINT32,
+            min=5000,
+            max=30000,
+            step=1000,
+            target=c,
+            attr='exposure',
             )
 
         self.cam_bar.add_var(
@@ -668,10 +682,12 @@ class EyeTrackerGUI:
         # return self.cal_enum_dict.get(self.controller.calibration_file,0)
 
     def set_calibration_file_atb(self, x):
+        if self.cal_lookup_dict[x] == 'None':
+            return
         self.calibration_file = self.cal_lookup_dict[x]
         base_path = os.path.expanduser(global_settings['calibration_path'])
         cal_path = os.path.join(base_path, '%s.pkl' % self.calibration_file)
-        self.controller.calibrator.load_parameters(cal_path)
+        self.controller.calibrator.load_parameters(cal_path, self.controller)
 
         # self.controller.calibration_file = self.cal_lookup_dict[x]
 
@@ -704,12 +720,13 @@ class EyeTrackerGUI:
     def save_calibration_file_atb(self, cal_name):
         base_path = os.path.expanduser(global_settings['calibration_path'])
         cal_path = os.path.join(base_path, '%s.pkl' % cal_name)
-        self.controller.calibrator.save_parameters(cal_path)
+        self.controller.save_calibration(cal_path)
+        #self.controller.calibrator.save_parameters(cal_path, self.controller)
         # self.controller.save_calibration(cal_path)
         self.refresh_calibration_file_list()
 
     def update_tracker_view(self):
-        if self.controller.camera_device == None:
+        if (self.controller is None) or (self.controller.camera_device is None):
             return
 
         try:

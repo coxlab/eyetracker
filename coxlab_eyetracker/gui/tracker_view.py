@@ -82,7 +82,7 @@ class TrackerView:
         glClear(GL_COLOR_BUFFER_BIT)
 
         if self.im_array == None:
-            print 'No image'
+            #print 'No image'
             # glFlush()
             return
 
