@@ -256,11 +256,13 @@ class StahlLikeCalibrator:
             if not self.set_parameters(d, controller):
                 logging.error("Failed to set calibration parameters in: %s" \
                     % filename)
+                return
             # turn on top led
             try:
                 self.leds.turn_on(self.top_led)
             except Exception as E:
                 logging.error("Failed to turn on top led: %s" % E)
+            controller.execute_calibration_step(lambda x: controller.dump_info_to_conduit(), True)
             #self.d = d['d']
             #self.Rp = d['Rp']
             #self.y_equator = d['y_equator']
