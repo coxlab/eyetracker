@@ -18,10 +18,11 @@ from coxlab_eyetracker.camera import *
 from coxlab_eyetracker.led import *
 from coxlab_eyetracker.motion import *
 from coxlab_eyetracker.calibrator import *
-
+from settings import global_settings
 
 # load settings
-global_settings = load_config_file('~/.eyetracker/config.ini')
+loaded_config = load_config_file('~/.eyetracker/config.ini')
+global_settings.update(loaded_config)
 
 print global_settings
 
@@ -649,7 +650,7 @@ class EyeTrackerController(object):
     def roi_offset_y(self, value):
         self.set_camera_attribute('RegionY', int(value))
 
-    def execute_calibration_step(self, f):
+    def execute_calibration_step(self, f, wait=False):
         if self.calibrating:
             logging.warning('Already calibrating. '
                             + 'Please wait until the curent step is finished.')
@@ -660,6 +661,9 @@ class EyeTrackerController(object):
         calibrate_thread = threading.Thread(target=t)
         calibrate_thread.start()
 
+        if wait:
+            calibrate_thread.join()
+
     def execute_and_resume_acquisition(self, f):
 
         f(self)
@@ -668,6 +672,37 @@ class EyeTrackerController(object):
         self.start_continuous_acquisition()
         self.read_pos()
         self.calibrating = False
+
+    def load_calibration_parameters(self, filename):
+        print("Loading: %s" % filename)
+        d = None
+        with open(filename, 'r') as f:
+            d = pkl.load(f)
+
+        if d is None:
+            logging.warning('Error loading calibration file %s' % filename)
+            return False
+
+        candidate_pixels_per_mm = d['pixels_per_mm']
+
+        # check to see if the pixels_per_mm matches up
+        if global_settings.get('check_pixels_per_mm_when_loading', False):
+            logging.warning('CHECKING pixels_per_mm as sanity check')
+            self.execute_calibration_step(lambda x: self.calibrator.center_horizontal(), True)
+            tolerance = global_settings.get('pixels_per_mm_tolerance', 0.01)
+            deviation = (abs(self.calibrator.pixels_per_mm - candidate_pixels_per_mm) / self.calibrator.pixels_per_mm)
+            if  deviation > tolerance:
+                logging.warning('Calibration is not consistent with apparent pixels/mm')
+                logging.warning('(loaded=%f, measured=%f' % (candidate_pixels_per_mm, self.calibrator.pixels_per_mm))
+                logging.warning('deviation=%f, tolerance=%f' % (deviation, tolerance))
+                return False
+            else:
+                logging.warning('Calibration is consistent with apparent pixels/mm')
+                logging.warning('(loaded=%f, measured=%f' % (candidate_pixels_per_mm, self.calibrator.pixels_per_mm))
+                logging.warning('deviation=%f, tolerance=%f' % (deviation, tolerance))
+
+        print d
+        return self.calibrator.load_parameters(d)
 
     @property
     def calibration_file(self):

@@ -17,6 +17,9 @@ import time
 from Queue import Queue, Full
 import cPickle as pkl
 
+import logging
+
+
 class StahlLikeCalibrator:
 
     uncalibrated = 0
@@ -278,28 +281,28 @@ class StahlLikeCalibrator:
         flag_swip_cols = 0
         if flag_swip_cols:
             cr_array = features["cr_position_array"]
-            tmp = cr_array[:,1].copy()
-            cr_array[:,1] = cr_array[:,0]
-            cr_array[:,0] = tmp
+            tmp = cr_array[:, 1].copy()
+            cr_array[:, 1] = cr_array[:, 0]
+            cr_array[:, 0] = tmp
             pupil_array = features["pupil_position_array"]
-            tmp = pupil_array[:,1].copy()
-            pupil_array[:,1] = pupil_array[:,0]
-            pupil_array[:,0] = tmp
+            tmp = pupil_array[:, 1].copy()
+            pupil_array[:, 1] = pupil_array[:, 0]
+            pupil_array[:, 0] = tmp
             #print "set of pupil measurements (pix) =\n", pupil_array
         else:
             cr_array = features["cr_position_array"]
             pupil_array = features["pupil_position_array"]
 
         # Convert pixel arrays to degree
-        elevation, azimuth = self.transform( pupil_array, cr_array)
+        elevation, azimuth = self.transform(pupil_array, cr_array)
 
         print "#########  Set of pupil measurements (deg): ##########\n"
         print "Azimuth =\n", azimuth
         print "Elevation =\n", elevation
 
         print "#########  Set of top CR measurements (pix): ##########\n"
-        print "x =\n", cr_array[:,0]
-        print "y =\n", cr_array[:,1]
+        print "x =\n", cr_array[:, 0]
+        print "y =\n", cr_array[:, 1]
 
         return mean(azimuth), mean(elevation), std(azimuth), std(elevation)
 

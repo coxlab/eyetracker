@@ -51,6 +51,7 @@ enable_mw_conduit=true
 def config_to_dict(cp, d={}):
 
     for section in cp.sections():
+        print(cp.items(section))
         d.update(dict(cp.items(section)))
 
     # a bit hacky: covert from strings to values
@@ -59,7 +60,7 @@ def config_to_dict(cp, d={}):
             d[key] = True
         if re.match(r'false', val, re.IGNORECASE):
             d[key] = False
-
+    print('d: %s' % d)
     return d
 
 
