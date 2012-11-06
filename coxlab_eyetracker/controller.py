@@ -384,6 +384,9 @@ class EyeTrackerController(object):
         # self.camera = None
         self.camera_device = None
 
+        if isinstance(self.feature_finder, PipelinedFeatureFinder):
+            self.feature_finder.stop_threads()
+
         return True
 
     def simple_alert(self, title, message):
