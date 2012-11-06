@@ -87,7 +87,7 @@ class FocusAndZoomController:
             1SL-200.0000
             1SR200.0000
             1TJ1
-            1OM1
+            1OM3
             1VU%g
             1VA%g
             1JH20.00
@@ -136,7 +136,7 @@ class FocusAndZoomController:
             2SL-200.0000
             2SR200.0000
             2TJ1
-            2OM1
+            2OM3
             2VU%g
             2VA%g
             2JH20.00
