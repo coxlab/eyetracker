@@ -128,9 +128,13 @@ class EyeTrackerController(object):
 
         self.calibrating = False
 
+        self.enable_save_to_disk = global_settings.get('enable_save_to_disk', False)
+        print self.enable_save_to_disk
+        self.image_save_dir = global_settings.get('data_dir', None)
+
         self.use_simulated = global_settings.get('use_simulated', False)
         self.use_file_for_cam = global_settings.get('use_file_for_camera',
-                False)
+                                                    False)
 
         # -------------------------------------------------------------
         # Stages
@@ -257,6 +261,12 @@ class EyeTrackerController(object):
 
             self.feature_finder = comp_ff
 
+        if self.enable_save_to_disk and self.image_save_dir is not None:
+            logging.info('Enabling save to disk...')
+            self.feature_finder = ImageSaveDummyFeatureFinder(self.feature_finder, self.image_save_dir)
+        else:
+            logging.warning('Data will not be saved to disk.')
+
         if True:
         # try:
             if not self.use_file_for_cam and not self.use_simulated:
@@ -298,7 +308,7 @@ class EyeTrackerController(object):
         self.ui_interval = 1. / 15
         self.start_time = time.time()
         self.last_time = self.start_time
-        
+
         self.conduit_fps = 0.
 
         # calibrator
@@ -441,10 +451,10 @@ class EyeTrackerController(object):
 
         self.last_ui_put_time = time.time()
         self.last_conduit_time = time.time()
-        
+
         check_interval = 100
         info_interval = 100
-        
+
         while self.continuously_acquiring:
             self.camera_locked = 1
 
@@ -461,7 +471,6 @@ class EyeTrackerController(object):
                     frame_number += 1
 
                 features = new_features
-
 
                 if frame_number % check_interval == 0:
                     toc = time.time() - tic
@@ -552,7 +561,7 @@ class EyeTrackerController(object):
                         self.gaze_elevation = gaze_elevation
                         self.calibration_status = calibration_status
                         self.frame_rate = frame_rate
-                    
+
                     # FIXME I cannot do this here as it will fubar the serial communication with the ESP
                     #if frame_number % info_interval == 0:
                     #    if mw_conduit != None:
@@ -596,7 +605,7 @@ class EyeTrackerController(object):
     @property
     def exposure(self):
         return self.get_camera_attribute('ExposureValue')
-    
+
     @exposure.setter
     def exposure(self, value):
         self.set_camera_attribute('ExposureValue', int(value))
