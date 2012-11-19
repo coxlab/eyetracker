@@ -129,7 +129,7 @@ class EyeTrackerController(object):
         self.calibrating = False
 
         self.enable_save_to_disk = global_settings.get('enable_save_to_disk', False)
-        print self.enable_save_to_disk
+        print "Save to disk?:", self.enable_save_to_disk
         self.image_save_dir = global_settings.get('data_dir', None)
 
         self.use_simulated = global_settings.get('use_simulated', False)
@@ -394,7 +394,7 @@ class EyeTrackerController(object):
         # self.camera = None
         self.camera_device = None
 
-        if isinstance(self.feature_finder, PipelinedFeatureFinder):
+        if hasattr(self.feature_finder, 'stop_threads'):
             self.feature_finder.stop_threads()
 
         return True
@@ -483,8 +483,8 @@ class EyeTrackerController(object):
                     tic = time.time()
 
                 if features == None:
-                    logging.info('No features found... sleeping')
-                    time.sleep(0.1)
+                    logging.error('No features found... sleeping')
+                    time.sleep(0.004)
                     continue
 
                 if features['pupil_position'] != None and features['cr_position'
