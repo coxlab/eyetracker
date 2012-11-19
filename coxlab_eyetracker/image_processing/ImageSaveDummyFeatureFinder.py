@@ -32,6 +32,10 @@ class ImageSaveDummyFeatureFinder(EyeFeatureFinder):
     def get_result(self):
         return self.real_ff.get_result()
 
+    def stop_threads(self):
+        if hasattr(self.real_ff, 'stop_threads'):
+            self.real_ff.stop_threads()
+
     def save_image(self, image, timestamp):
 
         if (self.n_frames % self.frames_per_dir == 0 or
@@ -41,11 +45,10 @@ class ImageSaveDummyFeatureFinder(EyeFeatureFinder):
             self.current_path = (self.base_path + '/' +
                                 '%.10d' % (self.n_frames /
                                            self.frames_per_dir))
-            print(self.current_path)
             os.mkdir(self.current_path)
 
-        fname = '%s/%d.pkl' % (self.current_path,
-                               timestamp)
+        fname = '%s/%i.pkl' % (self.current_path,
+                               int(timestamp * 1000.))
 
         with open(fname, 'w') as f:
             self.n_frames += 1
