@@ -52,6 +52,6 @@ class ImageSaveDummyFeatureFinder(EyeFeatureFinder):
 
         with open(fname, 'w') as f:
             self.n_frames += 1
-            pkl.dump(image, f)
+            pkl.dump(image.astype('>u1'), f)
 
 
