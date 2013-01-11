@@ -1,0 +1,15 @@
+1) linux + optimus = fail
+2) need nvidia driver (not nouveau)
+3) nouveau will not unload without (stopping x, echoing 0 to ..../vcom1/bind)
+4) missing /dev/nvidiactl (see: http://www.x.org/wiki/NVIDIAProprietaryDriver)
+5) user was not part of 'video' group
+
+good to go!
+
+for intel follow: http://mhr3.blogspot.com/2011/05/opencl-on-ubuntu.html
+1) may have to uninstall opencl-headers
+2) install libnuma: sudo apt-get install libnuma1
+3) get rpm from intel
+4) convert rpm to deb: fakeroot alien --to-deb <filename>
+5) install deb: dpkg -i <filename.deb>
+
