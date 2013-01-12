@@ -8,7 +8,8 @@ import scipy.ndimage.filters
 import scipy.signal
 import pyopencl.array as cla
 
-from coxlab_eyetracker.image_processing.simple_cl_conv import NaiveSeparableConvolution, Sobel
+from coxlab_eyetracker.image_processing.simple_cl_conv import NaiveSeparableCorrelation, Sobel
+from coxlab_eyetracker.image_processing.localmem_cl_conv import LocalMemorySeparableCorrelation
 from pyopencl.elementwise import ElementwiseKernel
 
 PROGRAM = """
@@ -102,34 +103,47 @@ __kernel void calcF(__global float* O, __global float* M, __global float* F,
 
 
 class OpenCLBackend:
-    def __init__(self):
-        self.setup_device((123, 164))
+    def __init__(self, ctx=None, queue=None):
+
+        if ctx is None:
+            self.ctx = pyopencl.create_some_context(False)
+        else:
+            self.ctx = ctx
+
+        if queue is None:
+            self.q = pyopencl.CommandQueue(self.ctx)
+        else:
+            self.q = queue
+
+        self.clIm = None
+        self.imshape = None
 
     def autotune(self, im):
         pass
 
     def setup_device(self, imshape):
-        self.ctx = pyopencl.create_some_context(False)
-        self.q = pyopencl.CommandQueue(self.ctx)
-        self.clm = pyopencl.array.Array(self.q, imshape, numpy.float32)
-        self.clx = pyopencl.array.Array(self.q, imshape, numpy.float32)
-        self.cly = pyopencl.array.Array(self.q, imshape, numpy.float32)
-        self.clO = pyopencl.array.Array(self.q, imshape, numpy.float32)
-        self.clM = pyopencl.array.Array(self.q, imshape, numpy.float32)
-        self.clF = pyopencl.array.Array(self.q, imshape, numpy.float32)
 
-        self.clS = cla.empty_like(self.clm)
-        self.clThisS = cla.empty_like(self.clm)
-        self.clScratch = cla.empty_like(self.clm)
+        print('Setting up with imshape = %s' % (str(imshape)))
+
+        self.imshape = imshape
+
+        self.clIm = cla.Array(self.q, imshape, numpy.float32)
+        self.clm = cla.empty_like(self.clIm)
+        self.clx = cla.empty_like(self.clIm)
+        self.cly = cla.empty_like(self.clIm)
+        self.clO = cla.zeros_like(self.clIm)
+        self.clM = cla.zeros_like(self.clIm)
+        self.clF = cla.empty_like(self.clIm)
+        self.clS = cla.empty_like(self.clIm)
+        self.clThisS = cla.empty_like(self.clIm)
+        self.clScratch = cla.empty_like(self.clIm)
 
         self.prg = pyopencl.Program(self.ctx, PROGRAM).build()
 
-        # this will build the fill program
-        self.clO.fill(numpy.float32(0), self.q)
-        self.clM.fill(numpy.float32(0), self.q)
-
         self.sobel = Sobel(self.ctx, self.q)
-        self.sepcorr2d = NaiveSeparableConvolution(self.ctx, self.q)
+
+        #self.sepcorr2d = NaiveSeparableCorrelation(self.ctx, self.q)
+        self.sepcorr2d = LocalMemorySeparableCorrelation(self.ctx, self.q)
 
         self.accum = ElementwiseKernel(self.ctx,
                                        'float *a, float *b',
@@ -140,7 +154,12 @@ class OpenCLBackend:
                                         's[i] = -1 * s[i] / nRadii',
                                         'norm_s')
 
+        self.accum_s = ElementwiseKernel(self.ctx,
+                                         'float *a, float *b, const float nr',
+                                         'a[i] -= b[i] / nr')
+
         self.gaussians = {}
+        self.gaussian_prgs = {}
 
     def sobel3x3(self, im):
         sobel_c = numpy.array([-1., 0., 1.], dtype=im.dtype)
@@ -157,12 +176,13 @@ class OpenCLBackend:
 
     def fast_radial_transform(self, im, radii, alpha):
 
-        # TODO move this to GPU
-        cl_im = cla.to_device(self.q, im.astype(numpy.float32))
+        if im.shape != self.imshape:
+            self.setup_device(im.shape)
 
-        self.sobel(cl_im, self.clx, self.cly, self.clm)
+        self.clIm.set(im.astype(numpy.float32))
 
-        # calcF also calls this
+        self.sobel(self.clIm, self.clx, self.cly, self.clm)
+
         self.clS.fill(numpy.float32(0), self.q)
         self.clO.fill(numpy.float32(0), self.q)
         self.clM.fill(numpy.float32(0), self.q)
@@ -170,9 +190,9 @@ class OpenCLBackend:
         for radius in radii:
 
             #print "------ Running -------"
-            self.prg.calcOM(self.q, im.shape, (3, 4), \
-                    self.clm.data, self.clx.data, self.cly.data, \
-                    self.clO.data, self.clM.data, \
+            self.prg.calcOM(self.q, im.shape, None, #(3, 4),
+                    self.clm.data, self.clx.data, self.cly.data,
+                    self.clO.data, self.clM.data,
                     numpy.int32(radius))
 
             if radius == 1:
@@ -180,13 +200,14 @@ class OpenCLBackend:
             else:
                 kappa = 9.9
 
-            self.prg.calcF(self.q, im.shape, (3, 4), \
-                    self.clO.data, self.clM.data, self.clF.data,
-                    numpy.float32(kappa), numpy.float32(alpha))
+            self.prg.calcF(self.q, im.shape, None, #(3, 4),
+                           self.clO.data, self.clM.data, self.clF.data,
+                           numpy.float32(kappa), numpy.float32(alpha))
 
             # Unsmoothed symmetry measure at this radius value
 
-            if radius in self.gaussians:
+            if radius in self.gaussian_prgs:
+                blur = self.gaussian_prgs[radius]
                 clGauss1D = self.gaussians[radius]
             else:
                 width = round(radius)
@@ -194,12 +215,17 @@ class OpenCLBackend:
                     width += 1
                 gauss1d = scipy.signal.gaussian(width, 0.25 * radius)
 
+                blur = LocalMemorySeparableCorrelation(self.ctx, self.q, gauss1d, gauss1d)
+                self.gaussian_prgs[radius] = blur
+
                 clGauss1D = cla.to_device(self.q, gauss1d.astype(numpy.float32))
                 self.gaussians[radius] = clGauss1D
 
-            self.sepcorr2d(self.clF, clGauss1D, clGauss1D, self.clThisS, self.clScratch)
+            # self.sepcorr2d(self.clF, clGauss1D, clGauss1D, self.clThisS, self.clScratch)
+            blur(self.clF, clGauss1D, clGauss1D, self.clThisS, self.clScratch)
 
             self.accum(self.clS, self.clThisS)
+            #self.accum_s(self.clS, self.clThisS, numpy.float32(len(radii)))
 
         self.norm_s(self.clS, numpy.float32(len(radii)))
 

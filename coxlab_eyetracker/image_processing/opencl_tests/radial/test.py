@@ -4,6 +4,7 @@ import sys
 import time
 
 import pylab
+import numpy as np
 
 # try to import the 'old' image_processing module to compare
 # the opencl results against
@@ -18,6 +19,7 @@ from coxlab_eyetracker.image_processing.CythonBackend import CythonBackend
 import radial2 as radial
 
 nwarmups = 20
+nruns = 200
 
 #radii = pylab.arange(2, 20, 1)
 radii = pylab.array([2,  4,  7,  9, 12, 15])
@@ -29,6 +31,10 @@ if len(sys.argv) > 1:
     fn = sys.argv[1]
 im = pylab.imread(fn)[:, :, 0].astype(float)
 
+#im = np.random.rand(640, 480)
+
+print 'im shape'
+print im.shape
 
 #vb = image_processing.VanillaBackend()
 #cb = radial.OpenCLBackend()
@@ -49,10 +55,11 @@ for (n, b) in backends.iteritems():
     for w in range(0, nwarmups):
         r = b.fast_radial_transform(im, radii, alpha)
     t0 = time.time()
-    r = b.fast_radial_transform(im, radii, alpha)
+    for w in range(0, nruns):
+        r = b.fast_radial_transform(im, radii, alpha)
     t1 = time.time()
     results[n] = r
-    times[n] = t1 - t0
+    times[n] = (t1 - t0) / nruns
 
 truth = results[true_backend]
 print "Truth:", truth.max(), truth.min()

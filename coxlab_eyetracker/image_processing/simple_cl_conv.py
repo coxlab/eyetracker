@@ -4,9 +4,12 @@ import pyopencl.array as cl_array
 from pyopencl import clmath
 from pyopencl.elementwise import ElementwiseKernel
 import numpy as np
+import numpy.testing as nptest
+
+from localmem_cl_conv import LocalMemorySeparableCorrelation
 
 
-class NaiveSeparableConvolution:
+class NaiveSeparableCorrelation:
 
     def __init__(self, ctx, queue):
         self.ctx = ctx
@@ -113,7 +116,6 @@ class NaiveSeparableConvolution:
                                                np.int32(w), np.int32(h),
                                                row_buf.data,
                                                np.int32(r))
-        #evt.wait()
 
         self.program.separable_correlation_col(self.queue,
                                                (h, w),
@@ -123,7 +125,6 @@ class NaiveSeparableConvolution:
                                                np.int32(w), np.int32(h),
                                                col_buf.data,
                                                np.int32(c))
-        #evt.wait()
 
 
 class Sobel:
@@ -138,7 +139,8 @@ class Sobel:
 
         self.scratch = None
 
-        self.sepconv = NaiveSeparableConvolution(self.ctx, self.queue)
+        self.sepconv_rc = LocalMemorySeparableCorrelation(self.ctx, self.queue, sobel_r, sobel_c)
+        self.sepconv_cr = LocalMemorySeparableCorrelation(self.ctx, self.queue, sobel_c, sobel_r)
 
         self.mag = ElementwiseKernel(ctx,
                                     "float *result, float *imgx, float *imgy",
@@ -154,8 +156,8 @@ class Sobel:
         if self.scratch is None or self.scratch.shape != input_buf.shape:
             self.scratch = cl_array.empty_like(input_buf)
 
-        self.sepconv(input_buf, self.sobel_c, self.sobel_r, imgx_buf, self.scratch)
-        self.sepconv(input_buf, self.sobel_r, self.sobel_c, imgy_buf, self.scratch)
+        self.sepconv_cr(input_buf, self.sobel_c, self.sobel_r, imgx_buf, self.scratch)
+        self.sepconv_rc(input_buf, self.sobel_r, self.sobel_c, imgy_buf, self.scratch)
         self.mag(mag_buf, imgx_buf, imgy_buf)
 
 
@@ -175,20 +177,21 @@ def cl_test_sobel(im):
 
 if __name__ == '__main__':
 
+    import matplotlib.pylab as plt
+
     if True:
-        test_im = np.random.rand(7, 5).astype(np.float32)
-        row_k = np.random.rand(3,).astype(np.float32)
-        col_k = np.random.rand(3,).astype(np.float32)
+        test_im = np.random.rand(217, 101).astype(np.float32)
+        row_k = np.random.rand(5,).astype(np.float32)
+        col_k = np.random.rand(5,).astype(np.float32)
     elif False:
-        a = np.array([1,2,3,4,5], dtype=np.float32)
+        a = np.array(range(10, 1, -1), dtype=np.float32)
         test_im = np.outer(a, a)
         row_k = np.array([1, 2, 3]).astype(np.float32)
-        col_k = np.array([2, 4, 5]).astype(np.float32)
+        col_k = np.array([5, 6, 7]).astype(np.float32)
     else:
         test_im = np.ones([10, 10]).astype(np.float32)
         row_k = np.array([1, 2, 3]).astype(np.float32)
         col_k = np.array([2, 4, 5]).astype(np.float32)
-
 
     ctx = cl.create_some_context()
     queue = cl.CommandQueue(ctx)
@@ -201,7 +204,6 @@ if __name__ == '__main__':
     imgy_buf = cl_array.empty_like(in_buf)
     mag_buf = cl_array.empty_like(in_buf)
 
-
     # Test the Sobel
     sobel = Sobel(ctx, queue)
     sobel(in_buf, imgx_buf, imgy_buf, mag_buf)
@@ -210,7 +212,8 @@ if __name__ == '__main__':
     print(mag_buf.get())
 
     # Test the conv
-    conv = NaiveSeparableConvolution(ctx, queue)
+    #conv = NaiveSeparableCorrelation(ctx, queue)
+    conv = LocalMemorySeparableCorrelation(ctx, queue)
 
     conv(in_buf, row_buf, col_buf, out_buf)
 
@@ -219,16 +222,18 @@ if __name__ == '__main__':
     from scipy.signal import correlate2d as c2d
     gt = c2d(test_im, full_kernel, mode='same', boundary='symm')
 
-    print "Input: "
-    print(test_im)
+    # print "Input: "
+    # print(test_im)
 
-    print "ground truth"
-    print(gt)
+    # print "ground truth"
+    # print(gt)
 
-    print "cl output"
-    print(out_buf.get())
+    # print "cl output"
+    # print(out_buf.get())
 
-    print "diff"
-    print(gt - out_buf.get())
+    # print "diff"
+    # print(gt - out_buf.get())
 
-
+    if not np.allclose(gt, out_buf.get()):
+        plt.imshow(gt - out_buf.get())
+        plt.show()
