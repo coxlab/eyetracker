@@ -60,23 +60,22 @@ for (n, b) in backends.iteritems():
         r = b.fast_radial_transform(im, radii, alpha)
     t0 = time.time()
     for w in range(0, nruns):
-        r = b.fast_radial_transform(im, radii, alpha)
+        r = b.find_minmax(b.fast_radial_transform(im, radii, alpha))
     t1 = time.time()
     results[n] = r
     times[n] = (t1 - t0) / nruns
 
 truth = results[true_backend]
-print "Truth:", truth.max(), truth.min()
+print "Truth:", truth
 for (n, r) in results.iteritems():
     print "%07s [%.6f seconds]" % (n, times[n])
-    if (abs(r.max() - truth.max()) > 0.0001) or \
-        (abs(r.min() - truth.min()) > 0.0001):
+
+    if (not np.allclose(r[0], truth[0]) or
+       not np.allclose(r[1], truth[1])):
+    # if (abs(r.max() - truth.max()) > 0.0001) or \
+    #     (abs(r.min() - truth.min()) > 0.0001):
         print "===============FAIL=============="
-        print "Result:", r.max(), r.min()
-        pylab.imshow(r)
-        pylab.show()
-        pylab.imshow(truth)
-        pylab.show()
+        print "Result:", r
     else:
         print "          ++++ Pass ++++"
 

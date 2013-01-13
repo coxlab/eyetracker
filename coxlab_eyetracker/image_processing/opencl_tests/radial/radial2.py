@@ -10,7 +10,11 @@ import pyopencl.array as cla
 
 from coxlab_eyetracker.image_processing.simple_cl_conv import NaiveSeparableCorrelation, Sobel
 from coxlab_eyetracker.image_processing.localmem_cl_conv import LocalMemorySeparableCorrelation
+from coxlab_eyetracker.image_processing.cl_minmax import MinMaxKernel
+
+from coxlab_eyetracker.image_processing.WovenBackend import WovenBackend
 from pyopencl.elementwise import ElementwiseKernel
+
 
 PROGRAM = """
 
@@ -102,8 +106,10 @@ __kernel void calcF(__global float* O, __global float* M, __global float* F,
 """
 
 
-class OpenCLBackend:
+class OpenCLBackend (WovenBackend):
     def __init__(self, ctx=None, queue=None):
+
+        WovenBackend.__init__(self)
 
         if ctx is None:
             self.ctx = pyopencl.create_some_context(False)
@@ -160,6 +166,8 @@ class OpenCLBackend:
 
         self.gaussians = {}
         self.gaussian_prgs = {}
+
+        self.minmax = MinMaxKernel(self.ctx, self.q)
 
 
 
@@ -234,65 +242,7 @@ class OpenCLBackend:
         return self.clS
 
     def find_minmax(self, im):
-
-        if im is None:
-            return ([0, 0], [0])
-
-        # We're going to do an extremely simple min/max reduction.
-        # Would do this with PyOpenCL's reduction kernel, but it unfortunately
-        # doesn't work.
-
-
-
-
-        code = \
-            """
-            Py_BEGIN_ALLOW_THREADS
-
-
-            int rows = Nimage[0];
-            int cols = Nimage[1];
-
-            #define __TYPE  %s
-
-            __TYPE themax = -999999;
-            __TYPE themin = 999999;
-
-            for(int r = 0; r < rows; r++){
-                for(int c = 0; c < cols; c++){
-
-                    __TYPE *pixel_ptr = (__TYPE *)((char *)image_array->data + r * image_array->strides[0] + c * image_array->strides[1]);
-
-
-                    if(*pixel_ptr > themax){
-
-                        themax = *pixel_ptr;
-                        coordinates[2] = (__TYPE)r;
-                        coordinates[3] = (__TYPE)c;
-                    }
-
-                    if(*pixel_ptr < themin){
-
-                        themin = *pixel_ptr;
-                        coordinates[0] = (__TYPE)r;
-                        coordinates[1] = (__TYPE)c;
-                    }
-                }
-            }
-
-            Py_END_ALLOW_THREADS
-        """ \
-            % self.type_string
-
-        coordinates = array([0., 0., 0., 0.])
-        themax = 0.
-        themin = 0.
-
-        inline(code, ['image', 'coordinates'])
-
-        # print coordinates
-
-        return (coordinates[0:2], coordinates[2:4])
+        return self.minmax(im)
 
 
 def test_with_noise():

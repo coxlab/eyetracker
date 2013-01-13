@@ -27,7 +27,6 @@ class MinMaxKernel:
             l += 1
         while l > 1:
             l /= 2
-            print l
             self.scratch.append(cla.empty(self.queue, (l,), np.float32))
             self.index_scratch.append(cla.empty(self.queue, (l,), np.int32))
 
@@ -99,15 +98,12 @@ class MinMaxKernel:
         if input_dev.shape != self.imshape:
             self.build_scratch(input_dev.shape)
 
-        print input_dev.get().ravel()
-
         datasize = np.prod(self.imshape)
 
         min_prg = self.build_kernel(datasize, compute_min=True)
         max_prg = self.build_kernel(datasize, compute_min=False)
 
         # MAX
-        print "MAX"
         gsize = (int(self.scratch[0].shape[0]), 1)
         max_prg(self.queue,
                        gsize,
@@ -116,8 +112,6 @@ class MinMaxKernel:
                        self.index_scratch[0].data,
                        input_dev.data,
                        self.array_indices.data)
-
-        print(self.scratch[0].get())
 
         for i in range(0, len(self.scratch) - 1):
             gsize = (int(self.scratch[i + 1].shape[0]), 1)
@@ -129,13 +123,9 @@ class MinMaxKernel:
                     self.scratch[i].data,
                     self.index_scratch[i].data)
 
-        for s in self.scratch:
-            print(s.get())
-
         max_index = (self.index_scratch[-1].get())[0]
 
         # MIN
-        print "MIN"
         min_prg(self.queue,
                        (int(self.scratch[0].shape[0]), 1),
                        None,
@@ -154,19 +144,18 @@ class MinMaxKernel:
                     self.scratch[i].data,
                     self.index_scratch[i].data)
 
-        for s in self.scratch:
-            print(s.get())
-
         min_index = (self.index_scratch[-1].get())[0]
 
-        min_x = np.floor(min_index / self.imshape[0])
-        min_y = min_index - min_x * self.imshape[0]
+        min_x = np.floor(min_index / self.imshape[1])
+        min_y = min_index - min_x * self.imshape[1]
 
-        max_x = np.floor(max_index / self.imshape[0])
-        max_y = max_index - max_x * self.imshape[0]
+        max_x = np.floor(max_index / self.imshape[1])
+        max_y = max_index - max_x * self.imshape[1]
 
         min_coords = np.array([min_x, min_y])
         max_coords = np.array([max_x, max_y])
+
+        self.queue.finish()
 
         # MIN
         return (min_coords, max_coords)
