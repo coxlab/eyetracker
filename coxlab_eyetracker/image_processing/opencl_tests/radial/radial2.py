@@ -161,6 +161,8 @@ class OpenCLBackend:
         self.gaussians = {}
         self.gaussian_prgs = {}
 
+
+
     def sobel3x3(self, im):
         sobel_c = numpy.array([-1., 0., 1.], dtype=im.dtype)
         sobel_r = numpy.array([1., 2., 1.], dtype=im.dtype)
@@ -184,8 +186,8 @@ class OpenCLBackend:
         self.sobel(self.clIm, self.clx, self.cly, self.clm)
 
         self.clS.fill(numpy.float32(0), self.q)
-        self.clO.fill(numpy.float32(0), self.q)
-        self.clM.fill(numpy.float32(0), self.q)
+        #self.clO.fill(numpy.float32(0), self.q)
+        #self.clM.fill(numpy.float32(0), self.q)
 
         for radius in radii:
 
@@ -229,7 +231,68 @@ class OpenCLBackend:
 
         self.norm_s(self.clS, numpy.float32(len(radii)))
 
-        return self.clS.get()
+        return self.clS
+
+    def find_minmax(self, im):
+
+        if im is None:
+            return ([0, 0], [0])
+
+        # We're going to do an extremely simple min/max reduction.
+        # Would do this with PyOpenCL's reduction kernel, but it unfortunately
+        # doesn't work.
+
+
+
+
+        code = \
+            """
+            Py_BEGIN_ALLOW_THREADS
+
+
+            int rows = Nimage[0];
+            int cols = Nimage[1];
+
+            #define __TYPE  %s
+
+            __TYPE themax = -999999;
+            __TYPE themin = 999999;
+
+            for(int r = 0; r < rows; r++){
+                for(int c = 0; c < cols; c++){
+
+                    __TYPE *pixel_ptr = (__TYPE *)((char *)image_array->data + r * image_array->strides[0] + c * image_array->strides[1]);
+
+
+                    if(*pixel_ptr > themax){
+
+                        themax = *pixel_ptr;
+                        coordinates[2] = (__TYPE)r;
+                        coordinates[3] = (__TYPE)c;
+                    }
+
+                    if(*pixel_ptr < themin){
+
+                        themin = *pixel_ptr;
+                        coordinates[0] = (__TYPE)r;
+                        coordinates[1] = (__TYPE)c;
+                    }
+                }
+            }
+
+            Py_END_ALLOW_THREADS
+        """ \
+            % self.type_string
+
+        coordinates = array([0., 0., 0., 0.])
+        themax = 0.
+        themin = 0.
+
+        inline(code, ['image', 'coordinates'])
+
+        # print coordinates
+
+        return (coordinates[0:2], coordinates[2:4])
 
 
 def test_with_noise():
@@ -278,7 +341,7 @@ def profile():
     stats = hotshot.stats.load("test.prof")
     stats.strip_dirs()
     stats.sort_stats('time', 'calls')
-    stats.print_stats(20)
+    stats.print_stats(200)
 
 if __name__ == '__main__':
     profile()

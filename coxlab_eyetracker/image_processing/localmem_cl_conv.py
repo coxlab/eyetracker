@@ -176,12 +176,10 @@ class LocalMemorySeparableCorrelation:
                             sum += (float)tile_cache[tile_cache_read_offset + (${r})] * row_kernel[${row_kernel_radius} + (${r})];
                         %endif
                     %endfor
-                    //sum = tile_cache[tile_cache_read_offset + ${row_kernel_radius}];
-                    //sum = 1.0;
 
                     // write the output back to global memory
                     output[row_start_offset + output_write_offset] = (${TYPE})sum;
-                    //output[row_start_offset + output_write_offset] = tile_cache[tile_cache_read_offset];
+
                 }
 
             }
@@ -277,8 +275,7 @@ class LocalMemorySeparableCorrelation:
 
 
                     output[input_load_linear_offset] = (${TYPE})sum;
-                    //output[input_load_linear_offset] = tile_cache[tile_cache_linear_offset];
-                    //output[input_load_linear_offset] = get_group_id(0) + 50.0;
+
                     input_load_linear_offset += ${col_input_load_stride};
                     tile_cache_linear_offset += ${col_tile_cache_stride};
                 }
@@ -313,10 +310,11 @@ class LocalMemorySeparableCorrelation:
             scratch_dev = cla.empty_like(input_dev)
 
         row_tile_width = 128
-
+        #row_tile_width = 64
 
         col_tile_width = 8
-        col_tile_height = 16
+        #col_tile_height = 16
+        col_tile_height = 8
 
         #col_tile_width = 16
         #col_tile_height = 48

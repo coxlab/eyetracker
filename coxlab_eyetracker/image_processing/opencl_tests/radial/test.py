@@ -31,6 +31,10 @@ if len(sys.argv) > 1:
     fn = sys.argv[1]
 im = pylab.imread(fn)[:, :, 0].astype(float)
 
+biggerify = False
+
+if biggerify:
+    im = np.concatenate((im, im, im, im), 1)
 #im = np.random.rand(640, 480)
 
 print 'im shape'
