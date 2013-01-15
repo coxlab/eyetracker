@@ -129,11 +129,11 @@ class NaiveSeparableCorrelation:
 
 class Sobel:
 
-    def __init__(self, ctx, queue):
+    def __init__(self, ctx, queue, dtype=np.float32):
         self.ctx = ctx
         self.queue = queue
-        sobel_c = np.array([1., 0., -1.]).astype(np.float32)
-        sobel_r = np.array([1., 2., 1.]).astype(np.float32)
+        sobel_c = np.array([1., 0., -1.]).astype(dtype)
+        sobel_r = np.array([1., 2., 1.]).astype(dtype)
         self.sobel_c = cl_array.to_device(self.queue, sobel_c)
         self.sobel_r = cl_array.to_device(self.queue, sobel_r)
 
@@ -142,9 +142,17 @@ class Sobel:
         self.sepconv_rc = LocalMemorySeparableCorrelation(self.ctx, self.queue, sobel_r, sobel_c)
         self.sepconv_cr = LocalMemorySeparableCorrelation(self.ctx, self.queue, sobel_c, sobel_r)
 
+        TYPE = ""
+        if dtype == np.float32:
+            TYPE = "float"
+        elif dtype == np.uint8:
+            TYPE = "unsigned char"
+        elif dtype == np.uint16:
+            TYPE = "unsigned short"
+
         self.mag = ElementwiseKernel(ctx,
-                                    "float *result, float *imgx, float *imgy",
-                                    "result[i] = sqrt(imgx[i]*imgx[i] + imgy[i]*imgy[i])",
+                                    "float *result, %s *imgx, %s *imgy" % (TYPE, TYPE),
+                                    "result[i] = sqrt((float)imgx[i]*imgx[i] + (float)imgy[i]*imgy[i])",
                                     "mag")
 
     def __call__(self,

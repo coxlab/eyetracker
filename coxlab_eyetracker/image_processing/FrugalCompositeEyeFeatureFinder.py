@@ -31,7 +31,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
         self.first_run = True
 
         self.reseed_threshold = 400.0
-        self.minimum_frames_to_reseed = 50
+        self.minimum_frames_to_reseed = 1
         self.reseed_count = self.minimum_frames_to_reseed
 
     def update_parameters(self):
@@ -59,7 +59,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
                 features['cr_radius'] = None
                 features['pupil_position'] = None
                 features['cr_position'] = None
-                logging.error(e.message)
+                #logging.error(e.message)
 
         if features is not None and 'starburst' in features and 'pupil_err' \
             in features['starburst']:

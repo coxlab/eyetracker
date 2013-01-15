@@ -110,7 +110,7 @@ class TrackerView:
 
         # self.openGLContext().flushBuffer()
 
-        # glFlush()
+        #glFlush()
 
     def render_image(self, frame):
 

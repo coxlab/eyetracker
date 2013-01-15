@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from coxlab_eyetracker.controller import EyeTrackerController
+from coxlab_eyetracker.gui import EyeTrackerGUI
+import os
+import logging
+
+use_pyro = True
+
+
+def main():
+
+    os.environ['CFLAGS'] = '-arch x86_64'
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    controller = EyeTrackerController()
+
+    if use_pyro:
+        import Pyro4
+        daemon = Pyro4.Daemon()
+        controller_uri = daemon.register(controller)
+        ns = Pyro4.locateNS()
+        ns.register('org.coxlab.eyetracker.controller', controller_uri)
+
+        daemon.requestLoop()
+    else:
+        gui = EyeTrackerGUI(controller)
+        gui.mainloop()
+
+
+if __name__ == '__main__':
+    main()

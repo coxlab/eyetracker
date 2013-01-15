@@ -144,7 +144,7 @@ class OpenCLBackend (WovenBackend):
         self.clThisS = cla.empty_like(self.clIm)
         self.clScratch = cla.empty_like(self.clIm)
 
-        self.prg = pyopencl.Program(self.ctx, PROGRAM).build()
+        self.radial_prg = pyopencl.Program(self.ctx, PROGRAM).build()
 
         self.sobel = Sobel(self.ctx, self.q)
 
@@ -200,7 +200,7 @@ class OpenCLBackend (WovenBackend):
         for radius in radii:
 
             #print "------ Running -------"
-            self.prg.calcOM(self.q, im.shape, None, #(3, 4),
+            self.radial_prg.calcOM(self.q, im.shape, None, #(3, 4),
                     self.clm.data, self.clx.data, self.cly.data,
                     self.clO.data, self.clM.data,
                     numpy.int32(radius))
@@ -210,7 +210,7 @@ class OpenCLBackend (WovenBackend):
             else:
                 kappa = 9.9
 
-            self.prg.calcF(self.q, im.shape, None, #(3, 4),
+            self.radial_prg.calcF(self.q, im.shape, None, #(3, 4),
                            self.clO.data, self.clM.data, self.clF.data,
                            numpy.float32(kappa), numpy.float32(alpha))
 

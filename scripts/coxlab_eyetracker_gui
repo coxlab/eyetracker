@@ -1,0 +1,22 @@
+import Pyro4
+from coxlab_eyetracker.gui import EyeTrackerGUI
+from threading import Thread
+
+
+def main():
+
+    # daemon = Pyro4.Daemon()
+    controller = Pyro4.Proxy('PYRONAME:org.coxlab.eyetracker.controller')
+
+    print controller
+
+    gui = EyeTrackerGUI(controller)
+
+    # service_daemon_thread = Thread(target=lambda: daemon.requestLoop())
+    # service_daemon_thread.start()
+
+    gui.mainloop()
+
+
+if __name__ == '__main__':
+    main()

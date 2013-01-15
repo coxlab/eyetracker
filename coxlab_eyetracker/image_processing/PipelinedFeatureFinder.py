@@ -89,11 +89,11 @@ class PipelinedWorkerProcessManager(SyncManager):
         self.worker = self.PipelinedWorker(self.ff, self.input_queue, self.output_queue)
         self.worker_thread = threading.Thread(target=worker_thread, args=[self.worker])
         self.worker_thread.start()
-    
+
     def stop(self):
         #print "Stopping worker: %s" % self
         self.worker.stop()
-    
+
     def join_worker(self):
         # wait for join
         #print "%s.is_alive = %s" % (self.worker_thread, self.worker_thread.is_alive())
@@ -102,6 +102,7 @@ class PipelinedWorkerProcessManager(SyncManager):
 
 
 def worker_loop(ff, image_queue, output_queue, id=-1):
+
     while(1):
         input = image_queue.get()
 

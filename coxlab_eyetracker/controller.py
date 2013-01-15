@@ -20,6 +20,8 @@ from coxlab_eyetracker.motion import *
 from coxlab_eyetracker.calibrator import *
 from settings import global_settings
 
+from Queue import Empty
+
 # load settings
 loaded_config = load_config_file('~/.eyetracker/config.ini')
 global_settings.update(loaded_config)
@@ -121,7 +123,7 @@ class EyeTrackerController(object):
 
         self.canvas_update_timer = None
 
-        self.ui_queue = Queue(2)
+        self.ui_queue = Queue(5)
 
         self.camera_locked = 0
         self.continuously_acquiring = 0
@@ -221,10 +223,9 @@ class EyeTrackerController(object):
         self.features = None
         self.frame_rates = []
 
-        # set up real featutre finders (these won't be used if we use a
-        # fake camera instead)
+        nworkers = 0
 
-        nworkers = 3
+        print('controller process: %d' % os.getpid())
 
         self.radial_ff = None
         self.starburst_ff = None
@@ -280,8 +281,11 @@ class EyeTrackerController(object):
         #             self.use_file_for_cam = 1
 
         if self.use_file_for_cam:
-            self.camera_device = FakeCameraDevice(self.feature_finder,
-                    '/Users/davidcox/Desktop/albino2/Snapshot2.bmp')
+            fake_file = global_settings.get('fake_eye_file', None)
+            if fake_file is None:
+                logging.error('No valid fake eye file specified')
+
+            self.camera_device = FakeCameraDevice(self.feature_finder, fake_file)
             self.camera_device.acquire_image()
 
         if self.use_simulated and self.camera_device == None:
@@ -305,7 +309,7 @@ class EyeTrackerController(object):
 
         self.start_continuous_acquisition()
 
-        self.ui_interval = 1. / 15
+        self.ui_interval = 1. / 20.
         self.start_time = time.time()
         self.last_time = self.start_time
 
@@ -328,7 +332,7 @@ class EyeTrackerController(object):
             self.zoom_and_focus,
             self.leds,
             d_halfrange=30,
-            ui_queue=self.ui_queue,
+            ui_put=lambda x: self.ui_queue_put(x),
             r_stage_direction=r_dir,
             d_guess=d_guess,
             )
@@ -434,6 +438,38 @@ class EyeTrackerController(object):
         print "Joining...", self.acq_thread.join()
         print 'Stopped'
 
+    def ui_queue_put(self, item):
+        try:
+            self.ui_queue.put_nowait(item)
+        except Full:
+            return
+
+    def ui_queue_get(self):
+        try:
+            f = self.ui_queue.get_nowait()
+            return f
+        except Empty:
+            return None
+
+    # for pyro invocation
+
+    def get_property(self, p):
+        v = self
+        for k in p.split('.'):
+            if k in v.__dict__:
+                v = v.__dict__[k]
+            else:
+                return None
+        return v
+
+    def set_property(self, p, val):
+        v = self
+        keys = p.split('.')
+        for k in keys[0:-1]:
+            v = v.__dict__[k]
+
+        v.__dict__[keys[-1]] = val
+
     # a method to actually run the camera
     # it will push images into a Queue object (in a non-blocking fashion)
     # so that the UI can have at them
@@ -453,21 +489,21 @@ class EyeTrackerController(object):
         self.last_conduit_time = time.time()
 
         check_interval = 100
-        info_interval = 100
 
         while self.continuously_acquiring:
             self.camera_locked = 1
 
             try:
+
                 self.camera_device.acquire_image()
                 new_features = \
                     self.camera_device.get_processed_image(self.features)
 
-                if new_features.__class__ == dict and features.__class__ \
-                    == dict and 'frame_number' in new_features \
-                    and 'frame_number' in features \
-                    and new_features['frame_number'] != features['frame_number'
-                        ]:
+                if (new_features.__class__ == dict and
+                    features.__class__ == dict and
+                    'frame_number' in new_features and
+                    'frame_number' in features and
+                    new_features['frame_number'] != features['frame_number']):
                     frame_number += 1
 
                 features = new_features
@@ -476,8 +512,8 @@ class EyeTrackerController(object):
                     toc = time.time() - tic
                     frame_rate = check_interval / toc
                     logging.info('Real frame rate: %f' % (check_interval / toc))
-                    if features.__class__ == dict and 'frame_number' \
-                        in features:
+                    logging.info('Real frame time: %f' % (toc / check_interval))
+                    if features.__class__ == dict and 'frame_number' in features:
                         logging.info('frame number = %d'
                                      % features['frame_number'])
                     tic = time.time()
@@ -487,8 +523,8 @@ class EyeTrackerController(object):
                     time.sleep(0.004)
                     continue
 
-                if features['pupil_position'] != None and features['cr_position'
-                        ] != None:
+                if (features['pupil_position'] != None and
+                    features['cr_position'] != None):
 
                     timestamp = features.get('timestamp', 0)
 
@@ -575,17 +611,19 @@ class EyeTrackerController(object):
                     print f
 
             if time.time() - self.last_ui_put_time > self.ui_interval:
-                try:
-                    self.ui_queue.put_nowait(features)
-                    self.last_ui_put_time = time.time()
-                except:
-                    pass
+                reduced_features = {}
+                for f in ['im_array', 'pupil_position', 'cr_position', 'pupil_radius']:
+                    if f in features:
+                        reduced_features[f] = features[f]
+                self.ui_queue_put(reduced_features)
+                #self.ui_queue_put(features)
+                self.last_ui_put_time = time.time()
+                
 
         self.camera_locked = 0
 
         logging.info('Stopped continuous acquiring')
         return
-
 
     def get_camera_attribute(self, a):
         if self.camera_device != None and getattr(self.camera_device, 'camera',
@@ -909,6 +947,19 @@ class EyeTrackerController(object):
 
     def zoom_minus(self):
         self.zoom_and_focus.zoom_relative(-float(self.zoom_step))
+
+
+    def led_set_current(self, *args):
+        return self.leds.set_current(*args)
+
+    def led_soft_current(self, *args):
+        return self.leds.soft_current(*args)
+
+    def led_soft_status(self, *args):
+        return self.leds.soft_status(*args)
+
+    def led_set_status(self, *args):
+        return self.leds.set_status(*args)
 
     # def off_ch1(self):
     #     self.leds.turn_off(self.leds.channel1)

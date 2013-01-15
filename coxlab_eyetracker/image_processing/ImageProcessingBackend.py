@@ -9,6 +9,7 @@
 #
 
 from numpy import *
+import scipy.signal
 
 
 class ImageProcessingBackend:

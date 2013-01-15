@@ -7,11 +7,12 @@ import functools
 
 class MinMaxKernel:
 
-    def __init__(self, ctx, queue):
+    def __init__(self, ctx, queue, runlen=4):
         self.ctx = ctx
         self.queue = queue
         self.program_cache = {}
         self.imshape = None
+        self.runlen = runlen
 
         self.minmax_scratch = []
         self.minmax_index_scratch = []
@@ -23,10 +24,10 @@ class MinMaxKernel:
 
         l = np.prod(imshape)
         self.array_indices = cla.arange(self.queue, 0, l, 1, dtype=np.int32)
-        if l % 2 != 0:
-            l += 1
+        if l % self.runlen != 0:
+            l += l % self.runlen
         while l > 1:
-            l /= 2
+            l /= self.runlen
             self.scratch.append(cla.empty(self.queue, (l,), np.float32))
             self.index_scratch.append(cla.empty(self.queue, (l,), np.int32))
 
@@ -34,7 +35,8 @@ class MinMaxKernel:
 
     def build_kernel(self, datasize, compute_min):
 
-        prog_parameters = (datasize, compute_min)
+        runlen = self.runlen
+        prog_parameters = (datasize, compute_min, runlen)
 
         if prog_parameters in self.program_cache:
             return self.program_cache[prog_parameters]
@@ -45,35 +47,28 @@ class MinMaxKernel:
                                          __global const float *input,
                                          __global const int *input_indices){
 
-                int index_a = 2 * get_global_id(0);
-                int index_b = index_a + 1;
+                int start_index = ${runlen} * get_global_id(0);
                 int reduced_index = get_global_id(0);
 
+                float val = input[start_index];
+                int val_index = input_indices[start_index];
+                float cmpval;
 
-                if(index_b >= ${datasize}){
-                    output[reduced_index] = input[index_a];
-                    output_indices[reduced_index] = input_indices[index_a];
-                }
-
-
-                if(input[index_a] < input[index_b]){
+                %for i in range(1, runlen):
+                    cmpval = input[start_index + ${i}];
                     %if compute_min:
-                        output[reduced_index] = input[index_a];
-                        output_indices[reduced_index] = input_indices[index_a];
+                    if(cmpval < val){
                     %else:
-                        output[reduced_index] = input[index_b];
-                        output_indices[reduced_index] = input_indices[index_b];
+                    if(cmpval > val){
                     %endif
-                } else {
-                    %if compute_min:
-                        output[reduced_index] = input[index_b];
-                        output_indices[reduced_index] = input_indices[index_b];
-                    %else:
-                        output[reduced_index] = input[index_a];
-                        output_indices[reduced_index] = input_indices[index_a];
-                    %endif
+                        val = cmpval;
+                        val_index = input_indices[start_index + ${i}];
+                    }
+                %endfor
 
-                }
+                output[reduced_index] = val;
+                output_indices[reduced_index] = val_index;
+
             }
         """
 
@@ -155,7 +150,7 @@ class MinMaxKernel:
         min_coords = np.array([min_x, min_y])
         max_coords = np.array([max_x, max_y])
 
-        self.queue.finish()
+        # self.queue.finish()
 
         # MIN
         return (min_coords, max_coords)

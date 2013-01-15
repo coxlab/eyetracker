@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import os
 from numpy import *
 from EyeFeatureFinder import *
 from stopwatch import *
@@ -13,9 +13,7 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
 
     def __init__(self):
 
-        # self.backend = VanillaBackend()
-        self.backend = WovenBackend()
-        # self.backend = OpenCLBackend()
+        self.backend = None
 
         self.target_kpixels = 80.0  # 8.0
         self.max_target_kpixels = 50.0
@@ -57,15 +55,27 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
 
         self.result = None
 
+        self.restrict_region = False
         self.restrict_top = 0
         self.restrict_bottom = 123
         self.restrict_left = 0
         self.restrict_right = 164
 
+    def init_backend(self):
+        #self.backend = VanillaBackend()
+        #self.backend = WovenBackend()
+        print 'IMPORTING %d' % os.getpid()
+        from OpenCLBackend import OpenCLBackend
+        self.backend = OpenCLBackend()
+
     # analyze the image and return dictionary of features gleaned
     # from it
     # @clockit
     def analyze_image(self, image, guess=None, **kwargs):
+
+        if self.backend is None:
+            self.init_backend()
+
         # print "fr"
         im_array = image
         # im_array = image.astype(double)
@@ -104,10 +114,11 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
         S = self.backend.fast_radial_transform(im_array, self.radiuses_to_try,
                 self.alpha)
 
-        S[:, 0:self.restrict_left] = -1.
-        S[:, self.restrict_right:] = -1.
-        S[0:self.restrict_top, :] = -1.
-        S[self.restrict_bottom:, :] = -1.
+        if self.restrict_region:
+            S[:, 0:self.restrict_left] = -1.
+            S[:, self.restrict_right:] = -1.
+            S[0:self.restrict_top, :] = -1.
+            S[self.restrict_bottom:, :] = -1.
 
         if self.albino_mode:
             (pupil_coords, cr_coords) = self.find_albino_features(S, im_array)
@@ -131,7 +142,7 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
             features['cr_position'] = array([cr_coords[0], cr_coords[1]])
             features['dwnsmp_factor_coord'] = ds
 
-        features['transform'] = S
+        # features['transform'] = S
         features['im_array'] = im_array
         features['im_shape'] = im_array.shape
 

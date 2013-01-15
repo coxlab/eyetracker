@@ -5,11 +5,14 @@ from tracker_view import *
 import glumpy
 import glumpy.atb as atb
 from ctypes import *
-from Queue import Empty
 import os
 import sys
 import re
 from coxlab_eyetracker.settings import global_settings
+import numpy as np
+
+import OpenGL.GL as gl
+import OpenGL.GLUT as glut
 
 import logging
 
@@ -24,9 +27,17 @@ except:
 def binding_getter(o, key):
 
     def get_wrapper():
-        val = getattr(o, key)
+        if hasattr(o, 'get_property'):
+            val = o.get_property(key)
+        else:
+            val = getattr(o, key)
+
         if val is None:
             val = 0
+        if type(val) == np.float64:
+            val = float(val)
+        if type(val) == np.int32 or type(val) == np.int64:
+            val = int(val)
         return val
 
     return get_wrapper
@@ -35,11 +46,13 @@ def binding_getter(o, key):
 def binding_setter(o, key):
 
     def ff_wrapper(val):
-        setattr(o, key, val)
+        o.set_property(key, val)
+        #setattr(o, key, val)
         o.update_parameters()
 
     def regular_wrapper(val):
-        setattr(o, key, val)
+        #setattr(o, key, val)
+        o.set_property(key, val)
 
     if hasattr(o, 'update_parameters') and callable(getattr(o,
             'update_parameters')):
@@ -80,6 +93,7 @@ class EyeTrackerGUI:
         self.start_time = None
         self.last_time = 0
         self.last_update_time = time.time()
+        self.update_interval = 1 / 10.
 
         self.calibration_file = ''
 
@@ -187,22 +201,23 @@ class EyeTrackerGUI:
             size=(200, 180),
             )
 
+
         self.led_bar.add_var(
             'Side/Ch1_mA',
             #target=c,
             #attr='IsetCh1',
             label='I Ch1 (mA)',
             vtype=atb.TW_TYPE_UINT32,
-            setter=lambda x: c.leds.set_current(1, x),
-            getter=lambda: c.leds.soft_current(1),
+            setter=lambda x: c.led_set_current(1, x),
+            getter=lambda: c.led_soft_current(1),
             min=0,
             max=1000,
             )
 
         self.led_bar.add_var('Side/Ch1_status', label='Ch1 status',
                              vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.soft_status(1),
-                             setter=lambda x: c.leds.set_status(1, x))
+                             getter=lambda: c.led_soft_status(1),
+                             setter=lambda x: c.led_set_status(1, x))
 
         self.led_bar.add_var(
             'Top/Ch2_mA',
@@ -210,14 +225,14 @@ class EyeTrackerGUI:
             #attr='IsetCh2',
             label='I Ch2 (mA)',
             vtype=atb.TW_TYPE_UINT32,
-            setter=lambda x: c.leds.set_current(2, x),
-            getter=lambda: c.leds.soft_current(2),
+            setter=lambda x: c.led_set_current(2, x),
+            getter=lambda: c.led_soft_current(2),
             min=0,
             max=1000,
             )
         self.led_bar.add_var('Top/Ch2_status', vtype=atb.TW_TYPE_BOOL8,
-                             getter=lambda: c.leds.soft_status(2),
-                             setter=lambda x: c.leds.set_status(2, x))
+                             getter=lambda: c.led_soft_status(2),
+                             setter=lambda x: c.led_set_status(2, x))
 
         #self.led_bar.add_var(
         #    'Channel3/Ch3_mA',
@@ -250,7 +265,6 @@ class EyeTrackerGUI:
         # ---------------------------------------------------------------------
         #   RADIAL FEATURE FINDER
         # ---------------------------------------------------------------------
-        radial_ff = c.radial_ff
 
         self.radial_ff_bar = atb.Bar(
             name='RadialFF',
@@ -268,8 +282,8 @@ class EyeTrackerGUI:
             min=50.,
             max=1000.,
             step=10.,
-            target=radial_ff,
-            attr='target_kpixels',
+            target=c,
+            attr='radial_ff.target_kpixels',
             )
         self.radial_ff_bar.add_var(
             'min_radius_fraction',
@@ -278,8 +292,8 @@ class EyeTrackerGUI:
             min=0.01,
             max=0.5,
             step=0.01,
-            target=radial_ff,
-            attr='min_radius_fraction',
+            target=c,
+            attr='radial_ff.min_radius_fraction',
             )
         self.radial_ff_bar.add_var(
             'max_radius_fraction',
@@ -288,8 +302,8 @@ class EyeTrackerGUI:
             min=0.1,
             max=0.8,
             step=0.01,
-            target=radial_ff,
-            attr='max_radius_fraction',
+            target=c,
+            attr='radial_ff.max_radius_fraction',
             )
         self.radial_ff_bar.add_var(
             'radius_steps',
@@ -298,8 +312,8 @@ class EyeTrackerGUI:
             min=1,
             max=10,
             step=1,
-            target=radial_ff,
-            attr='radius_steps',
+            target=c,
+            attr='radial_ff.radius_steps',
             )
         self.radial_ff_bar.add_var(
             'alpha',
@@ -308,8 +322,8 @@ class EyeTrackerGUI:
             min=1.,
             max=50.,
             step=1.,
-            target=radial_ff,
-            attr='alpha',
+            target=c,
+            attr='radial_ff.alpha',
             )
 
         self.radial_ff_bar.add_var('show_transform', label='Show Transform',
@@ -318,8 +332,8 @@ class EyeTrackerGUI:
 
         self.radial_ff_bar.add_var('Albino/albino_mode_enable',
                                    label='Mode Enabled',
-                                   vtype=atb.TW_TYPE_BOOL8, target=radial_ff,
-                                   attr='albino_mode')
+                                   vtype=atb.TW_TYPE_BOOL8, target=c,
+                                   attr='radial_ff.albino_mode')
         self.radial_ff_bar.add_var(
             'Albino/albino_threshold',
             label='Threshold',
@@ -327,8 +341,8 @@ class EyeTrackerGUI:
             min=0.1,
             max=50.,
             step=1.,
-            target=radial_ff,
-            attr='albino_threshold',
+            target=c,
+            attr='radial_ff.albino_threshold',
             )
 
         self.radial_ff_bar.add_var(
@@ -338,8 +352,8 @@ class EyeTrackerGUI:
             min=0,
             max=300,
             step=1,
-            target=radial_ff,
-            attr='restrict_top',
+            target=c,
+            attr='radial_ff.restrict_top',
             )
         self.radial_ff_bar.add_var(
             'RestrictRegion/left',
@@ -348,8 +362,8 @@ class EyeTrackerGUI:
             min=0,
             max=300,
             step=1,
-            target=radial_ff,
-            attr='restrict_left',
+            target=c,
+            attr='radial_ff.restrict_left',
             )
 
         self.radial_ff_bar.add_var(
@@ -359,8 +373,8 @@ class EyeTrackerGUI:
             min=0,
             max=300,
             step=1,
-            target=radial_ff,
-            attr='restrict_right',
+            target=c,
+            attr='radial_ff.restrict_right',
             )
 
         self.radial_ff_bar.add_var(
@@ -370,8 +384,8 @@ class EyeTrackerGUI:
             min=0,
             max=300,
             step=1,
-            target=radial_ff,
-            attr='restrict_bottom',
+            target=c,
+            attr='radial_ff.restrict_bottom',
             )
 
         # ---------------------------------------------------------------------
@@ -387,7 +401,6 @@ class EyeTrackerGUI:
             size=(200, 250),
             )
 
-        sb_ff = c.starburst_ff
 
         self.sb_ff_bar.add_var(
             'Pupil/n_pupil_rays',
@@ -396,8 +409,8 @@ class EyeTrackerGUI:
             min=1,
             max=100,
             step=1,
-            target=sb_ff,
-            attr='pupil_n_rays',
+            target=c,
+            attr='starburst_ff.pupil_n_rays',
             )
 
         self.sb_ff_bar.add_var(
@@ -407,8 +420,8 @@ class EyeTrackerGUI:
             min=1,
             max=100,
             step=1,
-            target=sb_ff,
-            attr='pupil_min_radius',
+            target=c,
+            attr='starburst_ff.pupil_min_radius',
             )
 
         self.sb_ff_bar.add_var(
@@ -418,8 +431,8 @@ class EyeTrackerGUI:
             min=0.1,
             max=5.0,
             step=0.1,
-            target=sb_ff,
-            attr='pupil_threshold',
+            target=c,
+            attr='starburst_ff.pupil_threshold',
             )
 
         self.sb_ff_bar.add_var(
@@ -429,8 +442,8 @@ class EyeTrackerGUI:
             min=1,
             max=100,
             step=1,
-            target=sb_ff,
-            attr='cr_n_rays',
+            target=c,
+            attr='starburst_ff.cr_n_rays',
             )
 
         self.sb_ff_bar.add_var(
@@ -440,8 +453,8 @@ class EyeTrackerGUI:
             min=1,
             max=100,
             step=1,
-            target=sb_ff,
-            attr='cr_min_radius',
+            target=c,
+            attr='starburst_ff.cr_min_radius',
             )
 
         self.sb_ff_bar.add_var(
@@ -451,8 +464,8 @@ class EyeTrackerGUI:
             min=0.1,
             max=5.0,
             step=0.1,
-            target=sb_ff,
-            attr='cr_threshold',
+            target=c,
+            attr='starburst_ff.cr_threshold',
             )
 
         fit_algos = {0: 'circle_least_squares',
@@ -464,11 +477,12 @@ class EyeTrackerGUI:
         FittingAlgorithm = atb.enum('FittingAlgorithm', {'circle lst sq': 0,
                                     'circle ransac': 1, 'ellipse lst sq': 2})
         self.sb_ff_bar.add_var('Fitting/circle_fit', label='circle fit method',
-                               vtype=FittingAlgorithm, getter=lambda: \
-                               fit_algos_rev[sb_ff.fitting_algorithm],
+                               vtype=FittingAlgorithm,
+                               getter=lambda: \
+                                    fit_algos_rev[c.get_property('starburst_ff.fitting_algorithm')],
                                setter=lambda x: \
-                               sb_ff.__dict__.__setitem__('fitting_algorithm',
-                               fit_algos[x]))
+                                    c.set_property('starburst_ff.fitting_algorithm',
+                                    fit_algos[x]))
 
         self.sb_ff_bar.add_var('Display/show_rays', self.display_starburst)
 
@@ -490,28 +504,28 @@ class EyeTrackerGUI:
 
         self.cal_bar.add_separator('Sub-phases')
         self.cal_bar.add_button('cal_center_h', lambda: \
-                                c.calibrate_center_horizontal(),
+                                    c.calibrate_center_horizontal(),
                                 label='Center Horizontal')
         self.cal_bar.add_button('cal_center_v', lambda: \
-                                c.calibrate_center_vertical(),
+                                    c.calibrate_center_vertical(),
                                 label='Center Vertical')
         self.cal_bar.add_button('cal_center_d', lambda: \
-                                c.calibrate_center_depth(), label='Center Depth'
+                                    c.calibrate_center_depth(), label='Center Depth'
                                 )
         #self.cal_bar.add_button('align_pupil_cr', lambda: \
         #                        c.calibrate_align_pupil_and_cr(),
         #                        label='Align Pupil and CR')
         self.cal_bar.add_button('cal_pupil_rad', lambda: \
-                                c.calibrate_find_pupil_radius(),
+                                    c.calibrate_find_pupil_radius(),
                                 label='Find Pupil Radius')
 
         self.cal_bar.add_separator('Info')
         self.cal_bar.add_var('d', label='Distance to CR curv. center',
-                             vtype=atb.TW_TYPE_FLOAT, target=c.calibrator,
-                             attr='d')  # readonly = True,
+                             vtype=atb.TW_TYPE_FLOAT, target=c,
+                             attr='calibrator.d')  # readonly = True,
         self.cal_bar.add_var('Rp', label='Pupil rotation radius (Rp)[mm]',
-                             vtype=atb.TW_TYPE_FLOAT, target=c.calibrator,
-                             attr='Rp_mm')  # readonly = True,
+                             vtype=atb.TW_TYPE_FLOAT, target=c,
+                             attr='calibrator.Rp_mm')  # readonly = True,
 
         # Calibration Files
         try:
@@ -522,9 +536,9 @@ class EyeTrackerGUI:
             self.cal_bar.add_var('current_calibration_file',
                                  vtype=self.cal_enum, label='Calibration File',
                                  getter=lambda: \
-                                 self.get_calibration_file_atb(),
+                                    self.get_calibration_file_atb(),
                                  setter=lambda x: \
-                                 self.set_calibration_file_atb(x))
+                                    self.set_calibration_file_atb(x))
                                   # setter = lambda x: sb_ff.__dict__.__setitem__('fitting_algorithm', fit_algos[x]))
                                   # getter=lambda: self.get_calibration_file_atb,
                                   # setter=lambda x: self.set_calibration_file_atb(x))
@@ -638,14 +652,10 @@ class EyeTrackerGUI:
             self.tracker_view.prepare_opengl()
 
         def on_draw():
-            self.window.clear()
             self.tracker_view.draw((self.window.width, self.window.height))
 
         def on_idle(dt):
-            # if dt < 0.02:
-            #    return
             self.update_tracker_view()
-            self.window.draw()
 
         def on_key_press(symbol, modifiers):
             if symbol == glumpy.key.ESCAPE:
@@ -678,10 +688,11 @@ class EyeTrackerGUI:
     def get_calibration_file_atb(self):
         # return 0
         # return ctypes.c_int(0)
-        if self.controller.calibration_file is None:
+        cfile = self.controller.get_property('calibration_file')
+        if cfile is None:
             calibration_filename = None
         else:
-            calibration_filename = os.path.split(self.controller.calibration_file)[-1]
+            calibration_filename = os.path.split(cfile)[-1]
             calibration_filename = os.path.splitext(calibration_filename)[0]
         return self.cal_enum_dict.get(calibration_filename, 0)
 
@@ -693,7 +704,8 @@ class EyeTrackerGUI:
         self.calibration_file = self.cal_lookup_dict[x]
         base_path = os.path.expanduser(global_settings['calibration_path'])
         cal_path = os.path.join(base_path, '%s.pkl' % self.calibration_file)
-        self.controller.calibrator.load_parameters(cal_path, self.controller)
+        calibrator = PyroCompatibleProxy(self.controller, 'calibrator')
+        calibrator.load_parameters(cal_path, self.controller)
 
         # self.controller.calibration_file = self.cal_lookup_dict[x]
 
@@ -731,18 +743,24 @@ class EyeTrackerGUI:
     def save_calibration_file_atb(self, cal_name):
         base_path = os.path.expanduser(global_settings['calibration_path'])
         cal_path = os.path.join(base_path, '%s.pkl' % cal_name)
+
         self.controller.save_calibration(cal_path)
         #self.controller.calibrator.save_parameters(cal_path, self.controller)
         # self.controller.save_calibration(cal_path)
         self.refresh_calibration_file_list()
 
     def update_tracker_view(self):
-        if (self.controller is None) or (self.controller.camera_device is None):
+        if self.controller is None:
             return
 
-        try:
-            features = self.controller.ui_queue.get_nowait()
-        except Empty:
+        now = time.time()
+        if now - self.last_update_time < self.update_interval:
+            return
+
+        self.last_update_time = now
+
+        features = self.controller.ui_queue_get()
+        if features is None:
             return
 
         if 'frame_time' in features:
@@ -793,26 +811,28 @@ class EyeTrackerGUI:
         self.tracker_view.restrict_left = features.get('restrict_left', None)
         self.tracker_view.restrict_right = features.get('restrict_right', None)
 
-        self.n_frames += 1
-        self.frame_count += 1
+        self.window.draw()
 
-        time_between_updates = 0.4
+        #self.n_frames += 1
+        #self.frame_count += 1
 
-        self.frame_rate_accum += 1. / toc
+        # time_between_updates = 0.4
 
-        self.frame_rates.append(1. / toc)
+        # self.frame_rate_accum += 1. / toc
 
-        time_since_last_update = time.time() - self.last_update_time
+        # self.frame_rates.append(1. / toc)
 
-        if time_since_last_update > time_between_updates:
-            self.last_update_time = time.time()
+        # time_since_last_update = time.time() - self.last_update_time
 
-            self.frame_rate = mean(array(self.frame_rates))
-            self.frame_rates = []
-            self.frame_rate_accum = 0
+        # if time_since_last_update > time_between_updates:
+        #     self.last_update_time = time.time()
 
-            self.last_time = time.time()
-            self.n_frames = 0
+        #     self.frame_rate = mean(array(self.frame_rates))
+        #     self.frame_rates = []
+        #     self.frame_rate_accum = 0
 
-            if 'sobel_avg' in features:
-                self.sobel_avg = features['sobel_avg']
+        #     self.last_time = time.time()
+        #     self.n_frames = 0
+
+        #     if 'sobel_avg' in features:
+        #         self.sobel_avg = features['sobel_avg']

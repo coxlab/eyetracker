@@ -38,10 +38,9 @@ class StahlLikeCalibrator:
         self.focus_and_zoom = focus_and_zoom
 
         self.default_pixels_per_mm = kwargs.get('default_pixels_per_mm', 15.85)
-        #self.default_Rp = kwargs.get("default_Rp", 6. * self.default_pixels_per_mm)
         self.default_Rp = kwargs.get("default_Rp", 3.2 * self.default_pixels_per_mm)
 
-        self.ui_queue = kwargs.get("ui_queue", None)
+        self.ui_put = kwargs.get("ui_put", None)
         self.x_image_axis = kwargs.get("x_image_axis", 1)
         self.y_image_axis = kwargs.get("y_image_axis", 0)
         self.x_stage_axis = kwargs.get("x_stage_axis", stages.x_axis)
@@ -380,13 +379,8 @@ class StahlLikeCalibrator:
             med_features = None
             raise Exception, "Features median (average) could not be computed: NO features acquired!"
 
-        if(self.ui_queue != None):
-            try:
-                self.ui_queue.put_nowait(med_features)
-                #print "!@#$!@#$!@#$!@#$!@#$ used median features"
-            except Full, e:
-                print "Calibrator: unable to communicate with GUI"
-                pass
+        if(self.ui_put != None):
+            self.ui_put(med_features)
 
         return med_features
         # ######### End of Davide's implementation #########
@@ -408,11 +402,7 @@ class StahlLikeCalibrator:
             avg_features = self.camera.get_processed_image()
 
         if(self.ui_queue != None):
-            try:
-                self.ui_queue.put_nowait(avg_features)
-            except Full, e:
-                print "Calibrator: unable to communicate with GUI"
-                pass
+            self.ui_put(avg_features)
 
         return avg_features
         # End shortcut

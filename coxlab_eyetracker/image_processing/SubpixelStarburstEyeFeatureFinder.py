@@ -139,7 +139,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
         # print "sb"
 
-        use_weave = 0
+        use_weave = False
         if 'weave' in kwargs:
             use_weave = kwargs['weave']
 
@@ -379,7 +379,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             threshold -- the threshold to cross, expressed in standard deviations across the ray samples
         """
 
-        assert False
+        #assert False
 
         if 'exclusion_center' in kwargs:
             exclusion_center = kwargs['exclusion_center']
@@ -402,6 +402,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
         # We will return up to n_rays return indices
         returned_points = -1 * ones([zero_referenced_rays.shape[0], 2])
+        n_returned_points = len(returned_points)
         # n_returned_points = 0
 
         vals_slope = hstack((2 * ones([vals.shape[0], 1]), diff(vals, 1)))
