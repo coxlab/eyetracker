@@ -10,6 +10,7 @@ import sys
 import re
 from coxlab_eyetracker.settings import global_settings
 import numpy as np
+import time
 
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
@@ -678,6 +679,7 @@ class EyeTrackerGUI:
 
         def on_idle(dt):
             self.update_tracker_view()
+            time.sleep(0.05)
 
         def on_key_press(symbol, modifiers):
             if symbol == glumpy.key.ESCAPE:
