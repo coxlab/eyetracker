@@ -15,7 +15,7 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
 
         self.backend = None
 
-        self.target_kpixels = 80.0  # 8.0
+        self.target_kpixels = 800.0  # 8.0
         self.max_target_kpixels = 50.0
         self.min_target_kpixels = 1.
         self.parameters_updated = 1
@@ -76,10 +76,7 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
         if self.backend is None:
             self.init_backend()
 
-        # print "fr"
-        im_array = image
-        # im_array = image.astype(double)
-        im_array = im_array[::self.ds_factor, ::self.ds_factor]
+        im_array = image[::self.ds_factor, ::self.ds_factor]
 
         if guess != None:
             features = guess

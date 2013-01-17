@@ -255,7 +255,8 @@ class EyeTrackerController(object):
             sb_ff = SubpixelStarburstEyeFeatureFinder()
             fr_ff = FastRadialFeatureFinder()
 
-            comp_ff = FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
+            # comp_ff = FrugalCompositeEyeFeatureFinder(fr_ff, sb_ff)
+            comp_ff = CompositeEyeFeatureFinder(fr_ff, sb_ff)
 
             self.radial_ff = fr_ff
             self.starburst_ff = sb_ff

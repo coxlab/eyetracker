@@ -133,12 +133,11 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.parameters_updated = True
 
     # @clockit
-    def analyze_image(self, image, guess, **kwargs):
+    def analyze_image(self, im_array, guess, **kwargs):
         """ Begin processing an image to find features
         """
 
         # print "sb"
-
         use_weave = False
 
         if 'weave' in kwargs:
@@ -169,7 +168,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # compute the image gradient
         if self.shortcut_sobel == None:
             (image_grad_mag, image_grad_x, image_grad_y) = \
-                self.backend.sobel3x3(image)
+                self.backend.sobel3x3(im_array)
         else:
             image_grad_mag = self.shortcut_sobel
 
@@ -240,7 +239,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # Pack up the results
 
         try:
-
+            features['im_array'] = im_array
             features['transform'] = guess.get('transform', None)
             features['cr_position'] = cr_position
             features['pupil_position'] = pupil_position
