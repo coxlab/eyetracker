@@ -338,12 +338,30 @@ class TrackerView:
     def render_starburst(self, starburst):
 
         # assume that the dictionary contains everything that it is supposed to
-        pupil_rays_start = starburst['pupil_rays_start']
-        pupil_rays_end = starburst['pupil_rays_end']
+        # pupil_rays_start = starburst['pupil_rays_start']
+        # pupil_rays_end = starburst['pupil_rays_end']
         pupil_boundary = starburst['pupil_boundary']
-        cr_rays_start = starburst['cr_rays_start']
-        cr_rays_end = starburst['cr_rays_end']
+        # cr_rays_start = starburst['cr_rays_start']
+        # cr_rays_end = starburst['cr_rays_end']
         cr_boundary = starburst['cr_boundary']
+
+        # glPointSize(2.0)
+        glBegin(GL_LINE_LOOP)
+        # glBegin(GL_POINTS)
+        glColor((1., 0.65, 0., 1.))
+        for i in range(0, len(pupil_boundary)):
+            bound = self.__image_coords_to_texture_coords(pupil_boundary[i])
+            glVertex3f(bound[0], bound[1], 0.)
+        glEnd()
+
+        glBegin(GL_LINE_LOOP)
+        glColor((1., 0.65, 0., 1.))
+        for i in range(0, len(cr_boundary)):
+            bound = self.__image_coords_to_texture_coords(cr_boundary[i])
+            glVertex3f(bound[0], bound[1], 0.)
+        glEnd()
+
+        return
 
         if pupil_rays_start == None or pupil_rays_end == None or pupil_boundary \
             == None or cr_rays_start == None or cr_rays_end == None \
@@ -379,20 +397,5 @@ class TrackerView:
 
         glEnd()
 
-        # glPointSize(2.0)
-        glBegin(GL_LINE_LOOP)
-        # glBegin(GL_POINTS)
-        glColor((1., 0.65, 0., 1.))
-        for i in range(0, len(pupil_boundary)):
-            bound = self.__image_coords_to_texture_coords(pupil_boundary[i])
-            glVertex3f(bound[0], bound[1], 0.)
-        glEnd()
-
-        glBegin(GL_LINE_LOOP)
-        glColor((1., 0.65, 0., 1.))
-        for i in range(0, len(cr_boundary)):
-            bound = self.__image_coords_to_texture_coords(cr_boundary[i])
-            glVertex3f(bound[0], bound[1], 0.)
-        glEnd()
 
 

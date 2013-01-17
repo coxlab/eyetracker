@@ -470,6 +470,13 @@ class EyeTrackerController(object):
 
         v.__dict__[keys[-1]] = val
 
+    def update_parameters(self, p):
+        o = p.split('.')[0]
+        try:
+            o.update_parameters()
+        except:
+            pass
+
     # a method to actually run the camera
     # it will push images into a Queue object (in a non-blocking fashion)
     # so that the UI can have at them
@@ -611,11 +618,11 @@ class EyeTrackerController(object):
                     print f
 
             if time.time() - self.last_ui_put_time > self.ui_interval:
-                reduced_features = {}
-                for f in ['im_array', 'pupil_position', 'cr_position', 'pupil_radius']:
-                    if f in features:
-                        reduced_features[f] = features[f]
-                self.ui_queue_put(reduced_features)
+                # reduced_features = {}
+                # for f in ['im_array', 'pupil_position', 'cr_position', 'pupil_radius']:
+                #     if f in features:
+                #         reduced_features[f] = features[f]
+                self.ui_queue_put(features)
                 #self.ui_queue_put(features)
                 self.last_ui_put_time = time.time()
                 

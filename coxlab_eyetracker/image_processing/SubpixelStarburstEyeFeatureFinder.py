@@ -132,7 +132,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.pupil_ray_ends = None
         self.parameters_updated = True
 
-    # #@clockit
+    # @clockit
     def analyze_image(self, image, guess, **kwargs):
         """ Begin processing an image to find features
         """
@@ -140,6 +140,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # print "sb"
 
         use_weave = False
+
         if 'weave' in kwargs:
             use_weave = kwargs['weave']
 
@@ -201,22 +202,22 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         (pupil_position, pupil_radius, pupil_err) = \
             self._fit_points(pupil_boundaries)
 
-        # stage 2: refine
-        minimum_pupil_guess = round(0.5 * pupil_radius
-                                    / self.pupil_ray_sample_spacing)
+        # # stage 2: refine
+        # minimum_pupil_guess = round(0.5 * pupil_radius
+        #                             / self.pupil_ray_sample_spacing)
 
-        pupil_boundaries = self._find_ray_boundaries(
-            image_grad_mag,
-            pupil_position,
-            self.pupil_rays,
-            minimum_pupil_guess,
-            self.pupil_threshold,
-            exclusion_center=array(cr_position),
-            exclusion_radius=2 * cr_radius,
-            )
+        # pupil_boundaries = self._find_ray_boundaries(
+        #     image_grad_mag,
+        #     pupil_position,
+        #     self.pupil_rays,
+        #     minimum_pupil_guess,
+        #     self.pupil_threshold,
+        #     exclusion_center=array(cr_position),
+        #     exclusion_radius=2 * cr_radius,
+        #     )
 
-        (pupil_position, pupil_radius, pupil_err) = \
-            self._fit_points(pupil_boundaries)
+        # (pupil_position, pupil_radius, pupil_err) = \
+        #     self._fit_points(pupil_boundaries)
 
 #            if(False and use_weave):
 #                pupil_boundaries = self._find_ray_boundaries_woven(image_grad_mag, pupil_guess, self.pupil_rays, self.pupil_min_radius_ray_index, self.pupil_threshold, exclusion_center=array(cr_position), exclusion_radius= 1.2 * cr_radius)
@@ -278,7 +279,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
         return self.result
 
-    # #@clockit
+    # @clockit
     def _find_ray_boundaries(self, im, seed_point, zero_referenced_rays,
                              cutoff_index, threshold, **kwargs):
         """ Find where a set off rays crosses a threshold in an image
@@ -604,7 +605,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
 
         return (center, radius, 0.0)
 
-    # ##@clockit
+    #@clockit
     def _fit_circle_to_points_lstsq(self, points):
         """ Fit a circle algebraicly to a set of points, using least squares optimization
         """

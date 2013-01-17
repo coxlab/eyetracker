@@ -29,7 +29,7 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
 
     # ==================================== function: analyzeImage ========================================
     # @clockit
-    def analyze_image(self, im, guess=None, **kwargs):
+    def analyze_image(self, im, guess={}, **kwargs):
 
         # #### FEATURE FINDER # 1: Get intial guess of pupil and CR using the fast radial finder
         # self.ff_fast_radial.target_kpixels = 10 #50
@@ -45,7 +45,7 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
         else:
             sobel_avg = None
 
-        # #### FEATURE FINDER # 2: Refine the traking using the star burst finder
+        # #### FEATURE FINDER # 2: Refine the tracking using the star burst finder
         try:
         # If available, pass the last CR and Pupil radiuses as intial guesses for the star burst ff
             # if(self.last != None and 'pupil_radius' in self.last):
@@ -54,7 +54,7 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
             #   features['cr_radius'] = self.last['cr_radius']
 
             # Run the starburst ff
-            self.ff_starburst.analyze_image(im, features.copy())
+            self.ff_starburst.analyze_image(im, features)
             features = self.ff_starburst.get_result()
         except Exception, e:
             features['pupil_radius'] = None

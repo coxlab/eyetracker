@@ -48,7 +48,7 @@ def binding_setter(o, key):
     def ff_wrapper(val):
         o.set_property(key, val)
         #setattr(o, key, val)
-        o.update_parameters()
+        o.update_parameters(key)
 
     def regular_wrapper(val):
         #setattr(o, key, val)
@@ -429,10 +429,21 @@ class EyeTrackerGUI:
             label='edge detect threshold',
             vtype=atb.TW_TYPE_FLOAT,
             min=0.1,
-            max=5.0,
+            max=20.0,
             step=0.1,
             target=c,
             attr='starburst_ff.pupil_threshold',
+            )
+
+        self.sb_ff_bar.add_var(
+            'Pupil/pupil_ray_length',
+            label='ray length',
+            vtype=atb.TW_TYPE_FLOAT,
+            min=1.0,
+            max=100.0,
+            step=0.1,
+            target=c,
+            attr='starburst_ff.pupil_ray_length',
             )
 
         self.sb_ff_bar.add_var(
@@ -462,10 +473,21 @@ class EyeTrackerGUI:
             label='edge detect threshold',
             vtype=atb.TW_TYPE_FLOAT,
             min=0.1,
-            max=5.0,
+            max=10.0,
             step=0.1,
             target=c,
             attr='starburst_ff.cr_threshold',
+            )
+
+        self.sb_ff_bar.add_var(
+            'CR/cr_ray_length',
+            label='ray length',
+            vtype=atb.TW_TYPE_FLOAT,
+            min=1.0,
+            max=100.0,
+            step=0.1,
+            target=c,
+            attr='starburst_ff.cr_ray_length',
             )
 
         fit_algos = {0: 'circle_least_squares',

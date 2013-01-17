@@ -1,17 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 
-LAUNCH_NS = "python -Wignore -m Pyro4.naming"
+LAUNCH_NS="python -Wignore -m Pyro4.naming"
 eval ${LAUNCH_NS} &
 
+sleep 2
+
 echo "Starting eyetracker"
-ENGINE = "coxlab_eyetracker_engine"
+ENGINE="coxlab_eyetracker_engine"
 eval ${ENGINE} &
 
-GUI = "coxlab_eyetracker_gui"
+sleep 2
+
+echo "Starting GUI"
+GUI="coxlab_eyetracker_gui"
 eval ${GUI}
+
+
+sleep 2
+echo "Done."
 
 NS_PID=`ps ax | grep -e "${LAUNCH_NS}" | grep -v grep | awk '{print $1}'`
 ENGINE_PID=`ps ax | grep -e "${ENGINE}" | grep -v grep | awk '{print $1}'`
 
+echo "Killing launched background processes."
 kill $NS_PID
 kill $ENGINE_PID

@@ -40,7 +40,7 @@ prosilica_module = Extension(
 setup(
     name='coxlab_eyetracker',
     version='dev',
-    scripts=['scripts/coxlab_eyetracker'],
+    scripts=['scripts/coxlab_eyetracker', 'scripts/coxlab_eyetracker_engine', 'scripts/coxlab_eyetracker_gui'],
     include_package_data=True,
     ext_modules=[prosilica_module],
     packages=find_packages(exclude=['tests', 'scripts']),

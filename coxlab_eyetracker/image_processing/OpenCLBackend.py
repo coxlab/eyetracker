@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 import os
-print 'shit shit! %d' % os.getpid()
 
-import numpy
+from stopwatch import clockit
+
+import numpy as np
 import pylab
 import pyopencl
 import pyopencl.array
 import scipy.ndimage.filters
 import scipy.signal
+import pyopencl as cl
 import pyopencl.array as cla
+from pyopencl import mem_flags as mf
 from pyopencl.elementwise import ElementwiseKernel
 
 
 from simple_cl_conv import NaiveSeparableCorrelation, Sobel
 from localmem_cl_conv import LocalMemorySeparableCorrelation
 from cl_minmax import MinMaxKernel
+from cl_ray_boundaries import FindRayBoundaries
 
 from WovenBackend import WovenBackend
 
@@ -115,14 +119,14 @@ class OpenCLBackend (WovenBackend):
         WovenBackend.__init__(self)
 
         if ctx is None:
-            self.ctx = pyopencl.create_some_context(False)
+            self.ctx = cl.create_some_context(False)
         else:
             self.ctx = ctx
 
         print self.ctx
 
         if queue is None:
-            self.q = pyopencl.CommandQueue(self.ctx)
+            self.q = cl.CommandQueue(self.ctx)
         else:
             self.q = queue
 
@@ -138,7 +142,7 @@ class OpenCLBackend (WovenBackend):
 
         self.cached_shape = imshape
 
-        self.clIm = cla.Array(self.q, imshape, numpy.float32)
+        self.clIm = cla.Array(self.q, imshape, np.float32)
         self.clm = cla.empty_like(self.clIm)
         self.clx = cla.empty_like(self.clIm)
         self.cly = cla.empty_like(self.clIm)
@@ -174,25 +178,43 @@ class OpenCLBackend (WovenBackend):
 
         self.minmax = MinMaxKernel(self.ctx, self.q)
 
+        # starburst storage
+
+        clImageFormat = cl.ImageFormat(cl.channel_order.R,
+                                       cl.channel_type.FLOAT)
+
+        self.clIm2D = cl.Image(self.ctx,
+                               mf.READ_ONLY,
+                               clImageFormat,
+                               imshape)
+
+        # Create sampler for sampling image object
+        self.imSampler = cl.Sampler(self.ctx,
+                                    False,  # Non-normalized coordinates
+                                    cl.addressing_mode.CLAMP_TO_EDGE,
+                                    cl.filter_mode.LINEAR)
+
+        self.cl_find_ray_boundaries = FindRayBoundaries(self.ctx, self.q)
+
     def fast_radial_transform(self, im, radii, alpha, readback=False):
 
         if im.shape != self.cached_shape:
             self.setup_device(im.shape)
 
-        self.clIm.set(im.astype(numpy.float32))
+        self.clIm.set(im.astype(np.float32))
 
         self.sobel(self.clIm, self.clx, self.cly, self.clm)
 
-        self.clS.fill(numpy.float32(0), self.q)
-        #self.clO.fill(numpy.float32(0), self.q)
-        #self.clM.fill(numpy.float32(0), self.q)
+        self.clS.fill(np.float32(0), self.q)
+        #self.clO.fill(np.float32(0), self.q)
+        #self.clM.fill(np.float32(0), self.q)
 
         for radius in radii:
             #print "------ Running -------"
             self.radial_prg.calcOM(self.q, im.shape, None,
                     self.clm.data, self.clx.data, self.cly.data,
                     self.clO.data, self.clM.data,
-                    numpy.int32(radius))
+                    np.int32(radius))
 
             if radius == 1:
                 kappa = 8
@@ -201,7 +223,7 @@ class OpenCLBackend (WovenBackend):
 
             self.radial_prg.calcF(self.q, im.shape, None,
                            self.clO.data, self.clM.data, self.clF.data,
-                           numpy.float32(kappa), numpy.float32(alpha))
+                           np.float32(kappa), np.float32(alpha))
 
             # Unsmoothed symmetry measure at this radius value
 
@@ -210,23 +232,23 @@ class OpenCLBackend (WovenBackend):
                 clGauss1D = self.gaussians[radius]
             else:
                 width = round(radius)
-                if numpy.mod(width, 2) == 0:
+                if np.mod(width, 2) == 0:
                     width += 1
                 gauss1d = scipy.signal.gaussian(width, 0.25 * radius)
 
                 blur = LocalMemorySeparableCorrelation(self.ctx, self.q, gauss1d, gauss1d)
                 self.gaussian_prgs[radius] = blur
 
-                clGauss1D = cla.to_device(self.q, gauss1d.astype(numpy.float32))
+                clGauss1D = cla.to_device(self.q, gauss1d.astype(np.float32))
                 self.gaussians[radius] = clGauss1D
 
             # self.sepcorr2d(self.clF, clGauss1D, clGauss1D, self.clThisS, self.clScratch)
             blur(self.clF, clGauss1D, clGauss1D, self.clThisS, self.clScratch)
 
             self.accum(self.clS, self.clThisS)
-            #self.accum_s(self.clS, self.clThisS, numpy.float32(len(radii)))
+            #self.accum_s(self.clS, self.clThisS, np.float32(len(radii)))
 
-        self.norm_s(self.clS, numpy.float32(len(radii)))
+        self.norm_s(self.clS, np.float32(len(radii)))
 
         if readback:
             return self.clS.get()
@@ -236,11 +258,42 @@ class OpenCLBackend (WovenBackend):
     def find_minmax(self, im):
         return self.minmax(im)
 
+    def get_sobel(self):
+        return self.clm.get()
+
+    # @clockit
+    def find_starburst_ray_boundaries(self, im, seed_point, cutoff_index,
+                                      threshold, n_rays, n_samples, ray_step):
+
+        if self.cached_shape != im.shape:
+            self.setup_device(im.shape)
+
+        #(im_, _, _) = self.sobel3x3_separable(im.astype(np.float32))
+        im_ = im.astype(np.float32)
+        self.clIm2D = cl.image_from_array(self.ctx, im_, num_channels=1)
+        # # load im to memory
+        # cl.enqueue_copy(self.q, self.clIm2D, clIm.data, offset=0,
+        #                 origin=(0, 0), region=clIm.shape)
+
+        seed_point_ = (seed_point[1], seed_point[0])
+
+        # sample the rays, computing the "ray-wise" gradient and mean + std along the
+        # way.  We'll pull back the mean and running stds and compute the thresholds
+        # on the CPU
+        sampled = self.cl_find_ray_boundaries(self.clIm2D, n_rays,
+                                     n_samples, ray_step, seed_point_, cutoff_index, threshold)
+
+        # run through the resampled values to find cutoffs
+
+        # pull back the cutoff and return them
+        return sampled
+
 
 def test_with_noise():
-    im = numpy.random.randn(123, 164)
+    im = np.random.randn(123, 164)
     print "testing inline"
-    r = test_inline(im)
+    #r = test_inline(im)
+    r = test_starburst(im)
     print "Radial returned:", r.max(), r.min()
     return r
 
@@ -248,9 +301,10 @@ def test_with_noise():
 def test_with_file(fn):
     im = pylab.imread(fn)
     if im.ndim > 2:
-        im = numpy.mean(im[:, :, :3], 2)
+        im = np.mean(im[:, :, :3], 2)
     pylab.imsave("intermediate.png", im, vmin=0, vmax=1., cmap=pylab.cm.gray)
-    r = test_inline(im)
+    #r = test_inline(im)
+    r = test_starburst(im)
     return r
 
 
@@ -259,26 +313,46 @@ def test_inline(im, radii=[1, 3, 5, 9, 12, 15], alpha=10.):
     return b.fast_radial_transform(im, radii, alpha, readback=True)
 
 
+def test_starburst(im, n_rays=100, n_samples=40, ray_length=40, seed_pt=(50, 50)):
+    b = OpenCLBackend()
+    radii = [1, 3, 5, 9, 12, 15]
+    alpha = 10.
+    b.fast_radial_transform(im, radii, alpha, readback=True)
+
+    (max_seed, min_seed) = b.find_minmax(b.clIm)
+
+    for n in range(0, 3):
+        result = b.find_starburst_ray_boundaries(im, max_seed, 3, 3.0, n_rays, n_samples, ray_length)
+    print result
+
+    # pylab.imshow(im)
+    # pylab.plot(max_seed[1], max_seed[0], '*')
+    # pylab.show()
+
+    # pylab.imshow(result)
+    # pylab.show()
+
 def main():
+
     import sys
     if len(sys.argv) > 1:
         S = test_with_file(sys.argv[1])
     else:
         S = test_with_noise()
 
-    print "Values of min and max"
-    print S.min(), S.max()
-    print "Location of min and max"
-    print numpy.unravel_index(S.argmin(), S.shape), \
-            numpy.unravel_index(S.argmax(), S.shape)
-    pylab.imsave('result.png', S, cmap=pylab.cm.gray)
+    # print "Values of min and max"
+    # print S.min(), S.max()
+    # print "Location of min and max"
+    # print np.unravel_index(S.argmin(), S.shape), \
+    #         np.unravel_index(S.argmax(), S.shape)
+    # pylab.imsave('result.png', S, cmap=pylab.cm.gray)
 
 
 def profile():
 
     import hotshot, hotshot.stats
     prof = hotshot.Profile("test.prof")
-    r = prof.runcall(test_with_noise)
+    r = prof.runcall(main)
     prof.close()
     stats = hotshot.stats.load("test.prof")
     stats.strip_dirs()
@@ -286,4 +360,5 @@ def profile():
     stats.print_stats(200)
 
 if __name__ == '__main__':
-    profile()
+    #profile()
+    main()

@@ -114,6 +114,9 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
         S = self.backend.fast_radial_transform(im_array, self.radiuses_to_try,
                 self.alpha)
 
+        if self.cache_sobel and hasattr(self.backend, 'get_sobel'):
+            features['cached_sobel'] = self.backend.get_sobel()
+
         if self.restrict_region:
             S[:, 0:self.restrict_left] = -1.
             S[:, self.restrict_right:] = -1.
