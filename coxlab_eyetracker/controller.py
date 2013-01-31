@@ -224,7 +224,8 @@ class EyeTrackerController(object):
         # set up real featutre finders (these won't be used if we use a
         # fake camera instead)
 
-        nworkers = 3
+        nworkers = int(global_settings.get('nworkers', 0))
+        print "starting with N workers", nworkers
 
         self.radial_ff = None
         self.starburst_ff = None
@@ -280,8 +281,8 @@ class EyeTrackerController(object):
         #             self.use_file_for_cam = 1
 
         if self.use_file_for_cam:
-            self.camera_device = FakeCameraDevice(self.feature_finder,
-                    '/Users/davidcox/Desktop/albino2/Snapshot2.bmp')
+            fn = global_settings.get('camera_file', '/Users/davidcox/Desktop/albino2/Snapshot2.bmp')
+            self.camera_device = FakeCameraDevice(self.feature_finder, fn)
             self.camera_device.acquire_image()
 
         if self.use_simulated and self.camera_device == None:

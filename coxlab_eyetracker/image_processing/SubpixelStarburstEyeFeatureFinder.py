@@ -52,7 +52,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         self.ray_sampling_method = kwargs.get('ray_sampling_method', 'interp')
 
         self.fitting_algorithm = kwargs.get('fitting_algorithm',
-                'circle_least_squares')
+                'ellipse_least_squares')
 
         self.pupil_rays = None
         self.cr_rays = None

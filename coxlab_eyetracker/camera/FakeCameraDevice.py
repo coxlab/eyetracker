@@ -9,6 +9,7 @@
 
 from numpy import *
 import os
+import cPickle as pickle
 import PIL.Image as Image
 import time
 
@@ -20,6 +21,26 @@ def acquire_continuously(im_array_, ff):
         im_array = im_array_.copy()
         ff.analyzeImage(im_array, None);
 
+
+def load_image(fn):
+    ext = os.path.splitext(fn)[1].lower()
+    if ext in ('.jpg', '.png'):
+        im = Image.open(fn)
+        im_array = array(im).astype(double)
+        if(im_array.ndim == 3):
+            im_array = mean(im_array[:,:,:3], 2)
+    elif ext == '.pkl':
+        im_array = pickle.load(open(fn)).astype(double)
+    return im_array
+
+
+def make_file_iter(d, exts=('.jpg', '.png', '.pkl')):
+    while True:  # this is an infinite iterator
+        for r, sd, fs in os.walk(d):
+            for fn in fs:
+                ext = os.path.splitext(fn)[1].lower()
+                if ext in exts:
+                    yield os.path.join(r, fn)
 
 
 class FakeCameraDevice:
@@ -48,12 +69,14 @@ class FakeCameraDevice:
         self.filename = _filename
 
         if(self.filename != None):
-            im = Image.open(self.filename)
-            self.im_array = array(im).astype(double)
-            if(self.im_array.ndim == 3):
-                self.im_array = mean(self.im_array, 2)
+            if (os.path.isdir(self.filename)):
+                self.file_iter = make_file_iter(self.filename)
+            else:
+                self.im_array = load_image(self.filename)
         else:
-            self.im_array = None; 
+            self.im_array = None
+        
+        self.wait = 0.5
         
         
         if(self.acquire_continuously):
@@ -62,8 +85,10 @@ class FakeCameraDevice:
         
 
     def acquire_image(self):
-        
+        if hasattr(self, 'file_iter'):
+            self.im_array = load_image(self.file_iter.next())
         self.feature_finder.analyze_image(self.im_array, {'timestamp': time.time()});
+        time.sleep(self.wait)
        
         return
 
@@ -95,5 +120,8 @@ class FakeCameraDevice:
         if "cr_radius_CV" in features:
             self.cr_radius_CV = features['cr_radius_CV'];
         return features
+    
+    def shutdown(self):
+        return
 
 
