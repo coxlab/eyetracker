@@ -556,6 +556,21 @@ class EyeTrackerGUI:
             size=(200, 180),
             )
 
+        def saving(x=None):
+            if not hasattr(c.feature_finder.save):
+                return False
+            if x is None:
+                return c.feature_finder.save
+            c.feature_finder.save = x
+
+        self.cam_bar.add_var(
+            'save',
+            label='save',
+            vtype=atb.TW_TYPE_BOOL8,
+            getter=lambda: saving(),
+            setter=lambda x: saving(x),
+        )
+
         self.cam_bar.add_var(
             'binning',
             label='binning',
