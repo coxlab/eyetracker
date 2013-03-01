@@ -22,7 +22,7 @@ class ImageSaveDummyFeatureFinder(EyeFeatureFinder):
 
         #self.current_path = None
         self.current_path = self.base_path
-        self.save = True
+        self.save = False
 
     def analyze_image(self, image, guess=None, **kwargs):
         if self.save:
