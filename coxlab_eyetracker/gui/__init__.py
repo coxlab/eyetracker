@@ -557,7 +557,7 @@ class EyeTrackerGUI:
             )
 
         def saving(x=None):
-            if not hasattr(c.feature_finder.save):
+            if not hasattr(c.feature_finder, 'save'):
                 return False
             if x is None:
                 return c.feature_finder.save
