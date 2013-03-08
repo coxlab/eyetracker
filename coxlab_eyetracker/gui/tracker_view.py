@@ -336,7 +336,9 @@ class TrackerView:
         glPopMatrix()
 
     def render_starburst(self, starburst):
-
+        # was 8 - 11 ms, now ~ 2 ms
+        h, w = self.im_array.shape
+        t = lambda c: (2.0 * (c[1] / w - 1), -2.0 * (c[0] / h - 1), 0.)
         # assume that the dictionary contains everything that it is supposed to
         pupil_rays_start = starburst['pupil_rays_start']
         pupil_rays_end = starburst['pupil_rays_end']
@@ -360,22 +362,31 @@ class TrackerView:
         glBegin(GL_LINES)
         glColor((0., 0.8, 0., 1.))
 
-        for i in range(0, len(pupil_rays_start)):
+        for (s, e) in zip(pupil_rays_start, pupil_rays_end):
+            glVertex3f(*t(s))
+            glVertex3f(*t(e))
+        
+        for (s, e) in zip(cr_rays_start, cr_rays_end):
+            glVertex3f(*t(s))
+            glVertex3f(*t(e))
+        #for i in range(0, len(pupil_rays_start)):
+        #for i in xrange(len(pupil_rays_start)):
             # NSLog("pupil ray: %f, %f" % (pupil_rays_start[i][0], pupil_rays_start[i][1]))
             # NSLog("\t%f, %f" % (pupil_rays_end[i][0], pupil_rays_end[i][1]))
-            ray_start = \
-                self.__image_coords_to_texture_coords(pupil_rays_start[i])
-            ray_end = self.__image_coords_to_texture_coords(pupil_rays_end[i])
-            glVertex3f(ray_start[0], ray_start[1], 0.)
-            glVertex3f(ray_end[0], ray_end[1], 0.)
+            #ray_start = \
+            #    self.__image_coords_to_texture_coords(pupil_rays_start[i])
+            #ray_end = self.__image_coords_to_texture_coords(pupil_rays_end[i])
+            #glVertex3f(ray_start[0], ray_start[1], 0.)
+            #glVertex3f(ray_end[0], ray_end[1], 0.)
 
-        for i in range(0, len(cr_rays_start)):
+        #for i in range(0, len(cr_rays_start)):
+        #for i in xrange(len(cr_rays_start)):
             # NSLog("cr ray: %f, %f" % (cr_rays_start[i][0], cr_rays_start[i][1]))
             # NSLog("\t%f, %f" % (cr_rays_end[i][0], cr_rays_end[i][1]))
-            ray_start = self.__image_coords_to_texture_coords(cr_rays_start[i])
-            ray_end = self.__image_coords_to_texture_coords(cr_rays_end[i])
-            glVertex3f(ray_start[0], ray_start[1], 0.)
-            glVertex3f(ray_end[0], ray_end[1], 0.)
+            #ray_start = self.__image_coords_to_texture_coords(cr_rays_start[i])
+            #ray_end = self.__image_coords_to_texture_coords(cr_rays_end[i])
+            #glVertex3f(ray_start[0], ray_start[1], 0.)
+            #glVertex3f(ray_end[0], ray_end[1], 0.)
 
         glEnd()
 
@@ -383,16 +394,16 @@ class TrackerView:
         glBegin(GL_LINE_LOOP)
         # glBegin(GL_POINTS)
         glColor((1., 0.65, 0., 1.))
-        for i in range(0, len(pupil_boundary)):
-            bound = self.__image_coords_to_texture_coords(pupil_boundary[i])
-            glVertex3f(bound[0], bound[1], 0.)
+        [glVertex3f(*t(b)) for b in pupil_boundary]
+        #for i in range(0, len(pupil_boundary)):
+        #    bound = self.__image_coords_to_texture_coords(pupil_boundary[i])
+        #    glVertex3f(bound[0], bound[1], 0.)
         glEnd()
 
         glBegin(GL_LINE_LOOP)
         glColor((1., 0.65, 0., 1.))
-        for i in range(0, len(cr_boundary)):
-            bound = self.__image_coords_to_texture_coords(cr_boundary[i])
-            glVertex3f(bound[0], bound[1], 0.)
+        [glVertex3f(*t(b)) for b in cr_boundary]
+        #for i in range(0, len(cr_boundary)):
+        #    bound = self.__image_coords_to_texture_coords(cr_boundary[i])
+        #    glVertex3f(bound[0], bound[1], 0.)
         glEnd()
-
-
