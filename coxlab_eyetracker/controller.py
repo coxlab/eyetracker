@@ -30,6 +30,14 @@ print global_settings
 # that sort of thing
 mw_enabled = False
 
+rff_params = ('target_kpixels', 'min_radius_fraction', 'max_radius_fraction',
+              'radius_steps', 'alpha', 'show_transform', 'albino_mode',
+              'albino_threshold', 'restrict_top', 'restrict_bottom',
+              'restrict_left', 'restrict_right')
+
+sbff_params = ('pupil_n_rays', 'pupil_min_radius', 'pupil_threshold',
+               'cr_n_rays', 'cr_min_radius', 'cr_threshold', 'fitting_algorithm')
+
 if global_settings.get('enable_mw_conduit', True):
 
     try:
@@ -235,13 +243,17 @@ class EyeTrackerController(object):
             self.feature_finder = PipelinedFeatureFinder(nworkers)
             workers = self.feature_finder.workers
 
+            self.rffs = []
+            self.sbffs = []
             for worker in workers:
 
                 fr_ff = worker.FastRadialFeatureFinder()  # in worker process
                 sb_ff = worker.StarBurstEyeFeatureFinder()  # in worker process
 
-                self.radial_ff = fr_ff
-                self.starburst_ff = sb_ff
+                #self.radial_ff = fr_ff
+                #self.starburst_ff = sb_ff
+                self.rffs.append(fr_ff)
+                self.sbffs.append(sb_ff)
                 # self.radial_symmetry_feature_finder_adaptor.addFeatureFinder(fr_ff)
                 # self.starburst_feature_finder_adaptor.addFeatureFinder(sb_ff)
 
@@ -250,6 +262,8 @@ class EyeTrackerController(object):
 
                 worker.set_main_feature_finder(comp_ff)  # create in worker process
 
+            self.radial_ff = ParamExpose(self.rffs, rff_params)
+            self.starburst_ff = ParamExpose(self.sbffs, sbff_params)
             self.feature_finder.start()  # start the worker loops
         else:
             sb_ff = SubpixelStarburstEyeFeatureFinder()

@@ -125,8 +125,8 @@ def worker_loop(ff, image_queue, output_queue, id=-1):
 
 
 PipelinedWorkerProcessManager.register('FrugalCompositeEyeFeatureFinder', FrugalCompositeEyeFeatureFinder)
-PipelinedWorkerProcessManager.register('FastRadialFeatureFinder', FastRadialFeatureFinder)
-PipelinedWorkerProcessManager.register('StarBurstEyeFeatureFinder', SubpixelStarburstEyeFeatureFinder)
+PipelinedWorkerProcessManager.register('FastRadialFeatureFinder', FastRadialFeatureFinder, exposed=('get_param', 'set_param'))
+PipelinedWorkerProcessManager.register('StarBurstEyeFeatureFinder', SubpixelStarburstEyeFeatureFinder, exposed=('get_param', 'set_param'))
 PipelinedWorkerProcessManager.register('PipelinedWorker', PipelinedWorker)
 
 

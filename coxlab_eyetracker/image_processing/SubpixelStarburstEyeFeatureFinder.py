@@ -64,6 +64,12 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # parameter settings
         self.update_parameters()
 
+    def set_param(self, param, value):
+        new = (value != self.get_param(param))
+        EyeFeatureFinder.set_param(self, param, value)
+        if new:
+            self.update_parameters()
+
     def update_parameters(self):
         """ Reconstruct internal representations in response to new parameters being set
             Recache rays, set method pointers, and clear storage for returned starburst parameters
@@ -745,13 +751,13 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             return (center_fit, long_axis / 2.0, fit_err)
         elif test == 0:
 
-            print 'Error in ellipse fitting: parabola found instead of ellipse'
-            # return self._fit_circle_to_points_lstsq(points)
-            return (array([-1., -1.]), 0.0, Inf)
+            #print 'Error in ellipse fitting: parabola found instead of ellipse'
+            return self._fit_circle_to_points_lstsq(points)
+            #return (array([-1., -1.]), 0.0, Inf)
         elif test < 0:
-            print 'Error in ellipse fitting: hyperbola found instead of ellipse'
-            # return self._fit_circle_to_points_lstsq(points)
-            return (array([-1., -1.]), 0.0, Inf)
+            #print 'Error in ellipse fitting: hyperbola found instead of ellipse'
+            return self._fit_circle_to_points_lstsq(points)
+            #return (array([-1., -1.]), 0.0, Inf)
 
     # ##@clockit
     def _fit_circle_to_points_lstsq_ransac(self, points):

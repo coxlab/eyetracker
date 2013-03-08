@@ -9,7 +9,7 @@
 from numpy import *
 
 
-class EyeFeatureFinder:
+class EyeFeatureFinder(object):
 
     # analyze the image and return dictionary of features gleaned
     # from it
@@ -18,3 +18,10 @@ class EyeFeatureFinder:
 
     def get_processed_image(self):
         return None
+    
+    
+    def get_param(self, param):
+        return object.__getattribute__(self, param)
+    
+    def set_param(self, param, value):
+        return object.__setattr__(self, param, value)

@@ -467,8 +467,7 @@ class EyeTrackerGUI:
                                vtype=FittingAlgorithm, getter=lambda: \
                                fit_algos_rev[sb_ff.fitting_algorithm],
                                setter=lambda x: \
-                               sb_ff.__dict__.__setitem__('fitting_algorithm',
-                               fit_algos[x]))
+                               setattr(sb_ff, 'fitting_algorithm', fit_algos[x]))
 
         self.sb_ff_bar.add_var('Display/show_rays', self.display_starburst)
 
