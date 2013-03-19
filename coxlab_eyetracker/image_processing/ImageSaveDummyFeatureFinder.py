@@ -1,3 +1,4 @@
+import logging
 from EyeFeatureFinder import EyeFeatureFinder
 import cPickle as pkl
 import os.path
@@ -29,7 +30,7 @@ class ImageSaveDummyFeatureFinder(EyeFeatureFinder):
             if guess is not None and 'timestamp' in guess:
                 self.save_image(image, guess['timestamp'])
             else:
-                print('Cannot save to disk without timestamp set')
+                logging.error('Cannot save to disk without timestamp set')
 
         return self.real_ff.analyze_image(image, guess, **kwargs)
 

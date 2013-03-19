@@ -24,7 +24,7 @@ from settings import global_settings
 loaded_config = load_config_file('~/.eyetracker/config.ini')
 global_settings.update(loaded_config)
 
-print global_settings
+logging.info('global_settings: %s' % global_settings)
 
 # boost.python wrapper for a MWorks interprocess conduit, if you're into
 # that sort of thing
@@ -47,7 +47,7 @@ if global_settings.get('enable_mw_conduit', True):
         TRACKER_INFO = 101
         mw_enabled = True
     except Exception, e:
-        print 'Unable to load MW conduit: %s' % e
+        logging.error('Unable to load MW conduit: %s' % e)
 
 
 # A decorator for calibration steps (stop continuous execution, resume on ret.)
@@ -137,7 +137,7 @@ class EyeTrackerController(object):
         self.calibrating = False
 
         self.enable_save_to_disk = global_settings.get('enable_save_to_disk', False)
-        print "Save to disk?:", self.enable_save_to_disk
+        logging.info("Save to disk?: %s" % self.enable_save_to_disk)
         self.image_save_dir = global_settings.get('data_dir', None)
 
         self.use_simulated = global_settings.get('use_simulated', False)
@@ -157,9 +157,9 @@ class EyeTrackerController(object):
             try:
                 esp300.connect()
             except Exception as E:
-                print str(E)
-                print 'Attempting to restart serial bridge (this can take ' \
-                    + 'several tens of seconds)...'
+                logging.warning(str(E))
+                logging.warning('Attempting to restart serial bridge (this can take ' \
+                    + 'several tens of seconds)...')
                 try:
                     kick_in_the_pants = httplib.HTTPConnection('169.254.0.9',
                             80, timeout=5)
@@ -233,7 +233,7 @@ class EyeTrackerController(object):
         # fake camera instead)
 
         nworkers = int(global_settings.get('nworkers', 0))
-        print "starting with N workers", nworkers
+        logging.info("starting with N workers %s" % nworkers)
 
         self.radial_ff = None
         self.starburst_ff = None
@@ -351,16 +351,16 @@ class EyeTrackerController(object):
         if mw_enabled:
             logging.info('Instantiating mw conduit')
             self.mw_conduit = mw_conduit.IPCServerConduit('cobra1')
-            print 'conduit = %s' % self.mw_conduit
+            logging.debug('conduit = %s' % self.mw_conduit)
         else:
             self.mw_conduit = None
 
         if self.mw_conduit != None:
-            print 'Initializing conduit...'
+            logging.debug('Initializing conduit...')
             initialized = self.mw_conduit.initialize()
-            print initialized
+            logging.debug('conduit.initialize() = %s' % initialized)
             if not initialized:
-                print 'Failed to initialize conduit'
+                logging.error('Failed to initialize conduit')
 
             logging.info('Sending dummy data (-1000,-1000,-1000)')
             self.mw_conduit.send_data(GAZE_INFO, (-1000, -1000, -1000))
@@ -375,12 +375,12 @@ class EyeTrackerController(object):
         #self.stages.release()
         #print "Controller has %i refs" % sys.getrefcount(self)
         #self.zoom_and_focus.release()
-        print "Controller has %i refs" % sys.getrefcount(self)
+        logging.debug("Controller has %i refs" % sys.getrefcount(self))
         self.calibrator.release()
-        print "Controller has %i refs" % sys.getrefcount(self)
+        logging.debug("Controller has %i refs" % sys.getrefcount(self))
 
     def __del__(self):
-        print "controller.__del__ called"
+        logging.debug("controller.__del__ called")
         sys.stdout.flush()
 
     def shutdown(self):
@@ -418,7 +418,7 @@ class EyeTrackerController(object):
         logging.info(message)
 
     def dump_info_to_conduit(self):
-        print("Dumping info to conduit")
+        logging.info("Dumping info to conduit")
         try:
             if not mw_enabled:
                 return
@@ -430,7 +430,7 @@ class EyeTrackerController(object):
         except Exception as e:
             # these are all "nice-to-haves" at this point
             # so don't risk crashing, just yet
-            print("Failed to dump info: %s" % e)
+            logging.info("Failed to dump info: %s" % e)
             return
 
     def start_continuous_acquisition(self):
@@ -444,10 +444,10 @@ class EyeTrackerController(object):
         self.acq_thread.start()
 
     def stop_continuous_acquisition(self):
-        print 'Stopping continuous acquisition'
+        logging.debug('Stopping continuous acquisition')
         self.continuously_acquiring = 0
-        print "Joining...", self.acq_thread.join()
-        print 'Stopped'
+        logging.debug("Joining... %s" % self.acq_thread.join())
+        logging.debug('Stopped')
 
     # a method to actually run the camera
     # it will push images into a Queue object (in a non-blocking fashion)
@@ -583,11 +583,11 @@ class EyeTrackerController(object):
                     #        self.dump_info_to_conduit()
             except Exception:
 
-                print self.camera_device
+                logging.error('%s' % self.camera_device)
                 formatted = formatted_exception()
-                print formatted[0], ': '
+                logging.error('%s:' % formatted[0])
                 for f in formatted[2]:
-                    print f
+                    logging.error('%s' % f)
 
             if time.time() - self.last_ui_put_time > self.ui_interval:
                 try:
@@ -694,14 +694,14 @@ class EyeTrackerController(object):
     def execute_and_resume_acquisition(self, f):
 
         f(self)
-        print 'Finished calibration step'
+        logging.info('Finished calibration step')
         time.sleep(0.5)
         self.start_continuous_acquisition()
         self.read_pos()
         self.calibrating = False
 
     def load_calibration_parameters(self, filename):
-        print("Loading: %s" % filename)
+        logging.info("Loading: %s" % filename)
         d = None
         with open(filename, 'r') as f:
             d = pkl.load(f)
@@ -728,7 +728,7 @@ class EyeTrackerController(object):
                 logging.warning('(loaded=%f, measured=%f' % (candidate_pixels_per_mm, self.calibrator.pixels_per_mm))
                 logging.warning('deviation=%f, tolerance=%f' % (deviation, tolerance))
 
-        print d
+        logging.info('Calibration parameters: %s' % d)
         return self.calibrator.load_parameters(d)
 
     @property
@@ -961,7 +961,7 @@ class EyeTrackerController(object):
     #     return
 
     def set_manual_calibration_(self):
-        print 'a'
+        #print 'a'
         if self.pixels_per_mm_current is None:
             if self.calibrator.pixels_per_mm is None:
                 self.calibrator.pixels_per_mm = 0.0
@@ -969,10 +969,10 @@ class EyeTrackerController(object):
         else:
             self.calibrator.pixels_per_mm = self.pixels_per_mm_current
 
-        print 'b'
+        #print 'b'
         self.calibrator.d = self.d_current
 
-        print 'c'
+        #print 'c'
 
         self.calibrator.Rp = self.rp_current * self.pixels_per_mm_current
 
@@ -1057,8 +1057,8 @@ class EyeTrackerController(object):
         self.stages.move_relative(self.stages.r_axis, -r_set)
 
     def move_simulated_eye(self):
-        print 'moving fake eye to: (%f, %f, 0.0)' % (self.simulated_eye_x,
-                self.simulated_eye_y)
+        logging.debug('moving fake eye to: (%f, %f, 0.0)' % (self.simulated_eye_x,
+                self.simulated_eye_y))
         if self.camera_device.__class__ == POVRaySimulatedCameraDevice:
             self.camera_device.move_eye(array([self.simulated_eye_x,
                                         self.simulated_eye_y, 0.0]))

@@ -8,6 +8,7 @@
 
 import time
 import random
+import logging
 
 class SimulatedStageController:
 
@@ -25,6 +26,9 @@ class SimulatedStageController:
             self.positions[1] += random.uniform(-5,5)
             self.positions[2] += random.uniform(-5,5)
     
+    def disconnect(self):
+        return
+    
     def setup(self):
         return
     
@@ -35,12 +39,12 @@ class SimulatedStageController:
         self.positions[axis] = 0.0
     
     def move_absolute(self, axis, pos):
-        print "Move absolute: Axis = ", axis, " Pos = ", pos
+        logging.debug("Move absolute: Axis = %s Pos = %s" % (axis, pos))
         self.positions[axis] = float(pos)
         time.sleep(.25)
     
     def move_relative(self, axis, pos):
-        print "Move relative: Axis = ", axis, " Pos = ", pos
+        logging.debug("Move relative: Axis = %s Pos = %s" % (axis, pos))
         
         self.positions[axis] += float(pos)
         time.sleep(.25)

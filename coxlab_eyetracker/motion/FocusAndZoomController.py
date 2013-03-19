@@ -87,7 +87,7 @@ class FocusAndZoomController:
             1SL-200.0000
             1SR200.0000
             1TJ1
-            1OM3
+            1OM4
             1VU%g
             1VA%g
             1JH20.00
@@ -166,9 +166,7 @@ class FocusAndZoomController:
             2ZE3H
             2ZF2H
             2ZH5H
-            2ZS4H
-
-            """ % motion_params
+            2ZS4H""" % motion_params
         lines = command_string.splitlines()
         for command in lines:
             

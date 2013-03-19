@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import logging
 from numpy import *
 from EyeFeatureFinder import *
 from stopwatch import *
@@ -78,10 +78,10 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
 
         if self.parameters_updated or self.backend.cached_shape \
             != im_array.shape:
-            print 'Recaching...'
-            print 'Target kPixels: ', self.target_kpixels
-            print 'Max Radius Fraction: ', self.max_radius_fraction
-            print 'Radius steps: ', self.radius_steps
+            logging.debug('Recaching...')
+            logging.debug('Target kPixels: %s' % self.target_kpixels)
+            logging.debug('Max Radius Fraction: %s' % self.max_radius_fraction)
+            logging.debug('Radius steps: %s' % self.radius_steps)
             im_pixels = image.shape[0] * image.shape[1]
             self.ds_factor = int(sqrt(im_pixels / int(self.target_kpixels
                                  * 1000)))
@@ -96,8 +96,8 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
                     * im_array.shape[0]), ceil(self.max_radius_fraction
                     * im_array.shape[0]), self.radius_steps)
             self.radiuses_to_try = unique(self.radiuses_to_try.astype(int))
-            print 'Radiuses to try: ', self.radiuses_to_try
-            print 'Downsampling factor: ', self.ds_factor
+            logging.debug('Radiuses to try: %s' % self.radiuses_to_try)
+            logging.debug('Downsampling factor: %s' % self.ds_factor)
 
         ds = self.ds_factor
 

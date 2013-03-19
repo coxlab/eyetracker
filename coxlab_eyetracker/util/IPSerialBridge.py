@@ -24,7 +24,7 @@ class IPSerialBridge:
         self.disconnect()
 
     def connect(self):
-        print "connecting", self.address, self.port
+        logging.info("connecting: %s %s" % (self.address, self.port))
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # next two lines are to speed up the communication, by removing the default 50 ms delay
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -54,6 +54,7 @@ class IPSerialBridge:
             except Exception as E:
                 logging.error("Socket read attempt returned: %s" % str(E))
                 time.sleep(0.1)
+        logging.debug("IPSerial %s read: %s" % (self, response.strip()))
         return self.parse_response(response)
     
     def old_read(self):
@@ -67,14 +68,15 @@ class IPSerialBridge:
                     pass
                     #still_reading = 0
                 else:
-                    print "Network error"
+                    logging.error("Network error")
                     pass  # TODO deal with this
             if(response != None and len(response) > 0 and response[-1] == '\n'):
                 still_reading = 0
 
         if(self.verbose):
-            print("RECEIVED (%s; %s): %s" % (self.address, str(self), response))
+            logging.debug("RECEIVED (%s; %s): %s" % (self.address, str(self), response))
 
+        logging.debug("IPSerial %s read: %s" % (self, response.strip()))
         return response
 
     read = new_read
@@ -89,10 +91,11 @@ class IPSerialBridge:
 
         # send the outgoing message
         self.socket.send(message + "\n\r")
+        logging.debug("IPSerial %s sent: %s" % (self, message.strip()))
 
         self.verbose = 0
         if(self.verbose):
-            print("SENDING (%s; %s): %s\n\r" % (self.address, str(self), message))
+            logging.debug("SENDING (%s; %s): %s\n\r" % (self.address, str(self), message))
 
         #time.sleep(0.2)  # allow some time to pass
 
@@ -121,6 +124,7 @@ class IPSerialBridge:
         
         # check if write ready?
         self.socket.send(message + "\n\r")
+        logging.debug("IPSerial %s sent: %s" % (self, message.strip()))
         
         if noresponse: return
         

@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+import os
+
+fn = os.path.expanduser('~/.eyetracker/log.txt')
+logging.basicConfig(level=logging.DEBUG, filename=fn, filemode='w')
+
 from coxlab_eyetracker.controller import EyeTrackerController
 from coxlab_eyetracker.gui import EyeTrackerGUI
 

@@ -11,6 +11,7 @@ from IPSerialBridge import *
 import sys
 import traceback
 import os
+import logging
 import re
 
 from multiprocessing.managers import BaseProxy
@@ -53,7 +54,7 @@ enable_mw_conduit=true
 def config_to_dict(cp, d={}):
 
     for section in cp.sections():
-        print(cp.items(section))
+        logging.debug('config_to_dict section %s: %s' % (section, cp.items(section)))
         d.update(dict(cp.items(section)))
 
     # a bit hacky: covert from strings to values
@@ -62,7 +63,7 @@ def config_to_dict(cp, d={}):
             d[key] = True
         if re.match(r'false', val, re.IGNORECASE):
             d[key] = False
-    print('d: %s' % d)
+    logging.debug('config_to_dict: %s' % d)
     return d
 
 

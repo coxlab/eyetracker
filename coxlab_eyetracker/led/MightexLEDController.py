@@ -42,7 +42,7 @@ class MightexLEDController (IPSerialBridge):
         return response.strip('>\r\n #')
     
     def __del__(self):
-        print("Shutting down LEDS")
+        logging.debug("Shutting down LEDS")
         for c in range(0, self.n_channels):
             self.turn_off(c)
         

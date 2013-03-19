@@ -664,10 +664,10 @@ class EyeTrackerGUI:
         def on_key_press(symbol, modifiers):
             if symbol == glumpy.key.ESCAPE:
                 c.stop_continuous_acquisition()
-                print "Controller has %i refs" % sys.getrefcount(c)
+                logging.debug("Controller has %i refs" % sys.getrefcount(c))
                 c.release()
                 self.controller = None
-                print "Controller has %i refs" % sys.getrefcount(c)
+                logging.debug("Controller has %i refs" % sys.getrefcount(c))
                 c.shutdown()
                 #print "Shutting down controller..."
                 #print "Shut down controller", c.shutdown()
@@ -680,7 +680,7 @@ class EyeTrackerGUI:
         self.window.draw()
 
     def __del__(self):
-        print "GUI __del__ called"
+        logging.debug("GUI __del__ called")
         self.controller.stop_continuous_acquisition()
         self.controller.release()
         self.controller.shutdown()
@@ -737,8 +737,8 @@ class EyeTrackerGUI:
         self.cal_enum_dict = OrderedDict(zip(cal_names, cal_ids))
         self.cal_lookup_dict = OrderedDict(zip(cal_ids, cal_names))
 
-        print self.cal_enum_dict
-        print self.cal_lookup_dict
+        logging.debug('Calibration files: %s' % self.cal_enum_dict)
+        logging.debug('Calibration lookup: %s' % self.cal_lookup_dict)
 
         self.cal_enum = atb.enum('CalibrationFile', self.cal_enum_dict)
 

@@ -74,7 +74,7 @@ class FrugalCompositeEyeFeatureFinder(EyeFeatureFinder):
 
         if reseed:
 
-            logging.debug('RESEEDING')
+            #logging.debug('RESEEDING')
             self.reseed_count = self.minimum_frames_to_reseed
 
             # Exhaustive Search: Get intial guess of pupil and CR using the fast radial finder
