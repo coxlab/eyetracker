@@ -337,8 +337,8 @@ class TrackerView:
 
     def render_starburst(self, starburst):
         # was 8 - 11 ms, now ~ 2 ms
-        h, w = self.im_array.shape
-        t = lambda c: (2.0 * (c[1] / w - 1), -2.0 * (c[0] / h - 1), 0.)
+        h, w = [float(v) for v in self.im_array.shape]
+        t = lambda c: ((2.0 * (c[1] / w)) - 1, (-2.0 * (c[0] / h)) + 1, 0.)
         # assume that the dictionary contains everything that it is supposed to
         pupil_rays_start = starburst['pupil_rays_start']
         pupil_rays_end = starburst['pupil_rays_end']
@@ -356,6 +356,7 @@ class TrackerView:
             and len(pupil_boundary) == 0 and len(cr_rays_start) == 0 \
             and len(cr_rays_end) == 0 and len(cr_boundary) == 0:
             return
+        
 
         # NSLog("len(pupil_rays_start) == %d" % len(pupil_rays_start))
 
@@ -395,6 +396,7 @@ class TrackerView:
         # glBegin(GL_POINTS)
         glColor((1., 0.65, 0., 1.))
         [glVertex3f(*t(b)) for b in pupil_boundary]
+        print [t(b) for b in pupil_boundary]
         #for i in range(0, len(pupil_boundary)):
         #    bound = self.__image_coords_to_texture_coords(pupil_boundary[i])
         #    glVertex3f(bound[0], bound[1], 0.)
