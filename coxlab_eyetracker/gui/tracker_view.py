@@ -396,7 +396,6 @@ class TrackerView:
         # glBegin(GL_POINTS)
         glColor((1., 0.65, 0., 1.))
         [glVertex3f(*t(b)) for b in pupil_boundary]
-        print [t(b) for b in pupil_boundary]
         #for i in range(0, len(pupil_boundary)):
         #    bound = self.__image_coords_to_texture_coords(pupil_boundary[i])
         #    glVertex3f(bound[0], bound[1], 0.)
