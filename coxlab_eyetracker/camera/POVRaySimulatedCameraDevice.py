@@ -72,6 +72,9 @@ class POVRaySimulatedCameraDevice:
         self.noise_level = kwargs.get("noise_level", 4.0)
 
 
+    def shutdown(self):
+        pass
+
     def acquire_image(self):
 
         tic = time.time()

@@ -33,6 +33,7 @@ def binding_getter(o, key):
         else:
             val = getattr(o, key)
 
+
         if val is None:
             val = 0
         if type(val) == np.float64:
@@ -783,7 +784,13 @@ class EyeTrackerGUI:
 
         self.last_update_time = now
 
-        features = self.controller.ui_queue_get()
+        try:
+            features = self.controller.ui_queue_get()
+        except Exception as e:
+            print e
+            print("Broken queue, quitting...")
+            exit(0)
+
         if features is None:
             return
 

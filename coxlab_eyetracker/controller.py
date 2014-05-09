@@ -8,6 +8,7 @@ import sys
 import time
 import httplib
 
+import numpy as np
 from numpy import *
 from scipy import *
 
@@ -138,6 +139,8 @@ class EyeTrackerController(object):
         self.use_file_for_cam = global_settings.get('use_file_for_camera',
                                                     False)
 
+
+    def initialize(self):
         # -------------------------------------------------------------
         # Stages
         # -------------------------------------------------------------
@@ -269,17 +272,17 @@ class EyeTrackerController(object):
         else:
             logging.warning('Data will not be saved to disk.')
 
-        if True:
-        # try:
-            if not self.use_file_for_cam and not self.use_simulated:
+        try:
+            logging.info('Try the camera')
+            if not self.use_file_for_cam: # and not self.use_simulated:
                 logging.info('Connecting to Camera...')
                 self.camera_device = ProsilicaCameraDevice(self.feature_finder)
 
                 self.binning = 4
                 self.gain = 1
-        # except Exception, e:
-        #             print "Unexpected error:", e.message
-        #             self.use_file_for_cam = 1
+        except Exception, e:
+                    print "Error connecting to camera:", e.message
+                    self.use_file_for_cam = 1
 
         if self.use_file_for_cam:
             fake_file = global_settings.get('fake_eye_file', None)
@@ -461,6 +464,7 @@ class EyeTrackerController(object):
                 v = v.__dict__[k]
             else:
                 return None
+
         return v
 
     def set_property(self, p, val):

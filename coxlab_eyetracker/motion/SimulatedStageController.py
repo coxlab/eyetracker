@@ -63,5 +63,5 @@ class SimulatedStageController:
     def power_down(self, axis):
         return
 
-    def disonnect(self):
+    def disconnect(self):
         return
