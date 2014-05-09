@@ -1,2 +1,2 @@
 #! /bin/sh
-python -Wignore -m Pyro4.naming
+PYRO_SERIALIZERS_ACCEPTED=pickle python -Wignore -m Pyro4.naming --nobc --port=50963

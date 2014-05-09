@@ -6,7 +6,10 @@ from threading import Thread
 def main():
 
     # daemon = Pyro4.Daemon()
-    controller = Pyro4.Proxy('PYRONAME:org.coxlab.eyetracker.controller')
+    ns = Pyro4.locateNS(port=50963)
+    # pyro_uri = 'PYRONAME:org.coxlab.eyetracker.controller'
+    pyro_uri = ns.lookup('org.coxlab.eyetracker.controller')
+    controller = Pyro4.Proxy(pyro_uri)
 
     print controller
 

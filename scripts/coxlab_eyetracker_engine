@@ -20,10 +20,15 @@ def main():
 
     if use_pyro:
         import Pyro4
+        Pyro4.config.SERIALIZER = 'pickle'
+        Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         daemon = Pyro4.Daemon()
         controller_uri = daemon.register(controller)
-        ns = Pyro4.locateNS()
+        ns = Pyro4.locateNS(port=50963)
         ns.register('org.coxlab.eyetracker.controller', controller_uri)
+
+
+        controller.initialize()
 
         daemon.requestLoop()
     else:

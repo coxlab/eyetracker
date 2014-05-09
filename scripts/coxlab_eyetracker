@@ -1,6 +1,13 @@
 #!/bin/bash
 
-LAUNCH_NS="python -Wignore -m Pyro4.naming"
+# PYOPENCL_CTX=2
+
+export PYRO_SERIALIZER=pickle
+export PYRO_SERIALIZERS_ACCEPTED=pickle
+
+LAUNCH_NS="python -Wignore -m Pyro4.naming --port=50963"
+echo "Launching Pyro name server..."
+echo ${LAUNCH_NS}
 eval ${LAUNCH_NS} &
 
 sleep 2
@@ -9,7 +16,7 @@ echo "Starting eyetracker"
 ENGINE="coxlab_eyetracker_engine"
 eval ${ENGINE} &
 
-sleep 2
+sleep 5
 
 echo "Starting GUI"
 GUI="coxlab_eyetracker_gui"
@@ -19,7 +26,7 @@ eval ${GUI}
 sleep 2
 echo "Done."
 
-NS_PID=`ps ax | grep -e "${LAUNCH_NS}" | grep -v grep | awk '{print $1}'`
+NS_PID=`ps ax | grep -e "Pyro4.naming" | grep -v grep | awk '{print $1}'`
 ENGINE_PID=`ps ax | grep -e "${ENGINE}" | grep -v grep | awk '{print $1}'`
 
 echo "Killing launched background processes."
