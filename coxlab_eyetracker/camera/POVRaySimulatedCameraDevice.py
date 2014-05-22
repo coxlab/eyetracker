@@ -71,6 +71,10 @@ class POVRaySimulatedCameraDevice:
         self.add_noise = kwargs.get("add_noise", True)
         self.noise_level = kwargs.get("noise_level", 4.0)
 
+        self.fake_camera_parameters = {'exposure': 5000,
+            'binning': 4,
+            'gain': 1}
+
 
     def shutdown(self):
         pass

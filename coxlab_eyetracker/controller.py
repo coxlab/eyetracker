@@ -274,15 +274,15 @@ class EyeTrackerController(object):
 
         try:
             logging.info('Try the camera')
-            if not self.use_file_for_cam: # and not self.use_simulated:
+            if not self.use_file_for_cam:# and not self.use_simulated:
                 logging.info('Connecting to Camera...')
                 self.camera_device = ProsilicaCameraDevice(self.feature_finder)
 
                 self.binning = 4
                 self.gain = 1
         except Exception, e:
-                    print "Error connecting to camera:", e.message
-                    self.use_file_for_cam = 1
+                print "Error connecting to camera:", e.message
+                self.camera_device = None
 
         if self.use_file_for_cam:
             fake_file = global_settings.get('fake_eye_file', None)
@@ -460,20 +460,31 @@ class EyeTrackerController(object):
     def get_property(self, p):
         v = self
         for k in p.split('.'):
-            if k in v.__dict__:
-                v = v.__dict__[k]
+            if getattr(v, k):
+                v = hasattr(v, k)
+            # if k in v.__dict__:
+            #     v = v.__dict__[k]
             else:
                 return None
 
         return v
 
     def set_property(self, p, val):
+        print 'setting prop ' + p
         v = self
         keys = p.split('.')
-        for k in keys[0:-1]:
-            v = v.__dict__[k]
 
-        v.__dict__[keys[-1]] = val
+        for k in keys[0:-1]:
+            v = getattr(v, k)        
+        # for k in keys[0:-1]:
+        #     v = v.__dict__[k]
+
+        # if keys[-1] in v.__dict__:
+        #     print 'val was: ', v.__dict__[keys[-1]]
+        print 'val now is: ', val
+
+        # v.__dict__[keys[-1]] = val
+        setattr(v, keys[-1], val)
 
     def update_parameters(self, p):
         o = p.split('.')[0]
@@ -650,14 +661,16 @@ class EyeTrackerController(object):
 
         self.camera_device.camera.setAttribute(a, int(value))
         # Why is this being set twice??
-        #self.camera_device.camera.setAttribute(a, int(value))
+        self.camera_device.camera.setAttribute(a, int(value))
 
     @property
     def exposure(self):
+        print 'exposure get'
         return self.get_camera_attribute('ExposureValue')
 
     @exposure.setter
     def exposure(self, value):
+        print 'exposure set'
         self.set_camera_attribute('ExposureValue', int(value))
 
     @property

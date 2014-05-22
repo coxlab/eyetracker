@@ -54,6 +54,7 @@ def binding_setter(o, key):
 
     def regular_wrapper(val):
         #setattr(o, key, val)
+        print 'regular wrapper setter'
         o.set_property(key, val)
 
     if hasattr(o, 'update_parameters') and callable(getattr(o,
