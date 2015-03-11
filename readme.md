@@ -5,7 +5,7 @@ as described in the following paper:
 
 Davide F. Zoccolan, Brett J. Graham, David D. Cox (2010) **A self-calibrating, camera-based eye tracker for the recording of rodent eye movements.** Frontiers in Neuroscience 4.
 
-Please see [http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf](http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf) for details.
+Please see [http://www.rowland.harvard.edu/cox/pdfs/fnins-04-00193-1.pdf](http://www.rowland.harvard.edu/rjf/cox/pdfs/fnins-04-00193-1.pdf) for details.
 
 The development of this system was supported by the National Science Foundation (IOS0947777).
 
