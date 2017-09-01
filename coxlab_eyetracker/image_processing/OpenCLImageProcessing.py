@@ -653,20 +653,20 @@ class LocalMemorySeparableConvolutionKernel(MetaKernel):
                 row_evt = prg.separable_convolution_row(
                     self.queue,
                     [int(e) for e in row_global_size],
+                    [int(e) for e in row_local_size],
                     intermediate_dev,
                     input_dev,
                     row_dev,
-                    local_size=[int(e) for e in row_local_size],
                     wait_for=wait_for,
                     )
             else:
                 row_evt = prg.separable_convolution_row(
                     self.queue,
                     [int(e) for e in row_global_size],
+                    [int(e) for e in row_local_size],
                     intermediate_dev,
                     input_dev,
                     row_dev,
-                    local_size=[int(e) for e in row_local_size],
                     )
         except Exception, e:
             print input_im.shape

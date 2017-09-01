@@ -115,6 +115,7 @@ class BaslerCameraDevice:
             raise Exception, "No valid camera is in place"
 
         self.im_array = self.camera.grab_image()
+        self.im_array = self.im_array[0:240, 0:320]
 
         # frame = self.camera.getAndLockCurrentFrame()
         # self.im_array = (asarray(frame)).copy()

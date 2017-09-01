@@ -5,8 +5,9 @@ import logging
 from numpy import *
 from EyeFeatureFinder import *
 
-from VanillaBackend import *
-from WovenBackend import *
+from VanillaBackend import VanillaBackend
+from WovenBackend import WovenBackend
+from OpenCLBackend import OpenCLBackend
 
 
 class FastRadialFeatureFinder(EyeFeatureFinder):

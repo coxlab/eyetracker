@@ -240,7 +240,7 @@ class EyeTrackerController(object):
         # set up real featutre finders (these won't be used if we use a
         # fake camera instead)
 
-        nworkers = int(global_settings.get('nworkers', 10))
+        nworkers = int(global_settings.get('nworkers', 7))
         logging.info("starting with N workers %s" % nworkers)
 
         self.radial_ff = None
