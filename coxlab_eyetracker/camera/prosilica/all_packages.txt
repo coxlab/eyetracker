@@ -40,7 +40,6 @@ rpdb==0.1.1
 scikits.audiolab==0.11.0
 scikits.cuda==0.041
 scipy==0.9.0
-stopwatch==0.3.1
 tables==2.2.1
 urwid==0.9.9.1
 winpdb==1.4.8

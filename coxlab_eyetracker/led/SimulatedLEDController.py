@@ -41,7 +41,7 @@ class SimulatedLEDController:
     def turn_on(self, channel, current = None):
         self.internal_status[channel] = 1
         
-        if(current != None):
+        if(current is not None):
             self.internal_current[channel] = current
     
     def turn_off(self, channel):

@@ -14,7 +14,7 @@ from scipy import *
 from coxlab_eyetracker.util import *
 
 from coxlab_eyetracker.image_processing import *
-from coxlab_eyetracker.camera import *
+from coxlab_eyetracker.camera import BaslerCameraDevice, POVRaySimulatedCameraDevice, FakeCameraDevice
 from coxlab_eyetracker.led import *
 from coxlab_eyetracker.motion import *
 from coxlab_eyetracker.calibrator import *
@@ -136,6 +136,8 @@ class EyeTrackerController(object):
 
         self.calibrating = False
 
+        self.camera_only = True
+
         self.enable_save_to_disk = global_settings.get('enable_save_to_disk', False)
         logging.info("Save to disk?: %s" % self.enable_save_to_disk)
         self.image_save_dir = global_settings.get('data_dir', None)
@@ -149,7 +151,7 @@ class EyeTrackerController(object):
         # -------------------------------------------------------------
 
         logging.info('Initializing Motion Control Subsystem (Stages)...')
-        if self.use_simulated:
+        if self.use_simulated or self.camera_only:
             esp300 = SimulatedStageController()
         else:
             esp300 = ESP300StageController('169.254.0.9', 8001)
@@ -173,19 +175,22 @@ class EyeTrackerController(object):
                                       + 'have failed.  '
                                       + 'Reverting to simulated mode.')
                     esp300 = SimulatedStageController()
-                    self.use_simulated = True
+                    # self.use_simulated = True
 
         self.stages = EyeTrackerStageController(esp300)
 
         logging.info('Initializing Motion Control Subsystem (Focus and Zoom)')
-        if self.no_powerzoom:
+        if self.no_powerzoom or self.camera_only:
             esp300_2 = SimulatedStageController()
         else:
             if self.use_simulated:
                 esp300_2 = SimulatedStageController()
             else:
-                esp300_2 = ESP300StageController('169.254.0.9', 8002)
-                esp300_2.connect()
+                try:
+                    esp300_2 = ESP300StageController('169.254.0.9', 8002)
+                    esp300_2.connect()
+                except Exception:
+                    esp300_2 = SimulatedStageController()
 
         self.zoom_and_focus = FocusAndZoomController(esp300_2)
 
@@ -214,11 +219,14 @@ class EyeTrackerController(object):
         # -------------------------------------------------------------
         logging.info('Initializing LED Control Subsystem')
 
-        if self.use_simulated:
+        if self.use_simulated or self.camera_only:
             self.leds = SimulatedLEDController(4)
         else:
-            self.leds = MightexLEDController('169.254.0.9', 8006)
-            self.leds.connect()
+            try:
+                self.leds = MightexLEDController('169.254.0.9', 8006)
+                self.leds.connect()
+            except Exception:
+                self.leds = SimulatedLEDController(4)
 
         # -------------------------------------------------------------
         # Camera and Image Processing
@@ -232,7 +240,7 @@ class EyeTrackerController(object):
         # set up real featutre finders (these won't be used if we use a
         # fake camera instead)
 
-        nworkers = int(global_settings.get('nworkers', 0))
+        nworkers = int(global_settings.get('nworkers', 10))
         logging.info("starting with N workers %s" % nworkers)
 
         self.radial_ff = None
@@ -286,7 +294,7 @@ class EyeTrackerController(object):
         # try:
             if not self.use_file_for_cam and not self.use_simulated:
                 logging.info('Connecting to Camera...')
-                self.camera_device = ProsilicaCameraDevice(self.feature_finder)
+                self.camera_device = BaslerCameraDevice(self.feature_finder)
 
                 self.binning = 4
                 self.gain = 1
@@ -299,7 +307,7 @@ class EyeTrackerController(object):
             self.camera_device = FakeCameraDevice(self.feature_finder, fn)
             self.camera_device.acquire_image()
 
-        if self.use_simulated and self.camera_device == None:
+        if self.use_simulated and self.camera_device is None:
             logging.info('Failing over to Simulated Camera')
 
             # use a POV-Ray simulated camera + a simpler feature finder
@@ -355,7 +363,7 @@ class EyeTrackerController(object):
         else:
             self.mw_conduit = None
 
-        if self.mw_conduit != None:
+        if self.mw_conduit is not None:
             logging.debug('Initializing conduit...')
             initialized = self.mw_conduit.initialize()
             logging.debug('conduit.initialize() = %s' % initialized)
@@ -467,8 +475,8 @@ class EyeTrackerController(object):
         self.last_ui_put_time = time.time()
         self.last_conduit_time = time.time()
 
-        check_interval = 100
-        info_interval = 100
+        check_interval = 10
+        info_interval = 10
 
         while self.continuously_acquiring:
             self.camera_locked = 1
@@ -490,20 +498,20 @@ class EyeTrackerController(object):
                 if frame_number % check_interval == 0:
                     toc = time.time() - tic
                     frame_rate = check_interval / toc
-                    logging.info('Real frame rate: %f' % (check_interval / toc))
+                    print('Real frame rate: %f' % (check_interval / toc))
                     if features.__class__ == dict and 'frame_number' \
                         in features:
                         logging.info('frame number = %d'
                                      % features['frame_number'])
                     tic = time.time()
 
-                if features == None:
+                if features is None:
                     logging.error('No features found... sleeping')
                     time.sleep(0.004)
                     continue
 
-                if features['pupil_position'] != None and features['cr_position'
-                        ] != None:
+                if features['pupil_position'] is not None and features['cr_position'
+                        ] is not None:
 
                     timestamp = features.get('timestamp', 0)
 
@@ -513,7 +521,7 @@ class EyeTrackerController(object):
                     pupil_radius = 0.0
                     # get pupil radius in mm
                     if 'pupil_radius' in features and features['pupil_radius'] \
-                        != None and self.calibrator is not None:
+                        is not None and self.calibrator is not None:
 
                         if self.calibrator.pixels_per_mm is not None:
                             pupil_radius = features['pupil_radius'] \
@@ -535,7 +543,7 @@ class EyeTrackerController(object):
                              calibration_status) = \
                                 self.calibrator.transform(pupil_position, None)
 
-                        if self.mw_conduit != None:
+                        if self.mw_conduit is not None:
                             #print self.leds.soft_status
                             #print "Side:", self.calibrator.side_led, self.leds.soft_status(self.calibrator.side_led)
                             #print "Top :", self.calibrator.top_led, self.leds.soft_status(self.calibrator.top_led)
@@ -559,7 +567,7 @@ class EyeTrackerController(object):
                             self.last_conduit_time = time.time()
                     else:
 
-                        if self.mw_conduit != None:
+                        if self.mw_conduit is not None:
                             pass
 
                     # set values for the bindings GUI
@@ -579,7 +587,7 @@ class EyeTrackerController(object):
 
                     # FIXME I cannot do this here as it will fubar the serial communication with the ESP
                     #if frame_number % info_interval == 0:
-                    #    if mw_conduit != None:
+                    #    if mw_conduit is not None:
                     #        self.dump_info_to_conduit()
             except Exception:
 
@@ -603,8 +611,8 @@ class EyeTrackerController(object):
 
 
     def get_camera_attribute(self, a):
-        if self.camera_device != None and getattr(self.camera_device, 'camera',
-                None) is not None and self.camera_device.camera != None:
+        if self.camera_device is not None and getattr(self.camera_device, 'camera',
+                None) is not None and self.camera_device.camera is not None:
             return self.camera_device.camera.getUint32Attribute(a)
         else:
             return 0
@@ -613,9 +621,8 @@ class EyeTrackerController(object):
         if getattr(self.camera_device, 'camera', None) is None:
             return
 
-        self.camera_device.camera.setAttribute(a, int(value))
-        # Why is this being set twice??
-        #self.camera_device.camera.setAttribute(a, int(value))
+        # self.camera_device.camera.setAttribute(a, int(value))
+        
 
     @property
     def exposure(self):

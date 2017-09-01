@@ -81,29 +81,29 @@ class TrackerView:
         glColor4f(1., 1., 1., 1.)
         glClear(GL_COLOR_BUFFER_BIT)
 
-        if self.im_array == None:
+        if self.im_array is None:
             #print 'No image'
             # glFlush()
             return
 
         self.render_image(frame)
 
-        if self.stage1_pupil_position != None:
+        if self.stage1_pupil_position is not None:
             self.render_stage1_pupil_location()
 
-        if self.stage1_cr_position != None:
+        if self.stage1_cr_position is not None:
             self.render_stage1_CR_location()
 
-        if self.pupil_position != None:
+        if self.pupil_position is not None:
             self.render_pupil_location()
 
-        if self.cr_position != None:
+        if self.cr_position is not None:
             self.render_CR_location()
 
-        if self.starburst != None:
+        if self.starburst is not None:
             self.render_starburst(self.starburst)
 
-        if self.is_calibrating != None and self.is_calibrating:
+        if self.is_calibrating is not None and self.is_calibrating:
             self.render_calibrating()
 
         # self.render_restriction_box()
@@ -167,7 +167,7 @@ class TrackerView:
         return
 
     def render_pupil_location(self):
-        if self.pupil_radius != None:
+        if self.pupil_radius is not None:
             radius = self.pupil_radius
         else:
             radius = 10
@@ -183,7 +183,7 @@ class TrackerView:
         return
 
     def render_CR_location(self):
-        if self.cr_radius != None:
+        if self.cr_radius is not None:
             radius = self.cr_radius
         else:
             radius = 10
@@ -347,9 +347,9 @@ class TrackerView:
         cr_rays_end = starburst['cr_rays_end']
         cr_boundary = starburst['cr_boundary']
 
-        if pupil_rays_start == None or pupil_rays_end == None or pupil_boundary \
-            == None or cr_rays_start == None or cr_rays_end == None \
-            or cr_boundary == None:
+        if pupil_rays_start is None or pupil_rays_end is None or pupil_boundary \
+            is None or cr_rays_start is None or cr_rays_end is None \
+            or cr_boundary is None:
             return
 
         if len(pupil_rays_start) == 0 and len(pupil_rays_end) == 0 \

@@ -97,7 +97,7 @@ class MightexLEDController (IPSerialBridge):
         self.send("NORMAL %d %d %d" % (channel, self.Imax, current))
         self.send("CURRENT %d %d" % (channel, current))
         self.internal_current[channel] = self.current(channel)
-        #if(current != None):
+        #if(current is not None):
         #    # set the "normal" mode parameters
         #    self.send("NORMAL %d %d %d" % (channel, self.Imax, current))
         #

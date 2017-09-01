@@ -129,8 +129,8 @@ class StahlLikeCalibrator:
 
     @property
     def calibrated(self):
-        return (self.d != None and self.Rp != None and self.y_equator != None \
-                and self.y_topCR_ref != None and \
+        return (self.d is not None and self.Rp is not None and self.y_equator is not None \
+                and self.y_topCR_ref is not None and \
                 self.side_led in self.default_cr_positions.keys() and \
                 self.top_led in self.default_cr_positions.keys())
 
@@ -233,8 +233,8 @@ class StahlLikeCalibrator:
         if self.Rp_mm != c['Rp_mm']:
             logging.error("Calculated Rp_mm[%g] != loaded [%g]" % (self.Rp_mm, c['Rp_mm']))
             return False
-        # print "Returning: %s" % (self.d != None and self.Rp != None and self.y_equator != None \
-        #             and self.y_topCR_ref != None and \
+        # print "Returning: %s" % (self.d is not None and self.Rp is not None and self.y_equator is not None \
+        #             and self.y_topCR_ref is not None and \
         #             self.side_led in self.default_cr_positions.keys() and \
         #             self.top_led in self.default_cr_positions.keys())
         # print self.d
@@ -380,7 +380,7 @@ class StahlLikeCalibrator:
             med_features = None
             raise Exception, "Features median (average) could not be computed: NO features acquired!"
 
-        if(self.ui_queue != None):
+        if(self.ui_queue is not None):
             try:
                 self.ui_queue.put_nowait(med_features)
                 #print "!@#$!@#$!@#$!@#$!@#$ used median features"
@@ -400,14 +400,14 @@ class StahlLikeCalibrator:
 
 
         # Shortcut until I figure this out
-        while (avg_features == None or
-              avg_features["cr_position"] == None or
-              avg_features["pupil_position"] == None or
-              avg_features["im_array"] == None):
+        while (avg_features is None or
+              avg_features["cr_position"] is None or
+              avg_features["pupil_position"] is None or
+              avg_features["im_array"] is None):
             self.camera.acquire_image()
             avg_features = self.camera.get_processed_image()
 
-        if(self.ui_queue != None):
+        if(self.ui_queue is not None):
             try:
                 self.ui_queue.put_nowait(avg_features)
             except Full, e:
@@ -420,7 +420,7 @@ class StahlLikeCalibrator:
         avg_features = features
         averagable_keys = ['cr_position', 'pupil_position']
         for key in averagable_keys:
-            if(avg_features[key] == None):
+            if(avg_features[key] is None):
                 if(retry < 10):
                     return self.acquire_averaged_features(n,retry+1)
                 else:
@@ -432,10 +432,10 @@ class StahlLikeCalibrator:
             self.camera.acquire_image()
             features = self.camera.get_processed_image()
             for key in averagable_keys:
-                if(avg_features[key] == None):
+                if(avg_features[key] is None):
                     avg_features[key] += features[key] / float(n)
 
-        if(self.ui_queue != None):
+        if(self.ui_queue is not None):
             try:
                 self.ui_queue.put_nowait(avg_features)
             except Full, e:

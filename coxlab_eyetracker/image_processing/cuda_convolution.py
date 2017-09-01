@@ -3,7 +3,7 @@ import pycuda.driver as cuda
 import pycuda.compiler as cuda_compiler 
 import numpy
 from numpy.random import rand
-from stopwatch import *
+
 import mako.template
 
 class NoProgramToFreezeException (Exception):
@@ -60,7 +60,7 @@ class MetaKernel:
         return
     
     def freeze(self):
-        if self.last_program == None:
+        if self.last_program is None:
             raise NoProgramToFreezeException
         self.frozen_program = self.last_program
         

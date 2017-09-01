@@ -68,7 +68,7 @@ class FakeCameraDevice:
         self.feature_finder = _feature_finder
         self.filename = _filename
 
-        if(self.filename != None):
+        if(self.filename is not None):
             if (os.path.isdir(self.filename)):
                 self.file_iter = make_file_iter(self.filename)
             else:
@@ -93,14 +93,14 @@ class FakeCameraDevice:
         return
 
     def	get_processed_image(self, guess = None):
-        if(self.im_array == None):
+        if(self.im_array is None):
             raise Exception, "Attempt to process an image without acquiring one"
 
         image_center = array(self.im_array.shape)
         
         features = self.feature_finder.get_result();
 
-        if(features == None):
+        if(features is None):
             return features
 
         

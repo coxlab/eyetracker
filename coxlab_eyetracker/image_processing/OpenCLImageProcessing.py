@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pyopencl as cl
 import numpy
-from stopwatch import *
+
 import mako.template
 mf = cl.mem_flags
 
@@ -86,7 +86,7 @@ class MetaKernel:
         return
 
     def freeze(self):
-        if self.last_program == None:
+        if self.last_program is None:
             raise NoProgramToFreezeException
         self.frozen_program = self.last_program
 

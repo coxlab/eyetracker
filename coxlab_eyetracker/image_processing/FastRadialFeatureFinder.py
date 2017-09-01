@@ -4,7 +4,7 @@
 import logging
 from numpy import *
 from EyeFeatureFinder import *
-from stopwatch import *
+
 from VanillaBackend import *
 from WovenBackend import *
 
@@ -71,7 +71,7 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
         # im_array = image.astype(double)
         im_array = im_array[::self.ds_factor, ::self.ds_factor]
 
-        if guess != None:
+        if guess is not None:
             features = guess
         else:
             features = {'pupil_size': None, 'cr_size': None}
@@ -114,10 +114,10 @@ class FastRadialFeatureFinder(EyeFeatureFinder):
         else:
             (pupil_coords, cr_coords) = self.backend.find_minmax(S)
 
-        if pupil_coords == None:
+        if pupil_coords is None:
             pupil_coords = array([0., 0.])
 
-        if cr_coords == None:
+        if cr_coords is None:
             cr_coords = array([0., 0.])
 
         if self.correct_downsampling:

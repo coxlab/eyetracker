@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from ImageProcessingBackend import *
 from scipy.signal import sepfir2d, convolve2d
-from stopwatch import *
+
 
 
 class VanillaBackend(ImageProcessingBackend):
@@ -150,7 +150,7 @@ class VanillaBackend(ImageProcessingBackend):
     def find_minmax(self, image, **kwargs):
 
         # print "here (vanilla)"
-        if image == None:
+        if image is None:
             return ([0, 0], [0])
 
         min_coord = nonzero(image == min(image.ravel()))

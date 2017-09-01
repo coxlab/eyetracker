@@ -5,3 +5,8 @@ try:
     from ProsilicaCameraDevice import *
 except e:
     pass
+
+try:
+    from BaslerCameraDevice import *
+except e:
+    pass

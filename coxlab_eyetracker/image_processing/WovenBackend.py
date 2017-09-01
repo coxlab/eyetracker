@@ -3,7 +3,7 @@
 from VanillaBackend import *
 
 import scipy
-from scipy.weave import inline
+from weave import inline
 
 
 class WovenBackend(VanillaBackend):
@@ -411,7 +411,7 @@ class WovenBackend(VanillaBackend):
         # print "Here (woven)"
         # print image
 
-        if image == None:
+        if image is None:
             return ([0, 0], [0])
 
         code = \

@@ -140,7 +140,7 @@ class StarBurstEyeFeatureFinder(EyeFeatureFinder):
 
         # ### Read out the inital guess
         # Pupil features
-        if guess != None:
+        if guess is not None:
             if 'pupil_position' in guess and guess['pupil_position'] \
                 is not None:
                 _StartPupiCoord = guess['pupil_position']
@@ -209,7 +209,7 @@ class StarBurstEyeFeatureFinder(EyeFeatureFinder):
         self._clear()
 
         # Get the input image
-        if im == None or im.shape[0] == 0 or im.shape[1] == 0:
+        if im is None or im.shape[0] == 0 or im.shape[1] == 0:
             raise Exception('Empty image')
 
         self.im_array_whole = self.im_array = double(im)
@@ -478,14 +478,14 @@ class StarBurstEyeFeatureFinder(EyeFeatureFinder):
     # the image array whenever they are needed
 
     def _get_im_array_nrows(self):
-        if self.im_array == None or self.im_array.shape == None \
+        if self.im_array is None or self.im_array.shape is None \
             or len(self.im_array.shape) < 1:
             return 0
 
         return self.im_array.shape[0]
 
     def _get_im_array_ncols(self):
-        if self.im_array == None or self.im_array.shape == None \
+        if self.im_array is None or self.im_array.shape is None \
             or len(self.im_array.shape) < 2:
             return 0
 

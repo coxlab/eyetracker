@@ -92,7 +92,7 @@ class ProsilicaCameraDevice:
         if(self.acquire_continuously):
             print "Terminating acquisition thread in ProsilicaCameraDevice"
             self.acquisition_thread.terminate()
-        if(self.camera != None):
+        if(self.camera is not None):
             print "ending camera capture in ProsilicaCameraDevice"
             self.camera.endCapture()
 
@@ -100,7 +100,7 @@ class ProsilicaCameraDevice:
         print "Deleting camera (in python)"
         if(self.acquire_continuously):
             self.acquisition_thread.terminate()
-        if(self.camera != None):
+        if(self.camera is not None):
             self.camera.endCapture()
 
 
@@ -109,7 +109,7 @@ class ProsilicaCameraDevice:
         if(self.acquire_continuously):
             return
 
-        if(self.camera == None):
+        if(self.camera is None):
             raise Exception, "No valid prosilica camera is in place"
 
         frame = self.camera.getAndLockCurrentFrame()
@@ -137,7 +137,7 @@ class ProsilicaCameraDevice:
 
         features = self.feature_finder.get_result()
 
-        if(features == None):
+        if(features is None):
             return features
 
         if(features.has_key('pupil_position')):

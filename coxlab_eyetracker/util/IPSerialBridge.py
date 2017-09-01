@@ -70,7 +70,7 @@ class IPSerialBridge:
                 else:
                     logging.error("Network error")
                     pass  # TODO deal with this
-            if(response != None and len(response) > 0 and response[-1] == '\n'):
+            if(response is not None and len(response) > 0 and response[-1] == '\n'):
                 still_reading = 0
 
         if(self.verbose):

@@ -10,10 +10,10 @@
 
 from numpy import *
 # from EdgeDetection import *
-from stopwatch import *
+
 from EyeFeatureFinder import *
-from scipy.weave import inline
-# from scipy.weave import converters
+from weave import inline
+# from weave import converters
 import scipy.optimize
 from coxlab_eyetracker.util import *
 
@@ -172,7 +172,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         # image = double(image)
 
         # compute the image gradient
-        if self.shortcut_sobel == None:
+        if self.shortcut_sobel is None:
             (image_grad_mag, image_grad_x, image_grad_y) = \
                 self.backend.sobel3x3(image)
         else:
@@ -363,7 +363,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
             exclusion_radius = kwargs['exclusion_radius']
 
             for bp in boundary_points:
-                if exclusion_center == None or linalg.norm(exclusion_center
+                if exclusion_center is None or linalg.norm(exclusion_center
                         - bp) > exclusion_radius:
                     final_boundary_points.append(bp)
             return final_boundary_points
@@ -501,7 +501,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         for p in range(0, returned_points.shape[0]):
             if returned_points[p, 0] != -1.:
                 bp = returned_points[p, :]
-                if exclusion_center == None or linalg.norm(exclusion_center
+                if exclusion_center is None or linalg.norm(exclusion_center
                         - bp) > exclusion_radius:
                     boundary_points.append(bp)
 
@@ -596,7 +596,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         """ Fit the center and radius of a set of points using the mean and std of the point cloud
         """
 
-        if points == None or len(points) == 0:
+        if points is None or len(points) == 0:
             return (array([-1., -1.]), 0.0, Inf)
 
         center = mean(points, 0)
@@ -614,7 +614,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
         """ Fit a circle algebraicly to a set of points, using least squares optimization
         """
 
-        if points == None or len(points) == 0:
+        if points is None or len(points) == 0:
             # print "_fit_circle_to_points_lstsq: no boundary points, bailing: ", points
             return (array([-1., -1.]), 0.0, Inf)
 
@@ -651,7 +651,7 @@ class SubpixelStarburstEyeFeatureFinder(EyeFeatureFinder):
     # ##@clockit
     def _fit_ellipse_to_points(self, points):
 
-        if points == None or len(points) == 0:
+        if points is None or len(points) == 0:
             # print "_fit_ellipse_to_points_lstsq: no boundary points, bailing"
             return (array([-1., -1.]), 0.0, Inf)
 

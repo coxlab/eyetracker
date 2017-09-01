@@ -48,9 +48,9 @@ class CompositeEyeFeatureFinder(EyeFeatureFinder):
         # #### FEATURE FINDER # 2: Refine the traking using the star burst finder
         try:
         # If available, pass the last CR and Pupil radiuses as intial guesses for the star burst ff
-            # if(self.last != None and 'pupil_radius' in self.last):
+            # if(self.last is not None and 'pupil_radius' in self.last):
             #   features['pupil_radius'] = self.last['pupil_radius']
-            # if(self.last != None and 'cr_radius' in self.last):
+            # if(self.last is not None and 'cr_radius' in self.last):
             #   features['cr_radius'] = self.last['cr_radius']
 
             # Run the starburst ff
